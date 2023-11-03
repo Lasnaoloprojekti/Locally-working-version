@@ -3,21 +3,19 @@ import { Button, Grid, TextField, Typography } from "@mui/material";
 const CourseForm = () => {
   return (
     <Grid
+      item
+      xs={"auto"}
       container
       spacing={0}
       direction="column"
       alignItems="center"
       justifyContent="center"
       style={{ minHeight: "75vh" }}>
-      <Typography
-        marginLeft={2.4}
-        component="h1"
-        variant="h2"
-        sx={{ marginBottom: "4vh", fontSize: "2.3rem" }}>
+      <Typography marginLeft={2.4} component="h1" variant="h2">
         Select a course
       </Typography>
 
-      <Grid item xs={"auto"} style={{ maxWidth: "20vh" }}>
+      <Grid>
         <TextField
           fullWidth
           placeholder="course"
