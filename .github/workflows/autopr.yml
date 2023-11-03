@@ -2,6 +2,8 @@ name: Auto PR
 
 on:
   push:
+    branches:
+      - "feature/*"
 
 jobs:
   create-pull-request:
@@ -10,13 +12,14 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.ref }}
 
       - name: Create Pull Request
         uses: repo-sync/pull-request@v2
         with:
           source_branch: "${{ github.head_ref }}"
           destination_branch: "main"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_title: "Pull Request for Changes to Main"
           pr_body: "Automated pull request from ${{ github.head_ref }} to main."
