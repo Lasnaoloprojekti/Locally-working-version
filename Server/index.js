@@ -1,89 +1,83 @@
-/**
- * Express Server Configuration
- * 
- * This file sets up an Express server to handle user registration and login functionalities.
- * It includes endpoints for user registration ('/register') and user login ('/login'). The server
- * connects to a MongoDB database using Mongoose and utilizes bcrypt for password hashing and jwt for
- * authentication. CORS is enabled to allow requests from specified origins. Cookies are used for
- * managing authentication tokens.
- * 
- * @module Server
- * @createdBy Matias on 2/11/2023
- * 
- * @requires express
- * @requires mongoose
- * @requires cors
- * @requires userDatabaseModel
- * @requires jwt
- * @requires bcrypt
- * @requires cookieParser
- */
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const userDatabaseModel = require('./models/userDatabase');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const cookieParser = require('cookie-parser');
+//const bcrypt = require('bcrypt');
+//const cookieParser = require('cookie-parser');
+const fetch = require('node-fetch');
 
-// Creates an Express application
+
+
 const app = express();
 
-// Middleware for parsing JSON data in requests
 app.use(express.json());
 
-// Enables CORS for specified origins and methods
 app.use(cors({
     origin: ['http://localhost:5173'],
     methods: ['GET', 'POST'],
     credentials: true
 }));
 
-// Connects to the MongoDB database named 'userDatabase'
+
 mongoose.connect('mongodb://localhost:27017/userDatabase');
 
-// Endpoint for user registration
+
 app.post('/register', async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
-
-        // Check if a user with the same email already exists
-        const existingUser = await userDatabaseModel.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User with this email already exists!' });
-        }
-
-        // If no existing user found, proceed with registration
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await userDatabaseModel.create({ name, email, password: hashedPassword });
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error registering user' });
-    }
+    res.send('Register request received');
 });
 
-// Endpoint for user login
 app.post('/login', async (req, res) => {
+    console.log('Login request received');
+    const { username, password } = req.body;
+
     try {
-        const { email, password } = req.body;
-        const user = await userDatabaseModel.findOne({ email });
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+        // Make a request to the external API with the received username and password
+        const apiResponse = await fetch('https://streams.metropolia.fi/2.0/api/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const apiData = await apiResponse.json();
+        console.log(apiData, ' vastaus koulun apista');
+        if (apiData.message === 'invalid username or password') {
+            return res.status(401).json({ error: 'invalid username or password' });
+        } else {
+            let existingUser = await userDatabaseModel.findOne({ user: apiData.user });
+
+            if (!existingUser) {
+                // User does not exist, create a new user
+                const newUser = new userDatabaseModel({
+                    staff: apiData.staff,
+                    user: apiData.user,
+                    firstname: apiData.firstname,
+                    lastname: apiData.lastname,
+                    Email: apiData.email
+                });
+                await newUser.save();
+                console.log('New user created:', newUser);
+            }
+
+            const accessToken = jwt.sign(apiData.user, process.env.ACCESS_TOKEN_SECRET)
+            res.cookie("Token", accessToken);
+
+            console.log(apiData.message, 'onnistui');
+            // Send a response to the client based on the API response
+            res.status(apiResponse.status).json({ apiData });
         }
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-        const token = jwt.sign({ userId: user._id, role: 'admin' }, 'jwt-secret-key', { expiresIn: '1h' });
-        res.cookie('token', token, { httpOnly: true });
-        res.status(200).json({ message: 'Login successful', token });
+
     } catch (error) {
-        res.status(500).json({ message: 'Error logging in' });
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'An error occurred during login' });
     }
 });
 
-// Starts the server and listens on port 3001
+
 app.listen(3001, () => {
     console.log('Server is running...');
 });
