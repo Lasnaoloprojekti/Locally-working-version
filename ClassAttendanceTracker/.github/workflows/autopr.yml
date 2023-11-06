@@ -19,7 +19,6 @@ jobs:
         with:
           source_branch: "${{ github.head_ref }}"
           destination_branch: "main"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_title: "Pull Request for Changes to Main"
           pr_body: "Automated pull request from ${{ github.head_ref }} to main."
