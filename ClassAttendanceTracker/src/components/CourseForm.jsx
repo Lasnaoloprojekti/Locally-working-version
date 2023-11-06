@@ -103,4 +103,7 @@ const CourseForm = () => {
   );
 };
 
+// Author: JJ
+// Date: November 4, 2023
+
 export default CourseForm;
