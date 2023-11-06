@@ -1,4 +1,4 @@
-name: Runs All Unit tests
+name: Build test
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm run build --if-present"
+          cache: "npm run build"
       - name: Execute Unit tests
         working-directory: ./ClassAttendanceTracker
         run: |
