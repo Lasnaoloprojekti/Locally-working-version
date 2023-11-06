@@ -19,10 +19,17 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          # Comment out or remove the cache line to disable caching
+          # cache: 'npm'
 
       - name: Install and test Server
+        working-directory: ./Server
         run: |
-          cd Server
+          npm ci
+          npm test
+
+      - name: Install and test ClassAttendanceTracker
+        working-directory: ./ClassAttendanceTracker
+        run: |
           npm ci
           npm test
