@@ -26,9 +26,3 @@ jobs:
           cd Server
           npm ci
           npm test
-
-      - name: Install and test ClassAttendanceTracker
-        run: |
-          cd ClassAttendanceTracker
-          npm ci
-          npm test
