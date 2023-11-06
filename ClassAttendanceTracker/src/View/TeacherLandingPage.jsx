@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // Importing the useAuth hook from the AuthContext
 import logo from "../assets/logo.png";
+import CourseForm from "../components/CourseForm"; // Importing the CourseForm component
 
 export const TeacherLandingPage = () => {
   const { user, logout } = useAuth(); // Destructuring user object and logout function from useAuth hook
@@ -20,22 +21,25 @@ export const TeacherLandingPage = () => {
     navigate("/login"); // Redirect to login page after logout
   };
   return (
-    <nav className="flex justify-between items-center">
-      <img className="h-[7rem] w-auto ml-3" src={logo} alt="Logo" />
-      <ul className="flex items-center">
-        {/* Displaying user's full name */}
-        <li className="text-2xl ml-2">{`Welcome, ${user.firstname} ${user.lastname}`}</li>
-        <button
-          className="text-white bg-orange-600 rounded-lg p-4 mx-8"
-          onClick={handleLogout}>
-          Logout
-        </button>
-      </ul>
-    </nav>
+    <div>
+      <nav className="flex justify-between items-center">
+        <img className="h-[7rem] w-auto ml-3" src={logo} alt="Logo" />
+        <ul className="flex items-center">
+          {/* Displaying user's full name */}
+          <li className="text-2xl ml-2">{`Welcome, ${user.firstname} ${user.lastname}`}</li>
+          <button
+            className="text-white bg-orange-600 rounded-lg p-4 mx-8"
+            onClick={handleLogout}>
+            Logout
+          </button>
+        </ul>
+      </nav>
+      <CourseForm></CourseForm>
+    </div>
   );
 };
 
 // Exporting the TeacherLandingPage component as the default export of this module
-// Author: Matian Naakka
+// Author: JJ
 // Date: November 4, 2023
 export default TeacherLandingPage;
