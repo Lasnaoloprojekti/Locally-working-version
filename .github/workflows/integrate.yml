@@ -23,13 +23,13 @@ jobs:
           # cache: 'npm'
 
       - name: Install and test Server
-        working-directory: Main/Server
+        working-directory: Server
         run: |
           npm ci
           npm test
 
       - name: Install and test ClassAttendanceTracker
-        working-directory: Main/ClassAttendanceTracker
+        working-directory: ClassAttendanceTracker
         run: |
           npm ci
           npm test
