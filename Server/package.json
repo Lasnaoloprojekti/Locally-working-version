@@ -10,7 +10,7 @@
     "nodemon": "^3.0.1"
   },
   "scripts": {
-    "test": "node server.js",
+    "test": "node index.js",
     "start": "nodemon index.js"
   },
   "name": "server",
