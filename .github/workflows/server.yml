@@ -1,4 +1,4 @@
-name: build
+name: Server tes
 
 on:
   push:
@@ -23,13 +23,7 @@ jobs:
           # cache: 'npm'
 
       - name: Install and test Server
-        working-directory: Server
-        run: |
-          npm ci
-          npm test
-
-      - name: Install and test ClassAttendanceTracker
-        working-directory: ClassAttendanceTracker
+        working-directory: ./Server
         run: |
           npm ci
           npm test
