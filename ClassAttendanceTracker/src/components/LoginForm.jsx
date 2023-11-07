@@ -1,9 +1,9 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
-import axios from 'axios';
-import { userContext } from '../context/userContext';
-
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
+import axios from "axios";
+import { userContext } from "../context/userContext";
+import { Box } from "@mui/material";
 
 const LoginForm = () => {
   const { auth, setIsAuthenticated } = useContext(userContext);
@@ -13,8 +13,6 @@ const LoginForm = () => {
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
 
-
-
   axios.defaults.withCredentials = true;
 
   const handleSubmit = async (e) => {
@@ -22,14 +20,28 @@ const LoginForm = () => {
 
     try {
       // Sending a POST request to the server with the provided username and password
-      const response = await axios.post('http://localhost:3001/login', { username, password });
-      console.log(response, 'vastaus serveriltä');
+      const response = await axios.post("http://localhost:3001/login", {
+        username,
+        password,
+      });
+      console.log(response, "vastaus serveriltä");
       const responseData = response.data.apiData;
-      console.log(responseData, 'vastaus serveriltä');
+      console.log(responseData, "vastaus serveriltä");
 
       // Checking server response and handling login success or failure
-      if (!responseData.message || responseData.message !== 'invalid username or password') {
-        console.log('Login was successful:', response);
+      if (
+        !responseData.message ||
+        responseData.message !== "invalid username or password"
+      ) {
+        console.log("Login was successful:", response);
+
+        setUserInfo({
+          staff: responseData.staff,
+          firstname: responseData.firstname,
+          lastname: responseData.lastname,
+        });
+
+        setIsAuthenticated({ isAuthenticated: true });
 
         setUserInfo({
           staff: responseData.staff,
@@ -41,17 +53,16 @@ const LoginForm = () => {
 
         // Logging in user and redirecting to appropriate landing page based on user type (staff or student)
         // navigate(responseData.staff ? '/teacherlanding' : '/studentlanding');
-        navigate('/teacherhome');
+        navigate("/teacherhome");
       } else {
-        console.error('Login failed:', response);
-        setLoginError('Invalid username or password');
+        console.error("Login failed:", response);
+        setLoginError("Invalid username or password");
       }
     } catch (error) {
-      console.error('Login failed:', error);
-      setLoginError('Hei noobi tsekkaa sun salasana ja nettiyhteys!');
+      console.error("Login failed:", error);
+      setLoginError("Hei noobi tsekkaa sun salasana ja nettiyhteys!");
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center text-white">
@@ -60,7 +71,9 @@ const LoginForm = () => {
         <h2 className="text-center text-black">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-black text-sm font-semibold mb-2">Username</label>
+            <label className="block text-black text-sm font-semibold mb-2">
+              Username
+            </label>
             <input
               className="w-full text-black p-2 border rounded"
               type="text"
@@ -69,7 +82,9 @@ const LoginForm = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-black text-sm font-semibold mb-2">Password</label>
+            <label className="block text-black text-sm font-semibold mb-2">
+              Password
+            </label>
             <input
               className="w-full p-2 text-black border rounded"
               type="password"
