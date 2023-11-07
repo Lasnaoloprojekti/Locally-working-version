@@ -1,20 +1,10 @@
-import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Importing the useAuth hook from the AuthContext
 import logo from '../assets/logo.png';
 
 export const StudentLandingPage = () => {
-    const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!user.isAuthenticated) {
-            navigate('/login');
-        }
-    }, [user.isAuthenticated, navigate]);
-
     const handleLogout = () => {
-        logout();
         navigate('/login');
     };
 

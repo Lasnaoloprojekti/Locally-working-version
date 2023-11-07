@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
-import axios from 'axios'
+import axios from 'axios';
+import { userContext } from '../context/userContext';
 
 
 const LoginForm = () => {
+    const { auth, setIsAuthenticated } = useContext(userContext);
+    const { user, setUserInfo } = useContext(userContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loginError, setLoginError] = useState("");
-    const { login } = useAuth();
     const navigate = useNavigate();
+
 
 
     axios.defaults.withCredentials = true;
@@ -29,9 +31,17 @@ const LoginForm = () => {
             if (!responseData.message || responseData.message !== 'invalid username or password') {
                 console.log('Login was successful:', response);
 
-                login(responseData.staff = true, responseData.firstname, responseData.lastname)
+                setUserInfo({
+                    staff: responseData.staff,
+                    firstname: responseData.firstname,
+                    lastname: responseData.lastname,
+                });
+
+                setIsAuthenticated({ isAuthenticated: true });
+
                 // Logging in user and redirecting to appropriate landing page based on user type (staff or student)
-                navigate(responseData.staff ? '/teacherlanding' : '/studentlanding');
+                // navigate(responseData.staff ? '/teacherlanding' : '/studentlanding');
+                navigate('/teacherhome');
             } else {
                 console.error('Login failed:', response);
                 setLoginError('Invalid username or password');
@@ -41,8 +51,6 @@ const LoginForm = () => {
             setLoginError('Hei noobi tsekkaa sun salasana ja nettiyhteys!');
         }
     };
-
-
 
 
     return (
