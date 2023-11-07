@@ -2,7 +2,9 @@ import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { userContext } from "../context/userContext";
-import CreateCourse from "../components/CreateCourse";
+//import CreateCourse from "../components/CreateCourse";
+//import CourseForm from "../components/CourseForm";
+import AddStudents from "../components/AddStudents";
 
 export const TeacherHome = () => {
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ export const TeacherHome = () => {
           </button>
         </ul>
       </nav>
-      <CreateCourse />
+      <AddStudents />
     </>
   );
 };

@@ -123,6 +123,16 @@ app.post("/createcourse", async (req, res) => {
   }
 });
 
+app.get("/api/courses", async (req, res) => {
+  try {
+    const courses = await coursesDatabaseModel.find({}); // Find all courses
+    res.json(courses);
+  } catch (error) {
+    console.error("Error retrieving courses:", error);
+    res.status(500).json({ error: "An error occurred while retrieving the courses" });
+  }
+});
+
 app.listen(3001, () => {
   console.log("Server is running...");
 });
