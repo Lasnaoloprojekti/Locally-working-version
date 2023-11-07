@@ -23,12 +23,12 @@ export const TeacherLandingPage = () => {
   return (
     <div>
       <nav className="flex justify-between items-center">
-        <img className="h-[7rem] w-auto ml-3" src={logo} alt="Logo" />
+        <img className=" h-24 p-3" src={logo} alt="Logo" />
         <ul className="flex items-center">
           {/* Displaying user's full name */}
-          <li className="text-2xl ml-2">{`Welcome, ${user.firstname} ${user.lastname}`}</li>
+          <li className="text-md ml-1">{`${user.firstname} ${user.lastname}`}</li>
           <button
-            className="text-white bg-orange-600 rounded-lg p-4 mx-8"
+            className="text-black bg-orange-600 ring-2 ring-black text-sm rounded-md p-2 mr-6 ml-4"
             onClick={handleLogout}>
             Logout
           </button>
