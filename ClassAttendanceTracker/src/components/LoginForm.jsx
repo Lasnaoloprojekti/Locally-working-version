@@ -65,10 +65,9 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-white">
-      <div className="bg-white p-8 rounded shadow-lg">
-        <img className="h-[8rem] w-auto" src={logo} alt="Logo" />
-        <h2 className="text-center text-black">Login</h2>
+    <Box className="min-h-screen flex flex-col items-center justify-center">
+      <div className="bg-white p-8 rounded shadow-lg text-center">
+        <img className="mx-auto h-32 mb-6" src={logo} alt="Logo" />
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-black text-sm font-semibold mb-2">
@@ -100,7 +99,7 @@ const LoginForm = () => {
           </button>
         </form>
       </div>
-    </div>
+    </Box>
   );
 };
 
