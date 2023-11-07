@@ -1,20 +1,30 @@
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./View/Login";
-import StudentLandingPage from "./View/StudentLandingPage";
-import TeacherLandingPage from "./View/teacherLandingPage";
-import TeacherLandingTest from "./View/TeacherLandingTest";
+import StudentLandingPage from "./View/Student";
+import TeacherHome from "./View/Teacher";
+import PrivateRoutes from "./Utils/privateRoute";
+import { UserContextProvider } from "./context/userContext";
+
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/teacherlanding" element={<TeacherLandingPage />} />
-        <Route path="/teacherlandingtest" element={<TeacherLandingTest />} />
-        <Route path="/studentlanding" element={<StudentLandingPage />} />
-      </Routes>
-    </BrowserRouter>
+    <UserContextProvider>
+      <Router>
+        <Routes>
+          <Route element={<PrivateRoutes />}>
+            <Route path="/teacherhome" element={<TeacherHome />} />
+            <Route path="/studentlanding" element={<StudentLandingPage />} />
+          </Route>
+
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Login />} />
+        </Routes>
+      </Router>
+    </UserContextProvider>
   );
 };
 

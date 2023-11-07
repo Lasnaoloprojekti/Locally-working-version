@@ -5,7 +5,9 @@ const userDatabaseSchema = new mongoose.Schema({
     user: String,
     firstname: String,
     lastname: String,
-    Email: String
+    email: String,
+    courses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    gdprAcceptance: Boolean
 });
 const userDatabaseModel = mongoose.model('users', userDatabaseSchema);
 module.exports = userDatabaseModel;
