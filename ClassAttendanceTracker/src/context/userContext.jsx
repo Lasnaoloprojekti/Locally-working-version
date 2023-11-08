@@ -17,7 +17,7 @@ const UserContextProvider = ({ children }) => {
         if (accessToken) {
             axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
             const user = await axios.get("http://localhost:3001/verify")
-            console.log('user', user)
+            console.log('verifioinnista saatava data', user)
             if (user.data) {
                 setUserInfo({
                     staff: user.data.staff,

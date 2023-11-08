@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import createCourse from '../Hooks/apiHooks';
+import React, { useState } from "react";
+import createCourse from "../Hooks/createApiHooks";
 
 const CreateCourse = () => {
+
     const [courseData, setCourseData] = useState({
         courseName: '',
         groupName: '',
@@ -13,7 +14,6 @@ const CreateCourse = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-
             const requestData = {
                 courseName: courseData.courseName,
                 groupName: courseData.groupName,
@@ -23,11 +23,8 @@ const CreateCourse = () => {
             };
 
             const response = await createCourse(requestData);
-
-            const data = await response.json();
-            console.log(data);
         } catch (error) {
-            console.error('Error creating course:', error);
+            console.error("Error creating course:", error);
         }
     };
 
@@ -51,14 +48,13 @@ const CreateCourse = () => {
         }
     };
 
-
-
     return (
         <form onSubmit={handleSubmit}>
 
             <div className="mb-4">
                 <label className="block text-black text-sm font-semibold mb-2">Course name</label>
                 <input
+                    required
                     className="w-full p-2 text-black border rounded"
                     type="text"
                     placeholder="Enter course name"
@@ -69,6 +65,7 @@ const CreateCourse = () => {
             <div className="mb-4">
                 <label className="block text-black text-sm font-semibold mb-2">Group name</label>
                 <input
+                    required
                     className="w-full p-2 text-black border rounded"
                     type="text"
                     placeholder="Enter Group name"
@@ -80,7 +77,7 @@ const CreateCourse = () => {
             <div className="mb-4">
                 <label className="block text-black text-sm font-semibold mb-2">Topics</label>
                 <input
-                    className="w-full p-2 text-black border rounded"
+                    required className="w-full p-2 text-black border rounded"
                     type="text"
                     placeholder="Add course topics e.g. Mathematics, Physics, Chemistry"
                     name='topics'

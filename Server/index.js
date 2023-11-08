@@ -140,6 +140,15 @@ app.post("/createcourse", async (req, res) => {
       .json({ error: "An error occurred while creating the course" });
   }
 });
+app.get("/selectcourse", async (req, res) => {
+  try {
+    const selectCourse = await coursesDatabaseModel.find(); // Fetch all courses from the database
+    res.status(200).json(selectCourse); // Send the courses back in the response
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "An error occurred while fetching courses" });
+  }
+});
 
 app.listen(3001, () => {
   console.log("Server is running...");
