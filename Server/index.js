@@ -122,7 +122,6 @@ app.post("/createcourse", async (req, res) => {
       .json({ error: "An error occurred while creating the course" });
   }
 });
-
 app.get("/selectcourse", async (req, res) => {
   try {
     const selectCourse = await coursesDatabaseModel.find(); // Fetch all courses from the database
