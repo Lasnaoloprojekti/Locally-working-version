@@ -103,6 +103,6 @@ const LoginForm = () => {
   );
 };
 
-// Author: Matias Naakka
-// Date: November 4, 2023
+// Author: Matias Naakka & JJ
+// Date: November 7, 2023
 export default LoginForm;

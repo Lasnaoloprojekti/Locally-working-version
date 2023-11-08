@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Select, MenuItem } from "@mui/material";
-import selectCourse from "../Hooks/apiHooks";
+import selectCourse from "../Hooks/selectApiHooks";
 
 const SelectCourse = () => {
   const [courses, setCourses] = useState([]);

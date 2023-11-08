@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import createCourse from "../Hooks/apiHooks";
+import createCourse from "../Hooks/createApiHooks";
 
 const CreateCourse = () => {
   const [courseData, setCourseData] = useState({
