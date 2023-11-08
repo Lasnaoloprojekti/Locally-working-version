@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import axios from 'axios';
-
+import axios from "axios";
 
 const userContext = createContext();
 
@@ -11,44 +10,34 @@ const UserContextProvider = ({ children }) => {
         lastname: "",
     });
 
-    const [auth, setIsAuthenticated] = useState({ isAuthenticated: false });
+    const accessToken = localStorage.getItem("token");
 
-    axios.defaults.withCredentials = true;
+    const verify = async () => {
 
+        if (accessToken) {
+            axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+            const user = await axios.get("http://localhost:3001/verify")
+            console.log('user', user)
+            if (user.data) {
+                setUserInfo({
+                    staff: user.data.staff,
+                    firstname: user.data.firstname,
+                    lastname: user.data.lastname,
+                });
+            }
+        }
+    }
 
     useEffect(() => {
-        // Get the current route from window.location.pathname
-        const currentRoute = window.location.pathname;
+        verify();
+    }, [accessToken]);
 
-        // Check if the current route is not '/login'
-        if (currentRoute !== '/login') {
-            // Make your API call and update state here
-            async function verifyUser() {
-                try {
-                    const response = await axios.get("http://localhost:3001/verify", { withCredentials: true });
+    console.log(userInfo.firstname !== "" && userInfo.lastname !== "");
 
-                    if (response.status === 200) {
-                        // Token verification successful, update user state
-                        const userData = response.data;
-                        setIsAuthenticated({ isAuthenticated: true });
-                    } else {
-                        // Token verification failed or user not authenticated, update user state accordingly
-                        setIsAuthenticated({ isAuthenticated: false });
-                    }
-                } catch (error) {
-                    console.error("Error verifying user:", error);
-                    // If an error occurs during token verification, update user state to indicate unauthenticated state
-                    setIsAuthenticated({ isAuthenticated: false });
-                }
-            }
-
-            // Call the function to verify user only if the route is not '/login'
-            verifyUser();
-        }
-    }, []); // Empty dependency array ensures the effect runs only once, similar to componentDidMount in class components
+    console.log(userInfo, 'user info');
 
     return (
-        <userContext.Provider value={{ userInfo, auth, setIsAuthenticated, setUserInfo }}>
+        <userContext.Provider value={{ userInfo, setUserInfo }}>
             {children}
         </userContext.Provider>
     );

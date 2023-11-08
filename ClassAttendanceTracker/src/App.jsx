@@ -3,6 +3,7 @@ import Login from "./View/Login";
 import StudentLandingPage from "./View/Student";
 import TeacherHome from "./View/Teacher";
 import PrivateRoutes from "./Utils/privateRoute";
+import AttendancePortal from "./View/AttendancePortal";
 import { UserContextProvider } from "./context/userContext";
 
 import axios from "axios";
@@ -17,6 +18,7 @@ const App = () => {
           <Route element={<PrivateRoutes />}>
             <Route path="/teacherhome" element={<TeacherHome />} />
             <Route path="/studentlanding" element={<StudentLandingPage />} />
+            <Route path="/attendanceportal" element={<AttendancePortal />} />
           </Route>
 
           <Route path="/login" element={<Login />} />

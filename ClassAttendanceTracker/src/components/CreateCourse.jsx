@@ -5,7 +5,7 @@ const CreateCourse = () => {
     const [courseData, setCourseData] = useState({
         courseName: '',
         groupName: '',
-        topics: '',
+        topics: [],
         startDate: '',
         endDate: ''
     });
@@ -23,6 +23,9 @@ const CreateCourse = () => {
             };
 
             const response = await createCourse(requestData);
+
+            const data = await response.json();
+            console.log(data);
         } catch (error) {
             console.error('Error creating course:', error);
         }
@@ -31,11 +34,23 @@ const CreateCourse = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         console.log(`Updating ${name} with value: ${value}`);
-        setCourseData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
+
+        if (name === 'topics') {
+            // Split the input value by commas and create an array of trimmed topics
+            const topicsArray = value.split(',').map(topic => topic.trim());
+            setCourseData((prevData) => ({
+                ...prevData,
+                [name]: topicsArray,
+            }));
+        } else {
+            // For other fields, update the state normally
+            setCourseData((prevData) => ({
+                ...prevData,
+                [name]: value,
+            }));
+        }
     };
+
 
 
     return (
@@ -67,7 +82,7 @@ const CreateCourse = () => {
                 <input
                     className="w-full p-2 text-black border rounded"
                     type="text"
-                    placeholder="Add course topics"
+                    placeholder="Add course topics e.g. Mathematics, Physics, Chemistry"
                     name='topics'
                     onChange={handleChange}
                 />

@@ -33,7 +33,7 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Make a request to the external API with the received username and password
+
     const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
       method: "POST",
       headers: {
@@ -43,11 +43,12 @@ app.post("/login", async (req, res) => {
     });
 
     const apiData = await apiResponse.json();
-    // console.log(apiData, ' vastaus koulun apista');
+
 
     if (apiData.message === "invalid username or password") {
       return res.status(401).json({ error: "invalid username or password" });
     } else {
+
       let existingUser = await userDatabaseModel.findOne({
         user: apiData.user,
       });
@@ -72,11 +73,8 @@ app.post("/login", async (req, res) => {
         apiData.user,
         process.env.ACCESS_TOKEN_SECRET
       );
-      res.cookie("Token", accessToken, {
-        // httpOnly: true,
-        secure: true,
-        sameSite: "none",
-      });
+
+      apiData.accessToken = accessToken;
 
       console.log(apiData.message, "onnistui");
       // Send a response to the client based on the API response
@@ -87,6 +85,26 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "An error occurred during login" });
   }
 });
+
+app.get("/verify", (req, res) => {
+
+  const token = req.headers.authorization.split(" ")[1];
+  console.log("Token:", token);
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+
+    if (err) {
+      console.error("Error during token verification:", err);
+      return res.status(403).json({ error: "Invalid token" });
+    }
+
+    let existingUser = await userDatabaseModel.findOne({
+      user,
+    });
+
+    res.status(200).json(existingUser);
+  });
+});
+
 
 app.post("/createcourse", async (req, res) => {
   console.log("Create course request received", req.body);
@@ -108,7 +126,7 @@ app.post("/createcourse", async (req, res) => {
       start_date: startDate,
       end_date: endDate,
       active: true,
-      topics: [{ name: topics, attendance: [] }],
+      topics: topics,
       teachers: null,
     });
 
