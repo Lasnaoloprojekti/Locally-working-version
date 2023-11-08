@@ -6,8 +6,7 @@ import { userContext } from "../context/userContext";
 import { Box } from "@mui/material";
 
 const LoginForm = () => {
-  const { auth, setIsAuthenticated } = useContext(userContext);
-  const { user, setUserInfo } = useContext(userContext);
+  const { userInfo, setUserInfo } = useContext(userContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -41,15 +40,10 @@ const LoginForm = () => {
           lastname: responseData.lastname,
         });
 
-        setIsAuthenticated({ isAuthenticated: true });
+      
+        console.log('token ehkä? ', responseData.accessToken)
 
-        setUserInfo({
-          staff: responseData.staff,
-          firstname: responseData.firstname,
-          lastname: responseData.lastname,
-        });
-
-        setIsAuthenticated({ isAuthenticated: true });
+        localStorage.setItem("token", responseData.accessToken);
 
         // Logging in user and redirecting to appropriate landing page based on user type (staff or student)
         // navigate(responseData.staff ? '/teacherlanding' : '/studentlanding');
@@ -60,7 +54,7 @@ const LoginForm = () => {
       }
     } catch (error) {
       console.error("Login failed:", error);
-      setLoginError("Hei noobi tsekkaa sun salasana ja nettiyhteys!");
+      setLoginError("Error logging in check your credentials and connection");
     }
   };
 
@@ -103,6 +97,6 @@ const LoginForm = () => {
   );
 };
 
-// Author: Matias Naakka
-// Date: November 4, 2023
+// Author: Matias Naakka & JJ
+// Date: November 7, 2023
 export default LoginForm;

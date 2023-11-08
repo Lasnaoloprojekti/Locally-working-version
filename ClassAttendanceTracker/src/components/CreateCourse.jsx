@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import createCourse from '../Hooks/apiHooks';
+import React, { useState } from "react";
+import createCourse from "../Hooks/createApiHooks";
 
 const CreateCourse = () => {
+
     const [courseData, setCourseData] = useState({
         courseName: '',
         groupName: '',
-        topics: '',
+        topics: [],
         startDate: '',
         endDate: ''
     });
@@ -13,7 +14,6 @@ const CreateCourse = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-
             const requestData = {
                 courseName: courseData.courseName,
                 groupName: courseData.groupName,
@@ -24,19 +24,29 @@ const CreateCourse = () => {
 
             const response = await createCourse(requestData);
         } catch (error) {
-            console.error('Error creating course:', error);
+            console.error("Error creating course:", error);
         }
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         console.log(`Updating ${name} with value: ${value}`);
-        setCourseData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
-    };
 
+        if (name === 'topics') {
+            // Split the input value by commas and create an array of trimmed topics
+            const topicsArray = value.split(',').map(topic => topic.trim());
+            setCourseData((prevData) => ({
+                ...prevData,
+                [name]: topicsArray,
+            }));
+        } else {
+            // For other fields, update the state normally
+            setCourseData((prevData) => ({
+                ...prevData,
+                [name]: value,
+            }));
+        }
+    };
 
     return (
         <form onSubmit={handleSubmit}>
@@ -44,6 +54,7 @@ const CreateCourse = () => {
             <div className="mb-4">
                 <label className="block text-black text-sm font-semibold mb-2">Course name</label>
                 <input
+                    required
                     className="w-full p-2 text-black border rounded"
                     type="text"
                     placeholder="Enter course name"
@@ -54,6 +65,7 @@ const CreateCourse = () => {
             <div className="mb-4">
                 <label className="block text-black text-sm font-semibold mb-2">Group name</label>
                 <input
+                    required
                     className="w-full p-2 text-black border rounded"
                     type="text"
                     placeholder="Enter Group name"
@@ -65,9 +77,9 @@ const CreateCourse = () => {
             <div className="mb-4">
                 <label className="block text-black text-sm font-semibold mb-2">Topics</label>
                 <input
-                    className="w-full p-2 text-black border rounded"
+                    required className="w-full p-2 text-black border rounded"
                     type="text"
-                    placeholder="Add course topics"
+                    placeholder="Add course topics e.g. Mathematics, Physics, Chemistry"
                     name='topics'
                     onChange={handleChange}
                 />

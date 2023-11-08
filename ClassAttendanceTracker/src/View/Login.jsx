@@ -1,7 +1,21 @@
 import "../login.css";
 import LoginForm from "../components/LoginForm"; // Importing the LoginForm component
+import { useContext, useEffect } from "react";
+import { userContext } from "../context/userContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const { userInfo } = useContext(userContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+
+    if (userInfo.firstname !== "" && userInfo.lastname !== "") {
+      navigate("/teacherhome");
+    }
+
+  }, [userInfo]);
+
   return (
     <>
       <div className="fullscreen-bg">

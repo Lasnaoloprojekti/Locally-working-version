@@ -1,13 +1,17 @@
-import { Navigate, Outlet } from 'react-router-dom'
 import { useContext } from 'react'
-import { userContext } from '../context/userContext'
+import { Navigate, Outlet } from 'react-router-dom'
+import { userContext } from '../context/userContext';
+
 
 const PrivateRoutes = () => {
-    const { auth } = useContext(userContext);
+console.log('private routes')
+    const { userInfo } = useContext(userContext);
 
-    //let auth = { 'token': true }
+    const isAuthenticated = userInfo.firstname !== "" && userInfo.lastname !== "";
+    console.log('isAuthenticated', isAuthenticated)
     return (
-        auth.isAuthenticated ? <Outlet /> : <Navigate to='/login' />
+
+        isAuthenticated ? <Outlet /> : <Navigate to='/login' />
     )
 }
 
