@@ -2,8 +2,10 @@ import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { userContext } from "../context/userContext";
+import AddStudents from "../components/AddStudents";
 import CreateCourse from "../components/CreateCourse";
 import SelectCourse from "../components/SelectCourse";
+
 
 export const TeacherHome = () => {
   const navigate = useNavigate();
@@ -39,6 +41,7 @@ export const TeacherHome = () => {
       </nav>
       <div className="flex flex-col items-center">
         <CreateCourse />
+        <AddStudents />
         <SelectCourse />
       </div>
     </>
