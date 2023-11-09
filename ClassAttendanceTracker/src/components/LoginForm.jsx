@@ -32,7 +32,7 @@ const LoginForm = () => {
         !responseData.message ||
         responseData.message !== "invalid username or password"
       ) {
-        console.log("Login was successful:", response);
+        console.log("Login was successful:", responseData);
 
         setUserInfo({
           staff: responseData.staff,
@@ -40,7 +40,7 @@ const LoginForm = () => {
           lastname: responseData.lastname,
         });
 
-      
+
         console.log('token ehkä? ', responseData.accessToken)
 
         localStorage.setItem("token", responseData.accessToken);

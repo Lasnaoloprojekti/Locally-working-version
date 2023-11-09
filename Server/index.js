@@ -3,8 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const userDatabaseModel = require("./models/usersSchema");
-const coursesDatabaseModel = require("./models/coursesSchema");
+const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel } = require("./models/CollectionSchemas");
 const jwt = require("jsonwebtoken");
 
 const cookieParser = require("cookie-parser");
@@ -44,25 +43,26 @@ app.post("/login", async (req, res) => {
 
     const apiData = await apiResponse.json();
 
+    console.log("vastaus ilkan apista:", apiData);
+
 
     if (apiData.message === "invalid username or password") {
       return res.status(401).json({ error: "invalid username or password" });
     } else {
 
-      let existingUser = await userDatabaseModel.findOne({
+      let existingUser = await UserDatabaseModel.findOne({
         user: apiData.user,
       });
 
       if (!existingUser) {
         // User does not exist, create a new user
-        const newUser = new userDatabaseModel({
-          staff: apiData.staff,
+        const newUser = new UserDatabaseModel({
           user: apiData.user,
-          firstname: apiData.firstname,
-          lastname: apiData.lastname,
+          firstName: apiData.firstname,
+          lastName: apiData.lastname,
           email: apiData.email,
+          staff: apiData.staff,
           courses: null,
-          gdprAcceptance: true,
         });
         await newUser.save();
 
@@ -97,7 +97,7 @@ app.get("/verify", (req, res) => {
       return res.status(403).json({ error: "Invalid token" });
     }
 
-    let existingUser = await userDatabaseModel.findOne({
+    let existingUser = await UserDatabaseModel.findOne({
       user,
     });
 
@@ -112,7 +112,7 @@ app.post("/createcourse", async (req, res) => {
   const { courseName, groupName, topics, startDate, endDate } = req.body;
 
   try {
-    const existingCourse = await coursesDatabaseModel.findOne({
+    const existingCourse = await CourseDatabaseModel.findOne({
       name: courseName,
     });
 
@@ -120,14 +120,15 @@ app.post("/createcourse", async (req, res) => {
       return res.status(409).json({ error: "Course already exists" });
     }
 
-    const newCourse = new coursesDatabaseModel({
-      name: courseName,
+    const newCourse = new CourseDatabaseModel({
+      courseName: courseName,
       groupName: groupName,
-      start_date: startDate,
-      end_date: endDate,
-      active: true,
+      startDate: startDate,
+      endDate: endDate,
+      isActive: true,
       topics: topics,
       teachers: null,
+      students: null,
     });
 
     await newCourse.save();
@@ -140,9 +141,62 @@ app.post("/createcourse", async (req, res) => {
       .json({ error: "An error occurred while creating the course" });
   }
 });
+
+app.post("/addstudents", async (req, res) => {
+  const studentsToAdd = req.body.students; // Array of student objects
+
+  console.log("Add students request received", studentsToAdd);
+
+  try {
+    let addedStudents = [];
+
+    for (const studentData of studentsToAdd) {
+      const { firstName, lastName, studentNumber, courseId } = studentData;
+
+      console.log("Adding student:", firstName, lastName, studentNumber, courseId);
+
+      // Check if the course exists
+      const course = await CourseDatabaseModel.findById(courseId);
+      if (!course) {
+        return res.status(404).send(`Course not found with ID: ${courseId}`);
+      }
+
+      // Create a new student record
+      const newStudent = new StudentDatabaseModel({
+        firstName,
+        lastName,
+        studentNumber,
+        gdprConsent: false, // Default to false or adjust as needed
+        courses: [{ course: courseId }]
+      });
+
+      // Save the new student
+      const savedStudent = await newStudent.save();
+      addedStudents.push(savedStudent);
+
+      // Optionally, add the student to the course's student list
+      course.students.push(savedStudent);
+      await course.save();
+    }
+
+    res.status(200).json({
+      message: 'Students added successfully',
+      students: addedStudents
+    });
+  } catch (error) {
+    res.status(500).send('An error occurred: ' + error.message);
+  }
+
+});
+
+
+
+
+
+
 app.get("/selectcourse", async (req, res) => {
   try {
-    const selectCourse = await coursesDatabaseModel.find(); // Fetch all courses from the database
+    const selectCourse = await CourseDatabaseModel.find(); // Fetch all courses from the database
     res.status(200).json(selectCourse); // Send the courses back in the response
   } catch (error) {
     console.error("Error fetching courses:", error);
@@ -152,7 +206,7 @@ app.get("/selectcourse", async (req, res) => {
 
 app.get("/api/courses", async (req, res) => {
   try {
-    const courses = await coursesDatabaseModel.find({}); // Find all courses
+    const courses = await CourseDatabaseModel.find({}); // Find all courses
     res.json(courses);
   } catch (error) {
     console.error("Error retrieving courses:", error);

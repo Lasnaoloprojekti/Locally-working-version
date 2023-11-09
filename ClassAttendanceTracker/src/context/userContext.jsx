@@ -4,6 +4,7 @@ import axios from "axios";
 const userContext = createContext();
 
 const UserContextProvider = ({ children }) => {
+
     const [userInfo, setUserInfo] = useState({
         staff: false,
         firstname: "",
@@ -17,12 +18,12 @@ const UserContextProvider = ({ children }) => {
         if (accessToken) {
             axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
             const user = await axios.get("http://localhost:3001/verify")
-            console.log('verifioinnista saatava data', user)
+            console.log('verifioinnista saatava data', user.data)
             if (user.data) {
                 setUserInfo({
                     staff: user.data.staff,
-                    firstname: user.data.firstname,
-                    lastname: user.data.lastname,
+                    firstname: user.data.firstName,
+                    lastname: user.data.lastName,
                 });
             }
         }
