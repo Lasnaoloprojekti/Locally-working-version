@@ -1,12 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import selectCourse from '../Hooks/selectApiHooks'; // Ensure this is the correct path to your API hook
 
 const AddStudents = () => {
-  const [studentData, setStudentData] = useState('');
+  const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [studentData, setStudentData] = useState('');
   const [alert, setAlert] = useState({ show: false, message: '', isError: false });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await selectCourse(); // Using selectCourse API call
+        setCourses(response);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        setAlert({ show: true, message: 'Failed to fetch courses', isError: true });
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const handleInputChange = (event) => {
     setStudentData(event.target.value);
@@ -16,42 +32,22 @@ const AddStudents = () => {
     setSelectedCourse(event.target.value);
   };
 
-  const validateStudentDataFormat = (data) => {
-    const validFormatRegex = /^\s*([A-Za-z]+);([A-Za-z]+);(\d+);\s*$/;
-    const lines = data.trim().split('\n');
-    for (let line of lines) {
-      if (!validFormatRegex.test(line)) {
-        return false;
-      }
-    }
-    return true;
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
-    setAlert({ show: false, message: '', isError: false });
-
     if (!selectedCourse) {
       setAlert({ show: true, message: 'Please select a course.', isError: true });
-    } else if (!studentData.trim()) {
-      setAlert({ show: true, message: 'No student data entered.', isError: true });
-    } else if (!validateStudentDataFormat(studentData)) {
-      setAlert({ show: true, message: 'Some student data is in the incorrect format.', isError: true });
     } else {
-      setAlert({
-        show: true,
-        message: `Students have been added to ${selectedCourse} successfully!`,
-        isError: false
-      });
-
+      // Here you would handle the submission of the student data to the selected course
       console.log('Submitted data:', studentData);
       console.log('Selected course:', selectedCourse);
+      // Resetting the state after submission for demonstration purposes
       setStudentData('');
+      setAlert({
+        show: true,
+        message: 'Students added successfully!',
+        isError: false
+      });
     }
-
-    setTimeout(() => {
-      setAlert({ ...alert, show: false });
-    }, 5000);
   };
 
   const handleBack = () => {
@@ -59,7 +55,7 @@ const AddStudents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center px-6">
+    <div className="min-h-screen flex flex-col justify-center px-6">
       <div className="max-w-4xl w-full mx-auto">
         <div className="text-center font-medium text-xl mb-4">Add Students Manually</div>
         <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
@@ -74,15 +70,15 @@ const AddStudents = () => {
                 onChange={handleCourseChange}
                 className="border border-gray-300 p-3 rounded-lg block w-full mb-4"
               >
-                <option value=""></option>
-                <option value="course1">Course 1</option>
-                <option value="course2">Course 2</option>
-                <option value="course3">Course 3</option>
+                <option value="" disabled>Select Course</option>
+                {courses.map((course) => (
+                  <option key={course._id} value={course._id}>{course.name}</option>
+                ))}
               </select>
             </div>
             <div className="mb-5">
               <label htmlFor="studentData" className="block mb-2 text-sm font-medium text-gray-600">
-                LastName;FirstName;StudentNumber; format):
+                Enter student data (LastName;FirstName;StudentNumber; format):
               </label>
               <textarea
                 id="studentData"
@@ -121,5 +117,8 @@ const AddStudents = () => {
     </div>
   );
 };
+
+// Author: Adam Ahmethanov
+// Date: November 7, 2023
 
 export default AddStudents;
