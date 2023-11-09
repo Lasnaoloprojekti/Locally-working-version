@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const userDatabaseModel = require("./models/usersSchema");
 const coursesDatabaseModel = require("./models/coursesSchema");
+
 const jwt = require("jsonwebtoken");
 
 const cookieParser = require("cookie-parser");
@@ -19,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: ["http://localhost:5173"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
 );
@@ -159,6 +160,20 @@ app.get("/api/courses", async (req, res) => {
     res.status(500).json({ error: "An error occurred while retrieving the courses" });
   }
 });
+
+app.delete('/api/courses/:id', async (req, res) => {
+  try {
+    const course = await coursesDatabaseModel.findByIdAndDelete(req.params.id);
+    if (!course) {
+      return res.status(404).send({ message: 'Course not found' });
+    }
+    res.send({ message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error("Error deleting course:", error);
+    res.status(500).send({ message: 'Internal Server Error', error: error.toString() });
+  }
+});
+
 
 app.listen(3001, () => {
   console.log("Server is running...");
