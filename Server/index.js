@@ -3,9 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const userDatabaseModel = require("./models/usersSchema");
-const coursesDatabaseModel = require("./models/coursesSchema");
-
+const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel } = require("./models/CollectionSchemas");
 const jwt = require("jsonwebtoken");
 
 const cookieParser = require("cookie-parser");
@@ -45,25 +43,26 @@ app.post("/login", async (req, res) => {
 
     const apiData = await apiResponse.json();
 
+    console.log("vastaus ilkan apista:", apiData);
+
 
     if (apiData.message === "invalid username or password") {
       return res.status(401).json({ error: "invalid username or password" });
     } else {
 
-      let existingUser = await userDatabaseModel.findOne({
+      let existingUser = await UserDatabaseModel.findOne({
         user: apiData.user,
       });
 
       if (!existingUser) {
         // User does not exist, create a new user
-        const newUser = new userDatabaseModel({
-          staff: apiData.staff,
+        const newUser = new UserDatabaseModel({
           user: apiData.user,
-          firstname: apiData.firstname,
-          lastname: apiData.lastname,
+          firstName: apiData.firstname,
+          lastName: apiData.lastname,
           email: apiData.email,
+          staff: apiData.staff,
           courses: null,
-          gdprAcceptance: true,
         });
         await newUser.save();
 
@@ -98,7 +97,7 @@ app.get("/verify", (req, res) => {
       return res.status(403).json({ error: "Invalid token" });
     }
 
-    let existingUser = await userDatabaseModel.findOne({
+    let existingUser = await UserDatabaseModel.findOne({
       user,
     });
 
@@ -113,7 +112,7 @@ app.post("/createcourse", async (req, res) => {
   const { courseName, groupName, topics, startDate, endDate } = req.body;
 
   try {
-    const existingCourse = await coursesDatabaseModel.findOne({
+    const existingCourse = await CourseDatabaseModel.findOne({
       name: courseName,
     });
 
@@ -121,14 +120,15 @@ app.post("/createcourse", async (req, res) => {
       return res.status(409).json({ error: "Course already exists" });
     }
 
-    const newCourse = new coursesDatabaseModel({
+    const newCourse = new CourseDatabaseModel({
       name: courseName,
       groupName: groupName,
-      start_date: startDate,
-      end_date: endDate,
-      active: true,
-      topics: topics,
-      teachers: null,
+      startDate: startDate,
+      endDate: endDate,
+      isActive: true,
+      topics: topics, // Assuming default type for all topics
+      teachers: [], // Assuming you want to initialize with an empty array
+      students: [], // Assuming you want to initialize with an empty array
     });
 
     await newCourse.save();
@@ -141,9 +141,81 @@ app.post("/createcourse", async (req, res) => {
       .json({ error: "An error occurred while creating the course" });
   }
 });
+
+app.post("/addstudents", async (req, res) => {
+  const { studentsToAdd, courseId } = req.body;
+
+  console.log("Add students request received", studentsToAdd);
+
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const course = await CourseDatabaseModel.findById(courseId).session(session);
+    if (!course) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).send(`Course not found with ID: ${courseId}`);
+    }
+
+    let addedStudents = [];
+
+    for (const studentData of studentsToAdd) {
+      const { firstName, lastName, studentNumber } = studentData;
+
+      console.log("Adding student:", firstName, lastName, studentNumber);
+
+      // Check if the student already exists in the database
+      let student = await StudentDatabaseModel.findOne({ studentNumber }).session(session);
+
+      if (!student) {
+        // Create a new student record if not exists
+        student = new StudentDatabaseModel({
+          firstName,
+          lastName,
+          studentNumber,
+          gdprConsent: false, // Default to false or adjust as needed
+          courses: [{ course: courseId }]
+        });
+        await student.save({ session });
+      } else {
+        // If the student exists, just update the courses array
+        if (!student.courses.some(courseEnrollment => courseEnrollment.course.equals(courseId))) {
+          student.courses.push({ course: courseId });
+          await student.save({ session });
+        }
+      }
+
+      // Add the student to the course's students list if not already added
+      if (!course.students.includes(student._id)) {
+        course.students.push(student);
+      }
+
+      addedStudents.push(student);
+    }
+
+    await course.save({ session });
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      message: 'Students added successfully',
+      students: addedStudents
+    });
+  } catch (error) {
+    // If an error occurs, abort the transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.error('An error occurred while adding students:', error);
+    res.status(500).send('An error occurred: ' + error.message);
+  }
+});
+
+
 app.get("/selectcourse", async (req, res) => {
   try {
-    const selectCourse = await coursesDatabaseModel.find(); // Fetch all courses from the database
+    const selectCourse = await CourseDatabaseModel.find(); // Fetch all courses from the database
     res.status(200).json(selectCourse); // Send the courses back in the response
   } catch (error) {
     console.error("Error fetching courses:", error);
@@ -153,7 +225,7 @@ app.get("/selectcourse", async (req, res) => {
 
 app.get("/api/courses", async (req, res) => {
   try {
-    const courses = await coursesDatabaseModel.find({}); // Find all courses
+    const courses = await CourseDatabaseModel.find({}); // Find all courses
     res.json(courses);
   } catch (error) {
     console.error("Error retrieving courses:", error);
@@ -162,14 +234,35 @@ app.get("/api/courses", async (req, res) => {
 });
 
 app.delete('/api/courses/:id', async (req, res) => {
+  const courseId = req.params.id;
+
+  // Start a session for the transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const course = await coursesDatabaseModel.findByIdAndDelete(req.params.id);
+    // Delete all students associated with the course
+    await StudentDatabaseModel.deleteMany({ 'courses.course': courseId }).session(session);
+
+    // Now delete the course itself
+    const course = await CourseDatabaseModel.findByIdAndDelete(courseId, { session: session });
     if (!course) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).send({ message: 'Course not found' });
     }
-    res.send({ message: 'Course deleted successfully' });
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.send({ message: 'Course and associated students deleted successfully' });
   } catch (error) {
-    console.error("Error deleting course:", error);
+    // If an error occurs, abort the transaction
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Error deleting course and associated students:", error);
     res.status(500).send({ message: 'Internal Server Error', error: error.toString() });
   }
 });
