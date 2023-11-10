@@ -12,7 +12,7 @@ const SelectCourse = () => {
     const fetchCourses = async () => {
       try {
         const response = await selectCourse();
-        console.log("Courses fetched:", response); // Add this line to debug
+        console.log("Courses fetched:", response);
         setCourses(response);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -22,27 +22,24 @@ const SelectCourse = () => {
     fetchCourses();
   }, []);
 
-  // Fetch topics when a course is selected
   useEffect(() => {
-    const fetchTopics = async () => {
-      if (selectedCourse) {
-        try {
-          // Assuming the API returns the topics array within the course object
-          // Find the selected course in the courses state
-          const selectedCourseData = courses.find(
-            (course) => course._id === selectedCourse
-          );
-          setTopics(selectedCourseData ? selectedCourseData.topics : []);
-        } catch (error) {
-          console.error("Error fetching topics:", error);
-        }
-      } else {
-        setTopics([]); // Clear topics if no course is selected
-      }
-    };
+    if (selectedCourse) {
+      const selectedCourseData = courses.find(course => course._id === selectedCourse);
+      setTopics(selectedCourseData ? selectedCourseData.topics : []);
+    } else {
+      setTopics([]);
+    }
+  }, [selectedCourse, courses]);
 
-    fetchTopics();
-  }, [selectedCourse, courses]); // Include courses in the dependency array so it updates when courses state updates
+  // Ensure that the initial selected values match the available options
+  useEffect(() => {
+    if (courses.length > 0 && !courses.some(course => course._id === selectedCourse)) {
+      setSelectedCourse(''); // Reset to a valid value
+    }
+    if (topics.length > 0 && !topics.includes(selectedTopic)) {
+      setSelectedTopic(''); // Reset to a valid value
+    }
+  }, [courses, topics, selectedCourse, selectedTopic]);
 
   const handleCourseChange = (event) => {
     setSelectedCourse(event.target.value);
@@ -52,50 +49,35 @@ const SelectCourse = () => {
     setSelectedTopic(event.target.value);
   };
 
-  // handleformi valitulle kurssille ja topicille
   const handleSubmit = (event) => {
     event.preventDefault();
-    // tungetaan dataa bäkkärille
     console.log(
-      `Selected course ID: ${selectedCourse}, Selected topic ID: ${selectedTopic}`
+      `Selected course ID: ${selectedCourse}, Selected topic: ${selectedTopic}`
     );
+    // Add logic to submit these values to your backend or another handler
   };
 
   return (
     <div className="w-96">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col text-sm font-semibold mb-2">
-        <Select
-          className="block text-black text-sm font-semibold mb-2"
-          value={selectedCourse}
-          onChange={handleCourseChange}
-          displayEmpty>
-          <MenuItem value="" disabled>
-            Select Course
-          </MenuItem>
-          {courses.map((course) => (
+      <form onSubmit={handleSubmit} className="flex flex-col text-sm font-semibold mb-2">
+        <Select value={selectedCourse} onChange={handleCourseChange} displayEmpty>
+          <MenuItem value="" disabled>Select Course</MenuItem>
+          {courses.map(course => (
             <MenuItem key={course._id} value={course._id}>
               {course.name}
             </MenuItem>
           ))}
         </Select>
 
-        <Select
-          className="block text-black text-sm font-semibold mb-2"
-          value={selectedTopic}
-          onChange={handleTopicChange}
-          displayEmpty
-          disabled={!selectedCourse}>
-          <MenuItem value="" disabled>
-            Select Topic
-          </MenuItem>
-          {topics.map((topic) => (
-            <MenuItem key={topic._id} value={topic._id}>
-              {topic.name}
+        <Select value={selectedTopic} onChange={handleTopicChange} displayEmpty disabled={!selectedCourse}>
+          <MenuItem value="" disabled>Select Topic</MenuItem>
+          {topics.map((topic, index) => (
+            <MenuItem key={index} value={topic}>
+              {topic}
             </MenuItem>
           ))}
         </Select>
+
         <button
           className="w-full bg-blue-500 text-white p-2 rounded-lg py-3 px-4 shadow-lg hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-700"
           type="submit">
@@ -105,8 +87,5 @@ const SelectCourse = () => {
     </div>
   );
 };
-
-// Author: JJ
-// Date: November 4, 2023
 
 export default SelectCourse;
