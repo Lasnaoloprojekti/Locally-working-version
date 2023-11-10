@@ -50,7 +50,7 @@ const UserSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     email: String,
-    staff: Boolean, 
+    staff: Boolean,
     courses: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Course'
@@ -61,14 +61,11 @@ const UserSchema = new mongoose.Schema({
 //***course Schema***
 
 const CourseSchema = new mongoose.Schema({
-    courseName: String,
+    name: String,
     groupName: String,
     startDate: Date,
     endDate: Date,
-    topics: [{
-        name: String,
-        type: String // e.g., "Theory", "Laboratory"
-    }],
+    topics: [String],
     teachers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

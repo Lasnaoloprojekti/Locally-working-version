@@ -5,6 +5,7 @@ import { userContext } from "../context/userContext";
 import AddStudents from "../components/AddStudents";
 import CreateCourse from "../components/CreateCourse";
 import SelectCourse from "../components/SelectCourse";
+import CourseDelete from "../components/CourseDelete";
 
 
 export const TeacherHome = () => {
@@ -42,6 +43,7 @@ export const TeacherHome = () => {
       <div className="flex flex-col items-center">
         <CreateCourse />
         <AddStudents />
+        <CourseDelete/>
         <SelectCourse />
       </div>
     </>
