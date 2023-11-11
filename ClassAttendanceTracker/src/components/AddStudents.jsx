@@ -55,7 +55,7 @@ const AddStudents = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-6">
+    <div className="min-h-screen flex flex-col">
       <div className="max-w-4xl w-full mx-auto">
         <div className="text-center font-medium text-xl mb-4">Add Students Manually</div>
         <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
@@ -90,13 +90,6 @@ const AddStudents = () => {
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <button
-                type="button"
-                onClick={handleBack}
-                className="px-4 py-2 bg-gray-500 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
-              >
-                Back
-              </button>
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
