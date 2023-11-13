@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { selectCourse, addStudentsToCourse } from '../Hooks/ApiHooks'; // Ensure this is the correct path to your API hook
+import useAddStudentsToCourse from '../Hooks/useAddStudentsToCourse';
 
 const AddStudents = () => {
   const [courses, setCourses] = useState([]);
@@ -8,7 +9,7 @@ const AddStudents = () => {
   const [studentData, setStudentData] = useState('');
   const [alert, setAlert] = useState({ show: false, message: '', isError: false });
 
-  const navigate = useNavigate();
+  const addStudents = useAddStudentsToCourse();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -24,12 +25,17 @@ const AddStudents = () => {
     fetchCourses();
   }, []);
 
+  const handleCourseChange = (event) => {
+    setSelectedCourse(event.target.value);
+  };
+
   const handleInputChange = (event) => {
     setStudentData(event.target.value);
   };
 
-  const handleCourseChange = (event) => {
-    setSelectedCourse(event.target.value);
+  const validateStudentData = (data) => {
+    const validFormatRegex = /^[A-Za-z]+;[A-Za-z]+;\d+;$/;
+    return data.split('\n').every(line => validFormatRegex.test(line));
   };
 
   const handleSubmit = async (event) => {
@@ -39,34 +45,30 @@ const AddStudents = () => {
       return;
     }
 
-    const studentsArray = studentData.split(';')
-      .filter(student => student.trim() !== '')
-      .map(student => {
-        const [lastName, firstName, studentNumber] = student.split(',');
+    if (!validateStudentData(studentData)) {
+      setAlert({ show: true, message: 'Invalid student data format.', isError: true });
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to add these students?')) return;
+
+    try {
+      const studentArray = studentData.split('\n').map(line => {
+        const [lastName, firstName, studentNumber] = line.split(';').map(s => s.trim());
         return { lastName, firstName, studentNumber };
       });
 
-    try {
-      await addStudentsToCourse(selectedCourse, studentsArray);
-      setAlert({
-        show: true,
-        message: 'Students added successfully!',
-        isError: false
-      });
+      await addStudents(selectedCourse, studentArray);
+      setStudentData('');
+      setAlert({ show: true, message: 'Students added successfully!', isError: false });
     } catch (error) {
       console.error("Error adding students:", error);
-      setAlert({ show: true, message: 'Failed to add students', isError: true });
+      setAlert({ show: true, message: 'Failed to add students. Please try again.', isError: true });
     }
-
-    setStudentData('');
-  };
-
-  const handleBack = () => {
-    navigate('/teacherhome');
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-6">
+    <div className="min-h-screen flex flex-col px-6">
       <div className="max-w-4xl w-full mx-auto">
         <div className="text-center font-medium text-xl mb-4">Add Students Manually</div>
         <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
@@ -102,13 +104,6 @@ const AddStudents = () => {
             </div>
             <div className="flex justify-end space-x-2">
               <button
-                type="button"
-                onClick={handleBack}
-                className="px-4 py-2 bg-gray-500 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
-              >
-                Back
-              </button>
-              <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
               >
@@ -130,3 +125,6 @@ const AddStudents = () => {
 };
 
 export default AddStudents;
+
+// Author: Adam Ahmethanov
+// Date: November 7, 2023

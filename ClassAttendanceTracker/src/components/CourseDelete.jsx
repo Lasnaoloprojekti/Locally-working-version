@@ -44,12 +44,12 @@ const CourseDelete = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center px-6">
-      <div className="max-w-4xl w-full mx-auto">
+    <div className="flex flex-col justify-center items-center">
+      <div className="w-full max-w-4xl mx-auto">
         <div className="text-center font-medium text-xl mb-4">Delete Course</div>
-        <div className="p-8 border border-gray-300 rounded-lg shadow-lg">
+        <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
           <Select
-            className="block text-black text-sm font-semibold mb-2"
+            className="block text-black text-sm font-semibold mb-2 w-full"
             value={selectedCourse}
             onChange={handleCourseChange}
             displayEmpty
