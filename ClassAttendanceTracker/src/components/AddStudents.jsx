@@ -99,7 +99,7 @@ const AddStudents = () => {
                 className="border border-gray-300 p-3 rounded-lg block w-full"
                 value={studentData}
                 onChange={handleInputChange}
-                placeholder="Doe;John;123456;Smith;Jane;654321;"
+                placeholder="Doe;John;123456;"
               />
             </div>
             <div className="flex justify-end space-x-2">
