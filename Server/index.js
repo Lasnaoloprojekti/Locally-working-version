@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel } = require("./models/CollectionSchemas");
+const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, AttendanceSessionDatabaseModel } = require("./models/CollectionSchemas");
 const jwt = require("jsonwebtoken");
 
 const cookieParser = require("cookie-parser");
@@ -264,6 +264,32 @@ app.delete('/api/courses/:id', async (req, res) => {
 
     console.error("Error deleting course and associated students:", error);
     res.status(500).send({ message: 'Internal Server Error', error: error.toString() });
+  }
+});
+
+// //**Taking attendances */
+
+app.post('/createsession', async (req, res) => {
+  console.log("Create session request received", req.body);
+  try {
+    const { courseId, topic, date, timeofDay } = req.body;
+
+    // Convert courseId to a MongoDB ObjectId using 'new'
+    const courseObjectId = new mongoose.Types.ObjectId(courseId);
+
+    const newSession = new AttendanceSessionDatabaseModel({
+      course: courseObjectId, // Use courseObjectId here
+      topic,
+      date,
+      timeofDay
+    });
+
+    await newSession.save();
+
+    res.status(201).json({ sessionId: newSession._id });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
   }
 });
 

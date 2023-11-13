@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Select, MenuItem } from "@mui/material";
-import selectCourse from "../Hooks/selectApiHooks";
+import { selectCourse } from "../Hooks/ApiHooks";
 
 const SelectCourse = () => {
   const [courses, setCourses] = useState([]);
@@ -13,7 +13,7 @@ const SelectCourse = () => {
       try {
         const response = await selectCourse();
         console.log("Courses fetched:", response);
-        setCourses(response);
+        setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }

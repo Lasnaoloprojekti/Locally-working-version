@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import createCourse from "../Hooks/createApiHooks";
+import { createCourse } from "../Hooks/ApiHooks";
 
 const CreateCourse = () => {
 
@@ -49,7 +49,7 @@ const CreateCourse = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="w-96" onSubmit={handleSubmit}>
 
             <div className="mb-4">
                 <label className="block text-black text-sm font-semibold mb-2">Course name</label>

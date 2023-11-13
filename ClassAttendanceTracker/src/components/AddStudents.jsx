@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import selectCourse from '../Hooks/selectApiHooks'; // Ensure this is the correct path to your API hook
+import { selectCourse, addStudentsToCourse } from '../Hooks/ApiHooks'; // Ensure this is the correct path to your API hook
 
 const AddStudents = () => {
   const [courses, setCourses] = useState([]);
@@ -13,8 +13,8 @@ const AddStudents = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse(); // Using selectCourse API call
-        setCourses(response);
+        const response = await selectCourse();
+        setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
         setAlert({ show: true, message: 'Failed to fetch courses', isError: true });
@@ -32,22 +32,33 @@ const AddStudents = () => {
     setSelectedCourse(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedCourse) {
       setAlert({ show: true, message: 'Please select a course.', isError: true });
-    } else {
-      // Here you would handle the submission of the student data to the selected course
-      console.log('Submitted data:', studentData);
-      console.log('Selected course:', selectedCourse);
-      // Resetting the state after submission for demonstration purposes
-      setStudentData('');
+      return;
+    }
+
+    const studentsArray = studentData.split(';')
+      .filter(student => student.trim() !== '')
+      .map(student => {
+        const [lastName, firstName, studentNumber] = student.split(',');
+        return { lastName, firstName, studentNumber };
+      });
+
+    try {
+      await addStudentsToCourse(selectedCourse, studentsArray);
       setAlert({
         show: true,
         message: 'Students added successfully!',
         isError: false
       });
+    } catch (error) {
+      console.error("Error adding students:", error);
+      setAlert({ show: true, message: 'Failed to add students', isError: true });
     }
+
+    setStudentData('');
   };
 
   const handleBack = () => {
@@ -86,7 +97,7 @@ const AddStudents = () => {
                 className="border border-gray-300 p-3 rounded-lg block w-full"
                 value={studentData}
                 onChange={handleInputChange}
-                placeholder="Ahmethanov;Adam;123456;"
+                placeholder="Doe;John;123456;Smith;Jane;654321;"
               />
             </div>
             <div className="flex justify-end space-x-2">
@@ -117,8 +128,5 @@ const AddStudents = () => {
     </div>
   );
 };
-
-// Author: Adam Ahmethanov
-// Date: November 7, 2023
 
 export default AddStudents;

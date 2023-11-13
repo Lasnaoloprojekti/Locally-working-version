@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Select, MenuItem, Button } from '@mui/material';
-import selectCourse from '../Hooks/selectApiHooks';
-import useDeleteCourse from '../Hooks/deleteApiHooks';
+import { selectCourse } from '../Hooks/ApiHooks';
+import { useDeleteCourse } from '../Hooks/ApiHooks';
 
 const CourseDelete = () => {
   const [courses, setCourses] = useState([]);
@@ -13,7 +13,7 @@ const CourseDelete = () => {
     const fetchCourses = async () => {
       try {
         const response = await selectCourse();
-        setCourses(response);
+        setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
         setAlert({ show: true, message: 'Failed to fetch courses', isError: true });
