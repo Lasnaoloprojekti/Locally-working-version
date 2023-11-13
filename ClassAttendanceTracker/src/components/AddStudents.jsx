@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import selectCourse from '../Hooks/selectApiHooks';
+import { useNavigate } from 'react-router-dom';
+import { selectCourse, addStudentsToCourse } from '../Hooks/ApiHooks'; // Ensure this is the correct path to your API hook
 import useAddStudentsToCourse from '../Hooks/useAddStudentsToCourse';
 
 const AddStudents = () => {
@@ -14,7 +15,7 @@ const AddStudents = () => {
     const fetchCourses = async () => {
       try {
         const response = await selectCourse();
-        setCourses(response);
+        setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
         setAlert({ show: true, message: 'Failed to fetch courses', isError: true });
@@ -98,7 +99,7 @@ const AddStudents = () => {
                 className="border border-gray-300 p-3 rounded-lg block w-full"
                 value={studentData}
                 onChange={handleInputChange}
-                placeholder="Ahmethanov;Adam;123456;"
+                placeholder="Doe;John;123456;Smith;Jane;654321;"
               />
             </div>
             <div className="flex justify-end space-x-2">
@@ -123,8 +124,7 @@ const AddStudents = () => {
   );
 };
 
+export default AddStudents;
 
 // Author: Adam Ahmethanov
 // Date: November 7, 2023
-
-export default AddStudents;

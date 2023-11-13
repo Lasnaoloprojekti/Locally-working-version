@@ -30,7 +30,9 @@ const UserContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
+
         verify();
+        
     }, [accessToken]);
 
     console.log(userInfo.firstname !== "" && userInfo.lastname !== "");

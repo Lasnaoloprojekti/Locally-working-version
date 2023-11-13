@@ -6,6 +6,8 @@ import AddStudents from "../components/AddStudents";
 import CreateCourse from "../components/CreateCourse";
 import SelectCourse from "../components/SelectCourse";
 import CourseDelete from "../components/CourseDelete"; // Import CourseDelete component
+import OpenattendanceCollect from "../components/OpenattendanceCollect";
+// Import CourseDelete component
 
 const TeacherHome = () => {
   const navigate = useNavigate();
@@ -32,6 +34,8 @@ const TeacherHome = () => {
         return <SelectCourse />;
       case "deleteCourse": // New case for CourseDelete
         return <CourseDelete />;
+      case "openAttendanceCollect":
+        return <OpenattendanceCollect />
       default:
         return null;
     }
@@ -85,6 +89,14 @@ const TeacherHome = () => {
               : "bg-gray-300"
               } px-4 py-2 rounded`}>
             Delete Course
+          </button>
+          <button
+            onClick={() => setActiveComponent("openAttendanceCollect")}
+            className={`${activeComponent === "openAttendanceCollect"
+              ? "bg-orange-600 text-white"
+              : "bg-gray-300"
+              } px-4 py-2 rounded ml-2`}>
+            Attendance Collect
           </button>
         </div>
         {renderComponent()}
