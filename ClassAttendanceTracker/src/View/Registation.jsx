@@ -26,11 +26,12 @@ export const Registration = () => {
             <ul className="flex items-center">
                 <img className=" h-[18mm] m-4" src={logo} alt="Logo" />
             </ul>
-            <div className='mr-3 text-2xl flex font-thin flex-row gap-5 font-roboto-slab'>
+            <div className='mr-3 text-2xl flex font-thin flex-row gap-5 font-roboto-slab border-b border-gray-950 pb-2'>
                 <AccessTimeIcon></AccessTimeIcon>
                 <p>Tänään on: {currentDay}</p>
                 <p>Kellon aika: {currentTime}</p>
                 <p>Kuukausi: {currentMonth}</p>
+                <hr />
             </div>
         </nav>
 
