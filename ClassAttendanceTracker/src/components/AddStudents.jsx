@@ -70,18 +70,18 @@ const AddStudents = () => {
   return (
     <div className="min-h-screen flex flex-col px-6">
       <div className="max-w-4xl w-full mx-auto">
-        <div className="text-center font-medium text-xl mb-4">Add Students Manually</div>
+        <div className="text-center font-medium text-xl mb-4 font-roboto-slab">Add Students Manually</div>
         <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
-              <label htmlFor="courseSelector" className="block mb-2 text-sm font-medium text-gray-600">
+              <label htmlFor="courseSelector" className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
                 Select a course:
               </label>
               <select
                 id="courseSelector"
                 value={selectedCourse}
                 onChange={handleCourseChange}
-                className="border border-gray-300 p-3 rounded-lg block w-full mb-4"
+                className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full mb-4"
               >
                 <option value="" disabled>Select Course</option>
                 {courses.map((course) => (
@@ -90,13 +90,13 @@ const AddStudents = () => {
               </select>
             </div>
             <div className="mb-5">
-              <label htmlFor="studentData" className="block mb-2 text-sm font-medium text-gray-600">
+              <label htmlFor="studentData" className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
                 Enter student data (LastName;FirstName;StudentNumber; format):
               </label>
               <textarea
                 id="studentData"
                 rows="6"
-                className="border border-gray-300 p-3 rounded-lg block w-full"
+                className="border border-gray-300 p-3 rounded-lg block w-full font-open-sans"
                 value={studentData}
                 onChange={handleInputChange}
                 placeholder="Doe;John;123456;"
@@ -105,7 +105,7 @@ const AddStudents = () => {
             <div className="flex justify-end space-x-2">
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                className="px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
               >
                 Add Students
               </button>

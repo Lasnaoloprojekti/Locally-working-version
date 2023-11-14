@@ -63,22 +63,22 @@ const LoginForm = () => {
         <img className="mx-auto h-[18mm] mb-6" src={logo} alt="Logo" />
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-black text-sm font-semibold mb-2">
+            <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">
               Username
             </label>
             <input
-              className="w-full text-black p-2 border rounded"
+              className="w-full text-black p-2 border rounded font-open-sans"
               type="text"
               placeholder="Enter your email"
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
           <div className="mb-4">
-            <label className="block text-black text-sm font-semibold mb-2">
+            <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">
               Password
             </label>
             <input
-              className="w-full p-2 text-black border rounded"
+              className="w-full p-2 text-black border rounded font-open-sans"
               type="password"
               placeholder="Enter your password"
               onChange={(e) => setPassword(e.target.value)}
@@ -86,7 +86,7 @@ const LoginForm = () => {
           </div>
           <h3 className="text-red-600">{loginError}</h3>
           <button
-            className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-600 focus:outline-none focus:ring focus:border-orange-700"
+            className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-600 focus:outline-none focus:ring focus:border-orange-700 font-roboto-slab"
             type="submit">
             Login
           </button>

@@ -52,10 +52,10 @@ const CreateCourse = () => {
         <form className="w-96" onSubmit={handleSubmit}>
 
             <div className="mb-4">
-                <label className="block text-black text-sm font-semibold mb-2">Course name</label>
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Course name</label>
                 <input
                     required
-                    className="w-full p-2 text-black border rounded"
+                    className="w-full p-2 text-black border rounded font-open-sans"
                     type="text"
                     placeholder="Enter course name"
                     name='courseName'
@@ -63,10 +63,10 @@ const CreateCourse = () => {
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-black text-sm font-semibold mb-2">Group name</label>
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Group name</label>
                 <input
                     required
-                    className="w-full p-2 text-black border rounded"
+                    className="w-full p-2 text-black border rounded font-open-sans"
                     type="text"
                     placeholder="Enter Group name"
                     name='groupName'
@@ -75,9 +75,9 @@ const CreateCourse = () => {
             </div>
 
             <div className="mb-4">
-                <label className="block text-black text-sm font-semibold mb-2">Topics</label>
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Topics</label>
                 <input
-                    required className="w-full p-2 text-black border rounded"
+                    required className="w-full p-2 text-black border rounded font-open-sans"
                     type="text"
                     placeholder="Add course topics e.g. Mathematics, Physics, Chemistry"
                     name='topics'
@@ -85,18 +85,18 @@ const CreateCourse = () => {
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-black text-sm font-semibold mb-2">Start date</label>
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Start date</label>
                 <input
-                    className="w-full p-2 text-black border rounded"
+                    className="w-full p-2 text-black border rounded font-open-sans"
                     type="date"
                     name='startDate'
                     onChange={handleChange}
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-black text-sm font-semibold mb-2">End date</label>
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">End date</label>
                 <input
-                    className="w-full p-2 text-black border rounded"
+                    className="w-full p-2 text-black border rounded "
                     type="date"
                     placeholder="Add course topics"
                     name='endDate'
@@ -104,7 +104,7 @@ const CreateCourse = () => {
                 />
             </div>
             <button
-                className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-600 focus:outline-none focus:ring focus:border-orange-700"
+                className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-600 focus:outline-none focus:ring focus:border-orange-700 font-roboto-slab"
                 type="submit">
                 Create
             </button>

@@ -75,8 +75,8 @@ const OpenattendanceCollect = () => {
 
     return (
         <div className="w-96 mt-1">
-            <form onSubmit={handleSubmit} className="flex flex-col text-sm font-semibold mb-2">
-                <label className="block text-black text-sm font-semibold mb-2">Select Course</label>
+            <form onSubmit={handleSubmit} className="flex flex-col text-sm font-semibold mb-2 font-open-sans">
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Course</label>
                 <Select className="mb-4" value={selectedCourse} onChange={handleCourseChange} displayEmpty>
                     <MenuItem value="" disabled>Course</MenuItem>
                     {courses.map(course => (
@@ -86,17 +86,17 @@ const OpenattendanceCollect = () => {
                     ))}
                 </Select>
 
-                <label className="block text-black text-sm font-semibold mb-2">Select Topic</label>
-                <Select className="mb-4" value={selectedTopic} onChange={handleTopicChange} displayEmpty disabled={!selectedCourse}>
-                    <MenuItem value="" disabled>Topic</MenuItem>
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Topic</label>
+                <Select className="mb-4 font-open-sans" value={selectedTopic} onChange={handleTopicChange} displayEmpty disabled={!selectedCourse}>
+                    <MenuItem className="font-open-sans" value="" disabled>Topic</MenuItem>
                     {topics.map((topic, index) => (
-                        <MenuItem key={index} value={topic}>
+                        <MenuItem className="font-open-sans" key={index} value={topic}>
                             {topic}
                         </MenuItem>
                     ))}
                 </Select>
 
-                <label className="block text-black text-sm font-semibold mb-2">Select Day</label>
+                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Day</label>
                 <input
                     required
                     className="w-full mb-4 h-14 p-3 text-black border rounded"
@@ -104,16 +104,16 @@ const OpenattendanceCollect = () => {
                     onChange={handleDateChange}
                 />
 
-                <FormControl component="fieldset" className="mb-4">
-                    <label className="block text-black text-sm font-semibold mb-2">Select Time of Day</label>
-                    <RadioGroup row name="timeOfDay" value={timeOfDay} onChange={handleTimeOfDayChange}>
-                        <FormControlLabel value="Morning" control={<Radio />} label="Morning" />
-                        <FormControlLabel value="Afternoon" control={<Radio />} label="Afternoon" />
+                <FormControl className="font-open-sans" component="fieldset" >
+                    <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Time of Day</label>
+                    <RadioGroup row name="timeOfDay" className=" mb-3" value={timeOfDay} onChange={handleTimeOfDayChange}>
+                        <FormControlLabel className="font-open-sans" value="Morning" control={<Radio />} label="Morning" />
+                        <FormControlLabel className="font-open-sans" value="Afternoon" control={<Radio />} label="Afternoon" />
                     </RadioGroup>
                 </FormControl>
 
                 <button
-                    className="w-full bg-orange-600 text-white p-2 rounded-lg py-3 px-4 shadow-lg hover:bg-orange-400 focus:outline-none focus:ring focus:border-orange-700"
+                    className="w-full bg-orange-600 text-white p-2 rounded-lg py-3 px-4 shadow-lg hover:bg-orange-400 focus:outline-none focus:ring focus:border-orange-700 font-roboto-slab"
                     type="submit">
                     Collect Attendances
                 </button>

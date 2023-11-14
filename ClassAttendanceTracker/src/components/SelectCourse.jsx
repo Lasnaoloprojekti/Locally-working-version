@@ -59,7 +59,7 @@ const SelectCourse = () => {
 
   return (
     <div className="w-96">
-      <form onSubmit={handleSubmit} className="flex flex-col text-sm font-semibold mb-2">
+      <form onSubmit={handleSubmit} className="flex flex-col text-sm font-semibold mb-2 ">
         <Select value={selectedCourse} onChange={handleCourseChange} displayEmpty>
           <MenuItem value="" disabled>Select Course</MenuItem>
           {courses.map(course => (
@@ -79,7 +79,7 @@ const SelectCourse = () => {
         </Select>
 
         <button
-          className="w-full bg-blue-500 text-white p-2 rounded-lg py-3 px-4 shadow-lg hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-700"
+          className="w-full bg-blue-900 text-white p-2 rounded-lg py-3 px-4 shadow-lg hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-700"
           type="submit">
           View
         </button>
