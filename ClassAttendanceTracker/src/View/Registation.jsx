@@ -4,16 +4,16 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 export const Registration = () => {
     // State variables
-    const [currentDay, setCurrentDay] = useState(new Date().toLocaleString('fi-FI', { weekday: 'long' }));
+    const [currentDay, setCurrentDay] = useState(new Date().toLocaleString('en-En', { weekday: 'long' }));
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('fi-FI'));
-    const [currentMonth, setCurrentMonth] = useState(new Date().toLocaleString('fi-FI', { month: 'long' }));
+    const [currentMonth, setCurrentMonth] = useState(new Date().toLocaleString('en-En', { month: 'long' }));
 
     useEffect(() => {
         // Update the time every second
         const interval = setInterval(() => {
-            setCurrentDay(new Date().toLocaleString('fi-FI', { weekday: 'long' }));
+            setCurrentDay(new Date().toLocaleString('en-En', { weekday: 'long' }));
             setCurrentTime(new Date().toLocaleTimeString('fi-FI'));
-            setCurrentMonth(new Date().toLocaleString('fi-FI', { month: 'long' }));
+            setCurrentMonth(new Date().toLocaleString('en-En', { month: 'long' }));
         }, 1000);
 
         // Clean up the interval on component unmount
@@ -28,9 +28,9 @@ export const Registration = () => {
             </ul>
             <div className='mr-3 text-2xl flex font-thin flex-row gap-5 font-roboto-slab border-b border-gray-950 pb-2'>
                 <AccessTimeIcon></AccessTimeIcon>
-                <p>Tänään on: {currentDay}</p>
-                <p>Kellon aika: {currentTime}</p>
-                <p>Kuukausi: {currentMonth}</p>
+                <p>Today is: {currentDay}</p>
+                <p>it is : {currentTime}</p>
+                <p>Month: {currentMonth}</p>
                 <hr />
             </div>
         </nav>
