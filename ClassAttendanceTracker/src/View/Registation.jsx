@@ -36,13 +36,14 @@ export const Registration = () => {
 
 
         <form className='flex flex-row h-[100vh] justify-center ' action="handleSubmit">
-            <div className='w-96 h-min mt-32 text-black p-2   '>
+            <div className=' w-100 h-min mt-32 text-black p-2   '>
                 <label className="block text-black text-sm  font-semibold mb-2 font-roboto-slab">Class registration</label>
                 <input className='text-center p-5 rounded-md border-stone-900 w-full border text-orange-600 font-open-sans'
                     type="text"
                     placeholder="Enter your Student number here"
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => setStudenNumber(e.target.value)}
                 />
+                <label className="block text-black text-sm mt-3 mb-2 font-open-sans">if registration doesnt work ask your teacher to add you in class</label>
             </div>
         </form>
     </>
