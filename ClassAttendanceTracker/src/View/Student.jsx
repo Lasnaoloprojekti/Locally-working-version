@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../assets/metropolia_s_orange.png";
 
 export const StudentLandingPage = () => {
   const navigate = useNavigate();

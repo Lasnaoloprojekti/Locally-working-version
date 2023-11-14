@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import logo from "../assets/logo.png";
+import logo from "../assets/metropolia_s_orange.png";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../context/userContext";
 import AddStudents from "../components/AddStudents";
@@ -44,10 +44,10 @@ const TeacherHome = () => {
   return (
     <>
       <nav className="flex justify-between items-center">
-        <img className="h-24 p-3" src={logo} alt="Logo" />
+        <img className="h-[18mm] m-3" src={logo} alt="Logo" />
         <ul className="flex items-center">
           <li className="text-2xl ml-2">
-            Welcome, {userInfo.firstname} {userInfo.lastname}
+            Welcome! {userInfo.firstname} {userInfo.lastname}
           </li>
           <button
             onClick={handleLogout}

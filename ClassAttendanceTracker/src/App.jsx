@@ -6,6 +6,7 @@ import TeacherHome from "./View/Teacher";
 import PrivateRoutes from "./Utils/privateRoute";
 import { UserContextProvider } from "./context/userContext";
 import { WaitingPage } from "./View/AttendanceCollect";
+import { Registration } from "./View/Registation";
 
 import axios from "axios";
 
@@ -20,9 +21,10 @@ const App = () => {
             <Route path="/teacherhome" element={<TeacherHome />} />
             <Route path="/studentlanding" element={<StudentLandingPage />} />
             <Route path="/coursemodify" element={<CourseModification />} />
-            <Route path="/wait" element={<WaitingPage />} />
+            <Route path="/wait/:courseName/:topicName" element={<WaitingPage />} />
           </Route>
 
+          <Route path="/Registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<Login />} />
         </Routes>

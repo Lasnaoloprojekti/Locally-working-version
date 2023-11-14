@@ -65,7 +65,8 @@ const OpenattendanceCollect = () => {
         try {
             const response = await createSession(sessionData);
             console.log("Session created:", response);
-            navigate('/wait');
+            const selectedCourseName = courses.find(course => course._id === selectedCourse)?.name;
+            navigate(`/wait/${encodeURIComponent(selectedCourseName)}/${encodeURIComponent(selectedTopic)}`);
         } catch (error) {
             console.error("Error creating session:", error);
             // Handle error here

@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../assets/metropolia_s_orange.png";
 import axios from "axios";
 import { userContext } from "../context/userContext";
 import { Box } from "@mui/material";
@@ -45,7 +45,6 @@ const LoginForm = () => {
 
         localStorage.setItem("token", responseData.accessToken);
 
-        // Logging in user and redirecting to appropriate landing page based on user type (staff or student)
         // navigate(responseData.staff ? '/teacherlanding' : '/studentlanding');
         navigate("/teacherhome");
       } else {
@@ -61,7 +60,7 @@ const LoginForm = () => {
   return (
     <Box className="min-h-screen flex flex-col items-center justify-center">
       <div className="bg-white p-8 rounded shadow-lg text-center">
-        <img className="mx-auto h-32 mb-6" src={logo} alt="Logo" />
+        <img className="mx-auto h-[18mm] mb-6" src={logo} alt="Logo" />
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-black text-sm font-semibold mb-2">
@@ -97,6 +96,5 @@ const LoginForm = () => {
   );
 };
 
-// Author: Matias Naakka & JJ
-// Date: November 7, 2023
+
 export default LoginForm;
