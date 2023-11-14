@@ -22,15 +22,16 @@ export const Registration = () => {
 
     return (<>
         <nav className="flex justify-between items-center">
-            <div className='ml-3 text-2xl flex font-thin flex-row gap-5 font-roboto-slab'>
+
+            <ul className="flex items-center">
+                <img className=" h-[18mm] m-4" src={logo} alt="Logo" />
+            </ul>
+            <div className='mr-3 text-2xl flex font-thin flex-row gap-5 font-roboto-slab'>
                 <AccessTimeIcon></AccessTimeIcon>
                 <p>Tänään on: {currentDay}</p>
                 <p>Kellon aika: {currentTime}</p>
                 <p>Kuukausi: {currentMonth}</p>
             </div>
-            <ul className="flex items-center">
-                <img className=" h-[18mm] m-4" src={logo} alt="Logo" />
-            </ul>
         </nav>
 
 
