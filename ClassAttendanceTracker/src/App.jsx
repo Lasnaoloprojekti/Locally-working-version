@@ -8,11 +8,9 @@ import { UserContextProvider } from "./context/userContext";
 import { WaitingPage } from "./View/AttendanceCollect";
 import { Registration } from "./View/Registation";
 
-import axios from "axios";
-
-axios.defaults.withCredentials = true;
 
 const App = () => {
+
   return (
     <UserContextProvider>
       <Router>
@@ -21,9 +19,9 @@ const App = () => {
             <Route path="/teacherhome" element={<TeacherHome />} />
             <Route path="/studentlanding" element={<StudentLandingPage />} />
             <Route path="/coursemodify" element={<CourseModification />} />
-            <Route path="/wait/:courseName/:topicName" element={<WaitingPage />} />
-          </Route>
 
+          </Route>
+          <Route path="/wait/:sessionId/:courseName/:topic" element={<WaitingPage />} />
           <Route path="/Registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<Login />} />

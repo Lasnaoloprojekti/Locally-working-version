@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { createCourse } from "../Hooks/ApiHooks";
 
 const CreateCourse = () => {
-
+    const [respondMessage, setRespondMessage] = useState('');
     const [courseData, setCourseData] = useState({
         courseName: '',
         groupName: '',
@@ -10,6 +10,7 @@ const CreateCourse = () => {
         startDate: '',
         endDate: ''
     });
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,8 +24,18 @@ const CreateCourse = () => {
             };
 
             const response = await createCourse(requestData);
+
+            console.log(response.message, "vastausssssss serverilttttttttttttt");
+
+            if (response.message === "Course created successfully") {
+                setRespondMessage("new course created successfully :)");
+            } else {
+                setRespondMessage("Some unexpected bullshit occurred while creating new course :(");
+            }
+
         } catch (error) {
             console.error("Error creating course:", error);
+            setRespondMessage("Some unexpected bullshit occurred while creating new course :(");
         }
     };
 
@@ -108,6 +119,9 @@ const CreateCourse = () => {
                 type="submit">
                 Create
             </button>
+            <p className={`self-center w-2/3 mt-6 underline ${respondMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+                {respondMessage}
+            </p>
         </form>
     )
 }

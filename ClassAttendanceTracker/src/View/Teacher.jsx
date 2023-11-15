@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import logo from "../assets/metropolia_s_orange.png";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../context/userContext";
@@ -7,12 +7,11 @@ import CreateCourse from "../components/CreateCourse";
 import SelectCourse from "../components/SelectCourse";
 import CourseDelete from "../components/CourseDelete"; // Import CourseDelete component
 import OpenattendanceCollect from "../components/OpenattendanceCollect";
-// Import CourseDelete component
 
 const TeacherHome = () => {
   const navigate = useNavigate();
   const { userInfo, setUserInfo } = useContext(userContext);
-  const [activeComponent, setActiveComponent] = useState("createCourse"); // Initial active component
+  const [activeComponent, setActiveComponent] = useState("openAttendanceCollect"); // Initial active component
 
   const handleLogout = () => {
     localStorage.removeItem("token");
