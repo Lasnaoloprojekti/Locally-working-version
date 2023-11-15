@@ -5,36 +5,45 @@ import { userContext } from "../context/userContext";
 import AddStudents from "../components/AddStudents";
 import CreateCourse from "../components/CreateCourse";
 import SelectCourse from "../components/SelectCourse";
-import CourseDelete from "../components/CourseDelete"; // Import CourseDelete component
+import CourseDelete from "../components/CourseDelete";
 import OpenattendanceCollect from "../components/OpenattendanceCollect";
 
 const TeacherHome = () => {
   const navigate = useNavigate();
   const { userInfo, setUserInfo } = useContext(userContext);
-  const [activeComponent, setActiveComponent] = useState("openAttendanceCollect"); // Initial active component
+  const [activeMainButton, setActiveMainButton] = useState("");
+  const [activeView, setActiveView] = useState("");
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    setUserInfo({
-      staff: false,
-      firstname: "",
-      lastname: "",
-    });
+    setUserInfo({ staff: false, firstname: "", lastname: "" });
     navigate("/login");
   };
 
+  const handleMainButtonClick = (mainButton) => {
+    if (activeMainButton === mainButton) {
+      // Toggle off if the same button is clicked
+      setActiveMainButton("");
+      setActiveView("");
+    } else {
+      setActiveMainButton(mainButton);
+      setActiveView("");
+    }
+  };
+
   const renderComponent = () => {
-    switch (activeComponent) {
+    switch (activeView) {
       case "createCourse":
         return <CreateCourse />;
       case "addStudents":
         return <AddStudents />;
       case "selectCourse":
         return <SelectCourse />;
-      case "deleteCourse": // New case for CourseDelete
+      case "deleteCourse":
         return <CourseDelete />;
       case "openAttendanceCollect":
-        return <OpenattendanceCollect />
+        return <OpenattendanceCollect />;
       default:
         return null;
     }
@@ -55,49 +64,82 @@ const TeacherHome = () => {
           </button>
         </ul>
       </nav>
-      <div className="flex flex-col items-center">
+
+      <div className="flex flex-col justify-center items-center">
         <div className="flex mb-7">
           <button
-            onClick={() => setActiveComponent("createCourse")}
-            className={`${activeComponent === "createCourse"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
-            Create Course
+            onClick={() => handleMainButtonClick("selectCourse")}
+            className={`${
+              activeMainButton === "selectCourse"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+            } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+            {" "}
+            View Courses
           </button>
           <button
-            onClick={() => setActiveComponent("addStudents")}
-            className={`${activeComponent === "addStudents"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
-            Add Students
-          </button>
-          <button
-            onClick={() => setActiveComponent("selectCourse")}
-            className={`${activeComponent === "selectCourse"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
-            Select Course
-          </button>
-          <button
-            onClick={() => setActiveComponent("deleteCourse")}
-            className={`${activeComponent === "deleteCourse"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded font-roboto-slab`}>
-            Delete Course
-          </button>
-          <button
-            onClick={() => setActiveComponent("openAttendanceCollect")}
-            className={`${activeComponent === "openAttendanceCollect"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded ml-2 font-roboto-slab`}>
-            Attendance Collect
+            onClick={() => handleMainButtonClick("modifyCourse")}
+            className={`${
+              activeMainButton === "modifyCourse"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+            } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+            {" "}
+            Modify Courses
           </button>
         </div>
+
+        {/* Render Child Buttons Based on Active Main Button */}
+        {activeMainButton === "selectCourse" && (
+          <div className="flex flex-col mb-7">
+            <button
+              onClick={() => setActiveView("openAttendanceCollect")}
+              className={`${
+                activeView === "openAttendanceCollect"
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-300"
+              } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
+              {" "}
+              View Attendance
+            </button>
+          </div>
+        )}
+        {activeMainButton === "modifyCourse" && (
+          <div className="flex flex-col mb-7">
+            <button
+              onClick={() => setActiveView("createCourse")}
+              className={`${
+                activeView === "createCourse"
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-300"
+              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+              {" "}
+              Create a new course
+            </button>
+            <button
+              onClick={() => setActiveView("addStudents")}
+              className={`${
+                activeView === "addStudents"
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-300"
+              } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
+              {" "}
+              Add students to a course
+            </button>
+            <button
+              onClick={() => setActiveView("deleteCourse")}
+              className={`${
+                activeView === "deleteCourse"
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-300"
+              } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
+              {" "}
+              Delete Course
+            </button>
+          </div>
+        )}
+
+        {/* Render Component Based on Selected View */}
         {renderComponent()}
       </div>
     </>

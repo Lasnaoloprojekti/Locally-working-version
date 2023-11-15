@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Select, MenuItem } from "@mui/material";
 import { selectCourse } from "../Hooks/ApiHooks";
 
 const SelectCourse = () => {
@@ -24,7 +23,9 @@ const SelectCourse = () => {
 
   useEffect(() => {
     if (selectedCourse) {
-      const selectedCourseData = courses.find(course => course._id === selectedCourse);
+      const selectedCourseData = courses.find(
+        (course) => course._id === selectedCourse
+      );
       setTopics(selectedCourseData ? selectedCourseData.topics : []);
     } else {
       setTopics([]);
@@ -33,11 +34,14 @@ const SelectCourse = () => {
 
   // Ensure that the initial selected values match the available options
   useEffect(() => {
-    if (courses.length > 0 && !courses.some(course => course._id === selectedCourse)) {
-      setSelectedCourse(''); // Reset to a valid value
+    if (
+      courses.length > 0 &&
+      !courses.some((course) => course._id === selectedCourse)
+    ) {
+      setSelectedCourse(""); // Reset to a valid value
     }
     if (topics.length > 0 && !topics.includes(selectedTopic)) {
-      setSelectedTopic(''); // Reset to a valid value
+      setSelectedTopic(""); // Reset to a valid value
     }
   }, [courses, topics, selectedCourse, selectedTopic]);
 
@@ -58,32 +62,60 @@ const SelectCourse = () => {
   };
 
   return (
-    <div className="w-96">
-      <form onSubmit={handleSubmit} className="flex flex-col text-sm font-semibold mb-2 ">
-        <Select value={selectedCourse} onChange={handleCourseChange} displayEmpty>
-          <MenuItem value="" disabled>Select Course</MenuItem>
-          {courses.map(course => (
-            <MenuItem key={course._id} value={course._id}>
-              {course.name}
-            </MenuItem>
-          ))}
-        </Select>
-
-        <Select value={selectedTopic} onChange={handleTopicChange} displayEmpty disabled={!selectedCourse}>
-          <MenuItem value="" disabled>Select Topic</MenuItem>
-          {topics.map((topic, index) => (
-            <MenuItem key={index} value={topic}>
-              {topic}
-            </MenuItem>
-          ))}
-        </Select>
-
-        <button
-          className="w-full bg-blue-900 text-white p-2 rounded-lg py-3 px-4 shadow-lg hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-700"
-          type="submit">
-          View
-        </button>
-      </form>
+    <div className="min-h-screen w-full items-center flex flex-col px-6">
+      <div className="max-w-4xl w-full">
+        <div className="text-center font-medium text-xl mb-4 font-roboto-slab">
+          Select a Course and Topic
+        </div>
+        <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-5">
+              <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+                Select a course:
+              </label>
+              <select
+                value={selectedCourse}
+                onChange={handleCourseChange}
+                className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full mb-4">
+                <option value="" disabled>
+                  Select Course
+                </option>
+                {courses.map((course) => (
+                  <option key={course._id} value={course._id}>
+                    {course.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-5">
+              <label className="block mb-2 text-sm font-medium  text-gray-600 font-roboto-slab">
+                Select a topic:
+              </label>
+              <select
+                value={selectedTopic}
+                onChange={handleTopicChange}
+                disabled={!selectedCourse}
+                className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full mb-4">
+                <option value="" disabled>
+                  Select Topic
+                </option>
+                {topics.map((topic, index) => (
+                  <option key={index} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                View
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
