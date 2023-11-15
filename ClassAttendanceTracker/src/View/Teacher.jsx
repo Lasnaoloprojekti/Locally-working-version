@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import logo from "../assets/metropolia_s_orange.png";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../context/userContext";
@@ -13,6 +13,7 @@ const TeacherHome = () => {
   const { userInfo, setUserInfo } = useContext(userContext);
   const [activeMainButton, setActiveMainButton] = useState("");
   const [activeView, setActiveView] = useState("");
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");

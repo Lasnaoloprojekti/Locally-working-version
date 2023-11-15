@@ -1,18 +1,24 @@
 require("dotenv").config();
 
 const express = require("express");
+const { createServer } = require('node:http');
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, AttendanceSessionDatabaseModel } = require("./models/CollectionSchemas");
+const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, AttendanceSessionDatabaseModel, AttendanceDatabaseModel } = require("./models/CollectionSchemas");
 const jwt = require("jsonwebtoken");
-
-const cookieParser = require("cookie-parser");
+const { Server } = require("socket.io");
 const fetch = require("node-fetch");
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  }
+});
 
 app.use(express.json());
-app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
@@ -26,6 +32,15 @@ app.use(
 mongoose.connect(
   "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
 );
+
+io.on("connection", (socket) => {
+  console.log('a user connected', socket.id);
+  socket.emit('students',);
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
 
 app.post("/login", async (req, res) => {
   console.log("Login request received");
@@ -104,7 +119,6 @@ app.get("/verify", (req, res) => {
     res.status(200).json(existingUser);
   });
 });
-
 
 app.post("/createcourse", async (req, res) => {
   console.log("Create course request received", req.body);
@@ -212,7 +226,6 @@ app.post("/addstudents", async (req, res) => {
   }
 });
 
-
 app.get("/selectcourse", async (req, res) => {
   try {
     const selectCourse = await CourseDatabaseModel.find(); // Fetch all courses from the database
@@ -267,33 +280,115 @@ app.delete('/api/courses/:id', async (req, res) => {
   }
 });
 
-// //**Taking attendances */
-
 app.post('/createsession', async (req, res) => {
-  console.log("Create session request received", req.body);
-  try {
-    const { courseId, topic, date, timeofDay } = req.body;
+  const { courseId, topic, date, timeOfDay } = req.body;
 
-    // Convert courseId to a MongoDB ObjectId using 'new'
+  try {
+    // Correctly using new to create an instance of ObjectId
     const courseObjectId = new mongoose.Types.ObjectId(courseId);
 
     const newSession = new AttendanceSessionDatabaseModel({
-      course: courseObjectId, // Use courseObjectId here
-      topic,
-      date,
-      timeofDay
+      course: courseObjectId,
+      topic: topic,
+      date: date,
+      timeOfDay: timeOfDay,
+      isOpen: true,
+      studentsPresent: []
     });
 
     await newSession.save();
-
-    res.status(201).json({ sessionId: newSession._id });
+    res.status(201).json({ sessionId: newSession._id.toString() });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating session:", error);
     res.status(500).send('Internal Server Error');
   }
 });
 
+app.post('/registration', async (req, res) => {
+  const { studentNumber } = req.body;
 
-app.listen(3001, () => {
-  console.log("Server is running...");
+  try {
+    // Find student based on student number
+    const student = await StudentDatabaseModel.findOne({ studentNumber });
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    // Iterate through student's courses to find open sessions
+    for (let courseEnrollment of student.courses) {
+      const openSessions = await AttendanceSessionDatabaseModel.find({
+        course: courseEnrollment.course,
+        isOpen: true
+      }).populate('studentsPresent');
+
+      for (let session of openSessions) {
+        // Check if student is already registered in the session
+        if (session.studentsPresent.some(s => s._id.equals(student._id))) {
+          return res.status(400).send('Student already registered in this session');
+        }
+      }
+
+      // If student is not registered in any open session, register them in the first one
+      if (openSessions.length > 0) {
+        const sessionToUpdate = openSessions[0]; // Assuming we take the first open session
+        sessionToUpdate.studentsPresent.push(student._id);
+        await sessionToUpdate.save();
+
+        io.emit('studentAdded', {
+          firstName: student.firstName,
+          lastName: student.lastName,
+        });
+
+        const newAttendance = new AttendanceDatabaseModel({
+          session: sessionToUpdate._id,
+          student: student._id,
+          course: courseEnrollment.course,
+          topic: sessionToUpdate.topic,
+          date: sessionToUpdate.date,
+          timeOfDay: sessionToUpdate.timeOfDay,
+          status: "Present",
+          gdprConsent: student.gdprConsent
+        });
+
+        console.log("newAttendance", newAttendance);
+
+        await newAttendance.save();
+
+        return res.status(200).json({ message: "Student registered for session", sessionId: sessionToUpdate._id });
+      }
+    }
+
+    // If no open sessions found for any of the student's courses
+    return res.status(404).send('No open sessions available for your courses');
+
+  } catch (error) {
+    console.error("Error during registration:", error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/closesession', async (req, res) => {
+  const { sessionId } = req.body;
+
+  try {
+    const session = await AttendanceSessionDatabaseModel.findById(sessionId);
+
+    if (!session) {
+      return res.status(404).send('Session not found');
+    }
+
+    session.isOpen = false;
+    await session.save();
+
+    io.emit('sessionClosed', { sessionId: session._id });
+
+    res.status(200).send('Session closed successfully');
+  } catch (error) {
+    console.error("Error closing session:", error);
+    res.status(500).send('Internal Server Error');
+  }
+})
+
+server.listen(3001, () => {
+  console.log("Server is running in port 3001");
 });

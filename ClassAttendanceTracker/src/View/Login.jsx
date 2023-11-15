@@ -7,6 +7,10 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const { userInfo } = useContext(userContext);
   const navigate = useNavigate();
+ 
+
+
+
 
   useEffect(() => {
 
@@ -25,6 +29,7 @@ const Login = () => {
         </video>
       </div>
       <LoginForm></LoginForm>
+
     </>
   );
 };
