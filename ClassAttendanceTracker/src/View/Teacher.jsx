@@ -35,7 +35,7 @@ const TeacherHome = () => {
       case "deleteCourse": // New case for CourseDelete
         return <CourseDelete />;
       case "openAttendanceCollect":
-        return <OpenattendanceCollect />
+        return <OpenattendanceCollect />;
       default:
         return null;
     }
@@ -56,46 +56,52 @@ const TeacherHome = () => {
           </button>
         </ul>
       </nav>
+
       <div className="flex flex-col items-center">
         <div className="flex mb-7">
           <button
             onClick={() => setActiveComponent("createCourse")}
-            className={`${activeComponent === "createCourse"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+            className={`${
+              activeComponent === "createCourse"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+            } px-4 py-2 rounded mr-2 font-roboto-slab`}>
             Create Course
           </button>
           <button
             onClick={() => setActiveComponent("addStudents")}
-            className={`${activeComponent === "addStudents"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+            className={`${
+              activeComponent === "addStudents"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+            } px-4 py-2 rounded mr-2 font-roboto-slab`}>
             Add Students
           </button>
           <button
             onClick={() => setActiveComponent("selectCourse")}
-            className={`${activeComponent === "selectCourse"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+            className={`${
+              activeComponent === "selectCourse"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+            } px-4 py-2 rounded mr-2 font-roboto-slab`}>
             Select Course
           </button>
           <button
             onClick={() => setActiveComponent("deleteCourse")}
-            className={`${activeComponent === "deleteCourse"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded font-roboto-slab`}>
+            className={`${
+              activeComponent === "deleteCourse"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+            } px-4 py-2 rounded font-roboto-slab`}>
             Delete Course
           </button>
           <button
             onClick={() => setActiveComponent("openAttendanceCollect")}
-            className={`${activeComponent === "openAttendanceCollect"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-300"
-              } px-4 py-2 rounded ml-2 font-roboto-slab`}>
+            className={`${
+              activeComponent === "openAttendanceCollect"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+            } px-4 py-2 rounded ml-2 font-roboto-slab`}>
             Attendance Collect
           </button>
         </div>

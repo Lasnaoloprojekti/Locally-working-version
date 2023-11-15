@@ -16,9 +16,12 @@ const createCourse = async (courseData) => {
 const useDeleteCourse = () => {
   const deleteCourse = async (courseId) => {
     try {
-      const response = await axios.delete(`http://localhost:3001/api/courses/${courseId}`, {
-        withCredentials: true
-      });
+      const response = await axios.delete(
+        `http://localhost:3001/api/courses/${courseId}`,
+        {
+          withCredentials: true,
+        }
+      );
       return response; // This will be an HTTP response object
     } catch (error) {
       throw error; // Rethrow the error to be handled by the caller
@@ -30,9 +33,9 @@ const useDeleteCourse = () => {
 
 const selectCourse = async () => {
   try {
-    const response = await axios.get("http://localhost:3001/selectcourse",
-      { withCredentials: true, }
-    );
+    const response = await axios.get("http://localhost:3001/selectcourse", {
+      withCredentials: true,
+    });
     return response;
   } catch (error) {
     throw error;
@@ -41,10 +44,13 @@ const selectCourse = async () => {
 
 const createSession = async (sessionData) => {
   try {
-    const response = await axios.post("http://localhost:3001/createsession", sessionData, { withCredentials: true });
+    const response = await axios.post(
+      "http://localhost:3001/createsession",
+      sessionData,
+      { withCredentials: true }
+    );
     return response.data;
-  }
-  catch (error) {
+  } catch (error) {
     throw error;
   }
 };
@@ -62,5 +68,10 @@ const addStudentsToCourse = async (courseId, studentsToAdd) => {
   }
 };
 
-
-export { createCourse, useDeleteCourse, selectCourse, createSession, addStudentsToCourse };
+export {
+  createCourse,
+  useDeleteCourse,
+  selectCourse,
+  createSession,
+  addStudentsToCourse,
+};
