@@ -124,6 +124,7 @@ const OpenattendanceCollect = () => {
             </label>
             <Select
               className="border border-gray-300 p-3 h-14 block w-full font-open-sans"
+              style={{ borderRadius: "8px" }}
               value={selectedCourse}
               onChange={handleCourseChange}
               displayEmpty>
@@ -144,6 +145,7 @@ const OpenattendanceCollect = () => {
             </label>
             <Select
               className="border border-gray-300 p-3 h-14 block w-full font-open-sans"
+              style={{ borderRadius: "8px" }}
               value={selectedTopic}
               onChange={handleTopicChange}
               displayEmpty
