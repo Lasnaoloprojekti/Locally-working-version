@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import logo from "../assets/metropolia_s_orange.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { userContext } from "../context/userContext";
 import AddStudents from "../components/AddStudents";
 import CreateCourse from "../components/CreateCourse";
@@ -13,7 +13,6 @@ const TeacherHome = () => {
   const { userInfo, setUserInfo } = useContext(userContext);
   const [activeMainButton, setActiveMainButton] = useState("");
   const [activeView, setActiveView] = useState("");
-
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -52,7 +51,9 @@ const TeacherHome = () => {
   return (
     <>
       <nav className="flex justify-between items-center">
-        <img className="h-[18mm] m-4" src={logo} alt="Logo" />
+        <Link to="/teacherhome">
+          <img className="h-[18mm] m-4" src={logo} alt="Logo" />
+        </Link>{" "}
         <ul className="flex items-center">
           <li className="text-2xl ml-2 font-roboto-slab">
             Welcome! {userInfo.firstname} {userInfo.lastname}

@@ -140,7 +140,7 @@ const AddStudents = () => {
             <div className="flex justify-end space-x-2">
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                className="px-4 w-full p-3 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
                 Add Students
               </button>
             </div>

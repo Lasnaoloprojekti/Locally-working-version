@@ -1,132 +1,181 @@
 import { useState, useEffect } from "react";
-import { Select, MenuItem, FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
-import { selectCourse } from "../Hooks/ApiHooks";
-import { useNavigate } from 'react-router-dom';
-import { createSession } from '../Hooks/ApiHooks';
+import { useNavigate } from "react-router-dom";
+import { createSession, selectCourse } from "../Hooks/ApiHooks";
+import { Radio, RadioGroup, FormControlLabel } from "@mui/material";
 
 const OpenattendanceCollect = () => {
-    const [courses, setCourses] = useState([]);
-    const [selectedCourse, setSelectedCourse] = useState("");
-    const [topics, setTopics] = useState([]);
-    const [selectedTopic, setSelectedTopic] = useState("");
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [timeOfDay, setTimeOfDay] = useState('');
-    const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [topics, setTopics] = useState([]);
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [setSelectedDate] = useState(null);
+  const [timeOfDay, setTimeOfDay] = useState("");
+  const navigate = useNavigate();
+  const [date, setDate] = useState("");
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const response = await selectCourse();
-                console.log("Courses fetched:", response);
-                setCourses(response.data);
-            } catch (error) {
-                console.error("Error fetching courses:", error);
-            }
-        };
+  useEffect(() => {
+    const today = new Date();
+    const formattedDate = today.toISOString().split("T")[0];
+    setDate(formattedDate);
 
-        fetchCourses();
-    }, []);
+    const hour = today.getHours();
+    const minute = today.getMinutes();
+    if (hour > 12 || (hour === 12 && minute > 30)) {
+      setTimeOfDay("Afternoon");
+    } else {
+      setTimeOfDay("Morning");
+    }
+  }, []);
 
-    useEffect(() => {
-        if (selectedCourse) {
-            const selectedCourseData = courses.find(course => course._id === selectedCourse);
-            setTopics(selectedCourseData ? selectedCourseData.topics : []);
-        } else {
-            setTopics([]);
-        }
-    }, [selectedCourse, courses]);
-
-    const handleCourseChange = (event) => {
-        setSelectedCourse(event.target.value);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await selectCourse();
+        console.log("Courses fetched:", response);
+        setCourses(response.data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
     };
 
-    const handleTopicChange = (event) => {
-        setSelectedTopic(event.target.value);
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    if (selectedCourse) {
+      const selectedCourseData = courses.find(
+        (course) => course._id === selectedCourse
+      );
+      setTopics(selectedCourseData ? selectedCourseData.topics : []);
+    } else {
+      setTopics([]);
+    }
+  }, [selectedCourse, courses]);
+
+  const handleCourseChange = (event) => {
+    setSelectedCourse(event.target.value);
+  };
+
+  const handleTopicChange = (event) => {
+    setSelectedTopic(event.target.value);
+  };
+
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
+  };
+
+  const handleTimeOfDayChange = (event) => {
+    setTimeOfDay(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const sessionData = {
+      courseId: selectedCourse,
+      topic: selectedTopic,
+      date: date, // Use the date state here
+      timeOfDay,
     };
 
-    const handleDateChange = (event) => {
-        setSelectedDate(event.target.value);
-    };
+    try {
+      const response = await createSession(sessionData);
+      console.log("Session created:", response);
 
-    const handleTimeOfDayChange = (event) => {
-        setTimeOfDay(event.target.value);
-    };
+      // Extracting session ID from the response
+      const sessionId = response.sessionId;
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+      // Get the selected course name
+      const selectedCourseName = courses.find(
+        (course) => course._id === selectedCourse
+      )?.name;
 
-        const sessionData = {
-            courseId: selectedCourse,
-            topic: selectedTopic,
-            date: selectedDate,
-            timeOfDay
-        };
+      // Navigate to the waiting page with session ID, course name, and topic
+      navigate(
+        `/wait/${sessionId}/${encodeURIComponent(
+          selectedCourseName
+        )}/${encodeURIComponent(selectedTopic)}`
+      );
+    } catch (error) {
+      console.error("Error creating session:", error);
+      // Handle error here
+    }
+  };
 
-        try {
-            const response = await createSession(sessionData);
-            console.log("Session created:", response);
-
-            // Extracting session ID from the response
-            const sessionId = response.sessionId;
-
-            // Get the selected course name
-            const selectedCourseName = courses.find(course => course._id === selectedCourse)?.name;
-
-            // Navigate to the waiting page with session ID, course name, and topic
-            navigate(`/wait/${sessionId}/${encodeURIComponent(selectedCourseName)}/${encodeURIComponent(selectedTopic)}`);
-        } catch (error) {
-            console.error("Error creating session:", error);
-            // Handle error here
-        }
-    };
-
-    return (
-        <div className="w-96 mt-1">
-            <form onSubmit={handleSubmit} className="flex flex-col text-sm font-semibold mb-2 font-open-sans">
-                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Course</label>
-                <Select className="mb-4" value={selectedCourse} onChange={handleCourseChange} displayEmpty>
-                    <MenuItem value="" disabled>Course</MenuItem>
-                    {courses.map(course => (
-                        <MenuItem key={course._id} value={course._id}>
-                            {course.name}
-                        </MenuItem>
-                    ))}
-                </Select>
-
-                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Topic</label>
-                <Select className="mb-4 font-open-sans" value={selectedTopic} onChange={handleTopicChange} displayEmpty disabled={!selectedCourse}>
-                    <MenuItem className="font-open-sans" value="" disabled>Topic</MenuItem>
-                    {topics.map((topic, index) => (
-                        <MenuItem className="font-open-sans" key={index} value={topic}>
-                            {topic}
-                        </MenuItem>
-                    ))}
-                </Select>
-
-                <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Day</label>
-                <input
-                    required
-                    className="w-full mb-4 h-14 p-3 text-black border rounded"
-                    type="date"
-                    onChange={handleDateChange}
-                />
-
-                <FormControl className="font-open-sans" component="fieldset" >
-                    <label className="block text-black text-sm font-semibold mb-2 font-roboto-slab">Select Time of Day</label>
-                    <RadioGroup row name="timeOfDay" className=" mb-3" value={timeOfDay} onChange={handleTimeOfDayChange}>
-                        <FormControlLabel className="font-open-sans" value="Morning" control={<Radio />} label="Morning" />
-                        <FormControlLabel className="font-open-sans" value="Afternoon" control={<Radio />} label="Afternoon" />
-                    </RadioGroup>
-                </FormControl>
-
-                <button
-                    className="w-full bg-orange-600 text-white p-2 rounded-lg py-3 px-4 shadow-lg hover:bg-orange-400 focus:outline-none focus:ring focus:border-orange-700 font-roboto-slab"
-                    type="submit">
-                    Collect Attendances
-                </button>
-            </form>
+  return (
+    <div className="max-w-4xl w-full">
+      <div className="text-center font-medium text-xl mb-4 font-roboto-slab">
+        Collect Attendances
+      </div>
+      <form
+        className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg"
+        onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+            Select Course
+          </label>
+          <input
+            required
+            className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+            type="text"
+            placeholder="Enter course ID"
+            value={selectedCourse}
+            onChange={handleCourseChange}
+          />
         </div>
-    );
+
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+            Select Topic
+          </label>
+          <input
+            required
+            className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+            type="text"
+            placeholder="Enter topic"
+            value={selectedTopic}
+            onChange={handleTopicChange}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+            Select Day
+          </label>
+          <input
+            required
+            className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+        <RadioGroup
+          row
+          name="timeOfDay"
+          value={timeOfDay}
+          onChange={(e) => setTimeOfDay(e.target.value)}>
+          <FormControlLabel
+            value="Morning"
+            control={<Radio />}
+            label="Morning"
+          />
+          <FormControlLabel
+            value="Afternoon"
+            control={<Radio />}
+            label="Afternoon"
+          />
+        </RadioGroup>
+        <div className="flex justify-end mt-4">
+          <button
+            type="submit"
+            className="px-4 w-full p-3 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+            Collect Attendances
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default OpenattendanceCollect;
