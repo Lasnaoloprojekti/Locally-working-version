@@ -43,11 +43,10 @@ io.on("connection", (socket) => {
 });
 
 app.post("/login", async (req, res) => {
-  console.log("Login request received");
+
   const { username, password } = req.body;
 
   try {
-
     const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
       method: "POST",
       headers: {
@@ -57,9 +56,6 @@ app.post("/login", async (req, res) => {
     });
 
     const apiData = await apiResponse.json();
-
-    console.log("vastaus ilkan apista:", apiData);
-
 
     if (apiData.message === "invalid username or password") {
       return res.status(401).json({ error: "invalid username or password" });
@@ -79,8 +75,8 @@ app.post("/login", async (req, res) => {
           staff: apiData.staff,
           courses: null,
         });
-        await newUser.save();
 
+        await newUser.save();
         console.log("New user created:", newUser);
       }
 
@@ -90,9 +86,6 @@ app.post("/login", async (req, res) => {
       );
 
       apiData.accessToken = accessToken;
-
-      console.log(apiData.message, "onnistui");
-      // Send a response to the client based on the API response
       res.status(apiResponse.status).json({ apiData });
     }
   } catch (error) {
@@ -436,6 +429,56 @@ app.get('/participations/:id', async (req, res) => {
   }
 });
 
+
+app.get('/api/participation/:studentNumber', async (req, res) => {
+  const studentNumber = req.params.studentNumber;
+
+  try {
+    const student = await StudentDatabaseModel.findOne({ studentNumber }).exec();
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    const courses = student.courses.map(c => c.course);
+
+    let participationData = [];
+
+    for (const courseId of courses) {
+      const course = await CourseDatabaseModel.findById(courseId)
+        .populate('topics')
+        .exec();
+
+      if (!course) {
+        continue; // Skip if course not found
+      }
+
+      let studentParticipation = {
+        courseName: course.name,
+        participation: {}
+      };
+
+      for (const topic of course.topics) {
+        const totalSessions = await AttendanceSessionDatabaseModel.countDocuments({ course: courseId, topic: topic });
+
+        const attendedSessions = await AttendanceDatabaseModel.countDocuments({
+          student: student._id,
+          course: courseId,
+          topic: topic,
+          status: 'Present'
+        });
+
+        studentParticipation.participation[topic] = totalSessions > 0 ? ((attendedSessions / totalSessions) * 100).toFixed(2) + '%' : 'N/A';
+      }
+
+      participationData.push(studentParticipation);
+    }
+
+    res.json(participationData);
+  } catch (error) {
+    console.error("Error retrieving participation data:", error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");

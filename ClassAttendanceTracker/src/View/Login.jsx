@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const { userInfo } = useContext(userContext);
   const navigate = useNavigate();
- 
+
 
 
 
@@ -15,7 +15,7 @@ const Login = () => {
   useEffect(() => {
 
     if (userInfo.firstname !== "" && userInfo.lastname !== "") {
-      navigate("/teacherhome");
+      navigate("/studentHome");
     }
 
   }, [userInfo]);
@@ -34,6 +34,4 @@ const Login = () => {
   );
 };
 
-// Author: Matian Naakka
-// Date: November 4, 2023
 export default Login;

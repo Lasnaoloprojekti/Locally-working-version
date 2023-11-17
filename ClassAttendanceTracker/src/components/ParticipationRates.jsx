@@ -47,13 +47,13 @@ export const ParticipationRates = () => {
                 </div>
                 <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
                     <div className="mb-5">
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
+                        <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
                             Select a course:
                         </label>
                         <select
                             value={selectedCourse}
                             onChange={handleCourseChange}
-                            className="border border-gray-300 p-3 rounded-lg block w-full mb-4"
+                            className="border border-gray-300 p-3 rounded-lg block w-full mb-4 font-open-sans"
                         >
                             <option value="" disabled>
                                 Select Course
@@ -68,7 +68,7 @@ export const ParticipationRates = () => {
                     <div className="flex justify-end">
                         <button
                             onClick={getParticipationRates}
-                            className="px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                            className="px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white rounded-lg  transition-colors font-roboto-slab"
                         >
                             Get Participation Rates
                         </button>
@@ -78,10 +78,10 @@ export const ParticipationRates = () => {
 
             {participationData.length > 0 && (
                 <div className="max-w-4xl w-full mt-6">
-                    <table className="w-full text-sm text-left text-gray-500">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                    <table className="w-full text-sm text-left text-gray-500 font-roboto-slab">
+                        <thead className="text-xs text-white uppercase bg-blue-900">
                             <tr>
-                                <th scope="col" className="px-6 py-3">
+                                <th scope="col" className="px-6 py-3 ">
                                     Lastname
                                 </th>
                                 <th scope="col" className="px-6 py-3">
@@ -97,7 +97,7 @@ export const ParticipationRates = () => {
                         </thead>
                         <tbody>
                             {participationData.map((student, index) => (
-                                <tr key={index} className="bg-white border-b">
+                                <tr key={index} className="bg-white border-b font-open-sans">
                                     <td className="px-6 py-4">{student.lastName}</td>
                                     <td className="px-6 py-4">{student.firstName}</td>
                                     {Object.entries(student.participation).map(([topic, rate]) => (
