@@ -246,6 +246,7 @@ app.get("/api/courses", async (req, res) => {
   }
 });
 
+//course delete/students
 app.delete('/api/courses/:id', async (req, res) => {
   const courseId = req.params.id;
 
@@ -388,6 +389,53 @@ app.post('/closesession', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 })
+
+app.get('/participations/:id', async (req, res) => {
+  console.log("Participation request received");
+
+  const courseId = req.params.id;
+
+  try {
+    const course = await CourseDatabaseModel.findById(courseId)
+      .populate({
+        path: 'students',
+      })
+      .exec();
+
+    if (!course) {
+      return res.status(404).send('Course not found');
+    }
+
+    let participationData = [];
+
+    for (const student of course.students) {
+      let studentParticipation = {
+        lastName: student.lastName,
+        firstName: student.firstName,
+        participation: {}
+      };
+
+      for (const topic of course.topics) {
+        // Count the total number of sessions conducted for this topic
+        const totalSessions = await AttendanceSessionDatabaseModel.countDocuments({ course: courseId, topic: topic });
+
+        // Count how many sessions this student attended for this topic
+        const attendedSessions = await AttendanceDatabaseModel.countDocuments({ student: student._id, course: courseId, topic: topic, status: 'Present' });
+
+        // Calculate participation percentage
+        studentParticipation.participation[topic] = totalSessions > 0 ? ((attendedSessions / totalSessions) * 100).toFixed(2) + '%' : 'na';
+      }
+
+      participationData.push(studentParticipation);
+    }
+
+    res.json(participationData);
+  } catch (error) {
+    console.error("Error retrieving participation data:", error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");
