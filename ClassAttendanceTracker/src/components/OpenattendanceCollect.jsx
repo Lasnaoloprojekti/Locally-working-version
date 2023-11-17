@@ -113,7 +113,7 @@ const OpenattendanceCollect = () => {
     <div className="min-h-screen w-full items-center flex flex-col px-6">
       <div className="max-w-4xl w-full">
         <div className="text-center font-medium text-xl mb-4 font-roboto-slab">
-          Add Students Manually
+          Fill in to open attendace collection
         </div>
         <form
           onSubmit={handleSubmit}

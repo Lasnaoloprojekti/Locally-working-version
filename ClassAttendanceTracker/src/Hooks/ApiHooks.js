@@ -68,10 +68,21 @@ const addStudentsToCourse = async (courseId, studentsToAdd) => {
   }
 };
 
+const fetchParticipationRates = async (courseId) => {
+  try {
+    const response = await axios.get(`http://localhost:3001/participations/${courseId}`, {
+      withCredentials: true,
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export {
   createCourse,
   useDeleteCourse,
   selectCourse,
   createSession,
-  addStudentsToCourse,
+  addStudentsToCourse, fetchParticipationRates
 };
