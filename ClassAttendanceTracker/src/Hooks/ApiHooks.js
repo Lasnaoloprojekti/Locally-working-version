@@ -83,10 +83,48 @@ const fetchParticipationRates = async (courseId) => {
   }
 };
 
+const createTopic = async (topicData) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3001/addtopic",
+      topicData,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw error; 
+  }
+};
+
+const getTopics = async () => {
+  try {
+    const response = await axios.get("http://localhost:3001/api/topics", {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteTopic = async (topicId) => {
+  try {
+    const response = await axios.delete(`http://localhost:3001/api/topics/${topicId}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export {
   createCourse,
   useDeleteCourse,
   selectCourse,
   createSession,
-  addStudentsToCourse, fetchParticipationRates
+  addStudentsToCourse, fetchParticipationRates,
+  createTopic,
+  getTopics,
+  deleteTopic
 };

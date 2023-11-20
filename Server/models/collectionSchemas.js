@@ -121,6 +121,14 @@ const CourseSchema = new mongoose.Schema({
   isActive: Boolean,
 });
 
+//**Topics Schema */
+const TopicSchema = new mongoose.Schema({
+  name: {
+      type: String,
+      required: true
+  }
+});
+
 //Setting the Schemas to models
 
 const CourseDatabaseModel = mongoose.model("Course", CourseSchema);
@@ -131,6 +139,7 @@ const AttendanceSessionDatabaseModel = mongoose.model(
   AttendanceSessionSchema
 );
 const StudentDatabaseModel = mongoose.model("Student", StudentSchema);
+const TopicDatabaseModel = mongoose.model('Topic', TopicSchema);
 
 module.exports = {
   UserDatabaseModel,
@@ -138,4 +147,5 @@ module.exports = {
   StudentDatabaseModel,
   AttendanceDatabaseModel,
   AttendanceSessionDatabaseModel,
+  TopicDatabaseModel
 };
