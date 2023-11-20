@@ -58,94 +58,84 @@ const CreateCourse = () => {
   };
 
   return (
-        <div className="create-course-container">
-            <form className="w-96" onSubmit={handleSubmit}>
-                {/* Course Name Input */}
-                <div className="mb-4">
-                    <label className="block text-black text-sm font-semibold mb-2">Course Name</label>
-                    <input
-                        required
-                        className="w-full p-2 border rounded"
-                        type="text"
-                        placeholder="Enter course name"
-                        name="courseName"
-                        value={courseData.courseName}
-                        onChange={handleChange}
-                    />
-                </div>
+    <div className="create-course-container">
+      <form className="w-96" onSubmit={handleSubmit}>
 
-                {/* Group Name Input */}
-                <div className="mb-4">
-                    <label className="block text-black text-sm font-semibold mb-2">Group Name</label>
-                    <input
-                        required
-                        className="w-full p-2 border rounded"
-                        type="text"
-                        placeholder="Enter group name"
-                        name="groupName"
-                        value={courseData.groupName}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* Topics Input with Suggestions */}
-                <div className="mb-4">
-                    <label className="block text-black text-sm font-semibold mb-2">Topics</label>
-                    <input
-                        className="w-full p-2 border rounded"
-                        type="text"
-                        placeholder="Add course topics e.g. Mathematics, Physics"
-                        name="topics"
-                        value={courseData.topics.join(', ')}
-                        onChange={handleChange}
-                        list="topic-list"
-                    />
-                    <datalist id="topic-list">
-                        {availableTopics.map((topic, index) => (
-                            <option key={index} value={topic.name} />
-                        ))}
-                    </datalist>
-                </div>
-
-                {/* Start Date Input */}
-                <div className="mb-4">
-                    <label className="block text-black text-sm font-semibold mb-2">Start Date</label>
-                    <input
-                        className="w-full p-2 border rounded"
-                        type="date"
-                        name="startDate"
-                        value={courseData.startDate}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* End Date Input */}
-                <div className="mb-4">
-                    <label className="block text-black text-sm font-semibold mb-2">End Date</label>
-                    <input
-                        className="w-full p-2 border rounded"
-                        type="date"
-                        name="endDate"
-                        value={courseData.endDate}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* Submit Button */}
-                <button
-                    className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-700 focus:outline-none focus:ring focus:border-orange-700"
-                    type="submit">
-                    Create Course
-                </button>
-            </form>
-
-            {alert.show && (
-                <div className={`mt-4 p-4 rounded-md transition-all ${alert.isError ? 'bg-red-100 border border-red-400 text-red-800' : 'bg-green-100 border border-green-400 text-green-800'}`}>
-                    <p>{alert.message}</p>
-                </div>
-            )}
+        <div className="mb-4">
+          <label className="block text-black text-sm font-semibold mb-2">Course Name</label>
+          <input
+            required
+            className="w-full p-2 border rounded"
+            type="text"
+            placeholder="Enter course name"
+            name="courseName"
+            value={courseData.courseName}
+            onChange={handleChange}
+          />
         </div>
-    );
+        <div className="mb-4">
+          <label className="block text-black text-sm font-semibold mb-2">Group Name</label>
+          <input
+            required
+            className="w-full p-2 border rounded"
+            type="text"
+            placeholder="Enter group name"
+            name="groupName"
+            value={courseData.groupName}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-black text-sm font-semibold mb-2">Topics</label>
+          <input
+            className="w-full p-2 border rounded"
+            type="text"
+            placeholder="Add course topics e.g. Mathematics, Physics"
+            name="topics"
+            value={courseData.topics.join(', ')}
+            onChange={handleChange}
+            list="topic-list"
+          />
+          <datalist id="topic-list">
+            {availableTopics.map((topic, index) => (
+              <option key={index} value={topic.name} />
+            ))}
+          </datalist>
+        </div>
+        <div className="mb-4">
+          <label className="block text-black text-sm font-semibold mb-2">Start Date</label>
+          <input
+            className="w-full p-2 border rounded"
+            type="date"
+            name="startDate"
+            value={courseData.startDate}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-black text-sm font-semibold mb-2">End Date</label>
+          <input
+            className="w-full p-2 border rounded"
+            type="date"
+            name="endDate"
+            value={courseData.endDate}
+            onChange={handleChange}
+          />
+        </div>
+        <button
+          className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-700 focus:outline-none focus:ring focus:border-orange-700"
+          type="submit">
+          Create Course
+        </button>
+      </form>
+
+      {alert.show && (
+        <div className={`mt-4 p-4 rounded-md transition-all ${alert.isError ? 'bg-red-100 border border-red-400 text-red-800' : 'bg-green-100 border border-green-400 text-green-800'}`}>
+          <p>{alert.message}</p>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default CreateCourse;

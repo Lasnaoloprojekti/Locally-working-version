@@ -242,6 +242,17 @@ app.get("/api/courses", async (req, res) => {
   }
 });
 
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await UserDatabaseModel.find({});
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "An error occurred while fetching users" });
+  }
+});
+
+
 //course delete/students
 app.delete('/api/courses/:id', async (req, res) => {
   const courseId = req.params.id;
@@ -527,6 +538,29 @@ app.delete('/api/topics/:id', async (req, res) => {
     res.status(500).json({ error: "An error occurred while deleting the topic" });
   }
 });
+
+app.post('/addTeacherToCourse', async (req, res) => {
+  const { courseId, userId } = req.body;
+
+  try {
+    const course = await CourseDatabaseModel.findById(courseId);
+    if (!course) {
+      return res.status(404).send('Course not found');
+    }
+
+
+    if (!course.teachers.includes(userId)) {
+      course.teachers.push(userId);
+      await course.save();
+    }
+
+    res.status(200).json({ message: "Teacher added successfully to the course" });
+  } catch (error) {
+    console.error("Error adding teacher to course:", error);
+    res.status(500).json({ error: "An error occurred while adding the teacher to the course" });
+  }
+});
+
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");
