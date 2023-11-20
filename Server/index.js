@@ -4,7 +4,7 @@ const express = require("express");
 const { createServer } = require('node:http');
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, AttendanceSessionDatabaseModel, AttendanceDatabaseModel } = require("./models/CollectionSchemas");
+const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, AttendanceSessionDatabaseModel, AttendanceDatabaseModel, TopicDatabaseModel } = require("./models/CollectionSchemas");
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const fetch = require("node-fetch");
@@ -61,9 +61,7 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ error: "invalid username or password" });
     } else {
 
-      let existingUser = await UserDatabaseModel.findOne({
-        user: apiData.user,
-      });
+      let existingUser = await UserDatabaseModel.findOne({ user: apiData.user, });
 
       if (!existingUser) {
         // User does not exist, create a new user
@@ -85,7 +83,9 @@ app.post("/login", async (req, res) => {
         process.env.ACCESS_TOKEN_SECRET
       );
 
+
       apiData.accessToken = accessToken;
+      apiData.UserId = existingUser._id.toString();
       res.status(apiResponse.status).json({ apiData });
     }
   } catch (error) {
@@ -116,7 +116,7 @@ app.get("/verify", (req, res) => {
 app.post("/createcourse", async (req, res) => {
   console.log("Create course request received", req.body);
 
-  const { courseName, groupName, topics, startDate, endDate } = req.body;
+  const { courseName, groupName, topics, startDate, endDate, userId } = req.body;
 
   try {
     const existingCourse = await CourseDatabaseModel.findOne({
@@ -134,7 +134,7 @@ app.post("/createcourse", async (req, res) => {
       endDate: endDate,
       isActive: true,
       topics: topics, // Assuming default type for all topics
-      teachers: [], // Assuming you want to initialize with an empty array
+      teachers: [userId], // Assuming you want to initialize with an empty array
       students: [], // Assuming you want to initialize with an empty array
     });
 
@@ -220,13 +220,16 @@ app.post("/addstudents", async (req, res) => {
 });
 
 app.get("/selectcourse", async (req, res) => {
+
   try {
-    const selectCourse = await CourseDatabaseModel.find(); // Fetch all courses from the database
+    const userId = req.headers.userid;
+    const selectCourse = await CourseDatabaseModel.find({ teachers: userId }); // Fetch all courses from the database
     res.status(200).json(selectCourse); // Send the courses back in the response
   } catch (error) {
     console.error("Error fetching courses:", error);
     res.status(500).json({ error: "An error occurred while fetching courses" });
   }
+
 });
 
 app.get("/api/courses", async (req, res) => {
@@ -429,7 +432,6 @@ app.get('/participations/:id', async (req, res) => {
   }
 });
 
-
 app.get('/api/participation/:studentNumber', async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
@@ -477,6 +479,52 @@ app.get('/api/participation/:studentNumber', async (req, res) => {
   } catch (error) {
     console.error("Error retrieving participation data:", error);
     res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/addtopic', async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    // Check if topic already exists
+    const existingTopic = await TopicDatabaseModel.findOne({ name });
+    if (existingTopic) {
+      return res.status(409).json({ error: "Topic already exists" });
+    }
+
+    // Create new topic
+    const newTopic = new TopicDatabaseModel({ name });
+    await newTopic.save();
+
+    res.status(201).json({ message: "Topic created successfully", topicId: newTopic._id });
+  } catch (error) {
+    console.error("Error adding topic:", error);
+    res.status(500).json({ error: "An error occurred while adding the topic" });
+  }
+});
+
+app.get("/api/topics", async (req, res) => {
+  try {
+    const topics = await TopicDatabaseModel.find(); // Fetch all topics from the database
+    res.status(200).json(topics); // Send the topics back in the response
+  } catch (error) {
+    console.error("Error fetching topics:", error);
+    res.status(500).json({ error: "An error occurred while fetching topics" });
+  }
+});
+
+
+app.delete('/api/topics/:id', async (req, res) => {
+  try {
+    const topicId = req.params.id;
+    const topic = await TopicDatabaseModel.findByIdAndDelete(topicId);
+    if (!topic) {
+      return res.status(404).json({ message: 'Topic not found' });
+    }
+    res.status(200).json({ message: 'Topic deleted successfully' });
+  } catch (error) {
+    console.error("Error deleting topic:", error);
+    res.status(500).json({ error: "An error occurred while deleting the topic" });
   }
 });
 

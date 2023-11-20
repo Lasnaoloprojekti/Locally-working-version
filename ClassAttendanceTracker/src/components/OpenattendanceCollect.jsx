@@ -10,6 +10,9 @@ import {
   RadioGroup,
 } from "@mui/material";
 
+
+const userId = localStorage.getItem("userid");
+
 const OpenattendanceCollect = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -37,7 +40,7 @@ const OpenattendanceCollect = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse();
+        const response = await selectCourse(userId);
         console.log("Courses fetched:", response);
         setCourses(response.data);
       } catch (error) {

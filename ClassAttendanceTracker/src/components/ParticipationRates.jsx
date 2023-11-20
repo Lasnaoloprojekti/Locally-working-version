@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { fetchParticipationRates, selectCourse } from "../Hooks/ApiHooks";
 
+
+const userId = localStorage.getItem("userid");
+
 export const ParticipationRates = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -16,6 +19,7 @@ export const ParticipationRates = () => {
         console.error("Error fetching courses:", error);
       }
     };
+
 
     fetchCourses();
   }, []);

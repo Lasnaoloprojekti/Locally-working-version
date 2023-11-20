@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { selectCourse } from "../Hooks/ApiHooks";
 
+const userId = localStorage.getItem("userid");
+
 const SelectCourse = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -10,7 +12,7 @@ const SelectCourse = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse();
+        const response = await selectCourse(userId);
         console.log("Courses fetched:", response);
         setCourses(response.data);
       } catch (error) {

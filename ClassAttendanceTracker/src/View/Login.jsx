@@ -8,13 +8,13 @@ const Login = () => {
   const { userInfo } = useContext(userContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if user is logged in (assuming userInfo is null or empty object when not logged in)
-    if (userInfo && userInfo.firstname !== "" && userInfo.lastname !== "") {
-      // Redirect based on staff status
-      navigate(userInfo.staff ? "/teacherhome" : "/studenthome");
-      // navigate(userInfo.staff ? "/teacherhome" : "/teacherhome");
 
+  useEffect(() => {
+
+    if (userInfo && userInfo.firstname !== "" && userInfo.lastname !== "") {
+
+      //   navigate(userInfo.staff ? "/teacherhome" : "/studenthome");
+      navigate("/teacherhome");
     }
   }, [userInfo, navigate]);
 

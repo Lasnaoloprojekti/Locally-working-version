@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Select, MenuItem, Button } from "@mui/material";
-import { selectCourse } from "../Hooks/ApiHooks";
-import { useDeleteCourse } from "../Hooks/ApiHooks";
+import { selectCourse, useDeleteCourse } from "../Hooks/ApiHooks";
+
+
+const userId = localStorage.getItem("userid");
 
 const CourseDelete = () => {
   const [courses, setCourses] = useState([]);
@@ -16,7 +17,7 @@ const CourseDelete = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse();
+        const response = await selectCourse(userId);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -93,11 +94,10 @@ const CourseDelete = () => {
           </button>
           {alert.show && (
             <div
-              className={`mt-4 p-4 rounded-md transition-all ${
-                alert.isError
-                  ? "bg-red-100 border border-red-400 text-red-800"
-                  : "bg-green-100 border border-green-400 text-green-800"
-              }`}>
+              className={`mt-4 p-4 rounded-md transition-all ${alert.isError
+                ? "bg-red-100 border border-red-400 text-red-800"
+                : "bg-green-100 border border-green-400 text-green-800"
+                }`}>
               <p>{alert.message}</p>
             </div>
           )}
