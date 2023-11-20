@@ -1,8 +1,7 @@
-
-import logo from "../assets/metropolia_s_orange.png";
-import { userContext } from "../context/userContext";
-import { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { userContext } from "../context/userContext";
+import logo from "../assets/metropolia_s_orange.png";
 import StudentsOwnParticipations from "../components/StudentsOwnParticipations";
 
 export const StudentHome = () => {
@@ -14,10 +13,9 @@ export const StudentHome = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-		   setUserInfo({ staff: false, firstname: "", lastname: "" });
+    setUserInfo({ staff: false, firstname: "", lastname: "" });
     navigate("/login");
   };
-
 
   const handleMainButtonClick = (mainButton) => {
     if (activeMainButton === mainButton) {
@@ -44,7 +42,7 @@ export const StudentHome = () => {
       <nav className="flex justify-between items-center">
         <Link to="/teacherhome">
           <img className="h-[18mm] m-4" src={logo} alt="Logo" />
-        </Link>{" "}
+        </Link>
         <ul className="flex items-center">
           <li className="text-2xl ml-2 font-roboto-slab">
             Welcome! {userInfo.firstname} {userInfo.lastname}
@@ -56,8 +54,7 @@ export const StudentHome = () => {
           </button>
         </ul>
       </nav>
-        <StudentsOwnParticipations />
-
+      <StudentsOwnParticipations />
     </>
   );
 };
