@@ -21,7 +21,7 @@ const CreateCourse = () => {
         topics: courseData.topics,
         startDate: courseData.startDate,
         endDate: courseData.endDate,
-        userId: localStorage.getItem("UserId"),
+        userId: localStorage.getItem("userid"),
       };
       const response = await createCourse(requestData);
 

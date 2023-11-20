@@ -1,5 +1,5 @@
 import "../login.css";
-import LoginForm from "../components/LoginForm"; // Importing the LoginForm component
+import LoginForm from "../components/LoginForm";
 import { useContext, useEffect } from "react";
 import { userContext } from "../context/userContext";
 import { useNavigate } from "react-router-dom";
@@ -26,8 +26,7 @@ const Login = () => {
           Your browser does not support the video tag.
         </video>
       </div>
-      <LoginForm></LoginForm>
-
+      <LoginForm />
     </>
   );
 };

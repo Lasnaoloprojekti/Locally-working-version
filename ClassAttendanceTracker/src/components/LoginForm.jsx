@@ -40,9 +40,10 @@ const LoginForm = () => {
           lastname: responseData.lastname,
           userId: responseData.UserId,
         });
+
+
         localStorage.setItem("userid", responseData.UserId);
         localStorage.setItem("token", responseData.accessToken);
-
         navigate(responseData.staff ? '/teacherhome' : '/studenthome');
 
       } else {

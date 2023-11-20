@@ -8,7 +8,6 @@ import { UserContextProvider } from "./context/userContext";
 import { WaitingPage } from "./View/AttendanceCollect";
 import { Registration } from "./View/Registation";
 
-
 const App = () => {
   return (
     <UserContextProvider>
