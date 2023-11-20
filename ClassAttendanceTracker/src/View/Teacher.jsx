@@ -8,7 +8,7 @@ import CourseDelete from "../components/CourseDelete";
 import OpenattendanceCollect from "../components/OpenattendanceCollect";
 import ParticipationRates from "../components/ParticipationRates";
 import logo from "../assets/metropolia_s_orange.png";
-import AddTopics from "../components/AddTopics"; 
+import AddTopics from "../components/AddTopics";
 
 const TeacherHome = () => {
   const navigate = useNavigate();
@@ -79,12 +79,8 @@ const TeacherHome = () => {
             </button>
             <button
               onClick={() => setActiveView("addTopic")}
-              className={`${
-                activeView === "addTopic"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 mt-2 font-roboto-slab`}>
-              Add Topic
+              className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
+              Modify Topics{" "}
             </button>
             <button
               onClick={() => setActiveView("deleteCourse")}
