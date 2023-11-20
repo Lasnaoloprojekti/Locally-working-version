@@ -2,12 +2,10 @@ import React, { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { userContext } from "../context/userContext";
 import logo from "../assets/metropolia_s_orange.png";
-import StudentsOwnParticipations from "../components/StudentsOwnParticipations";
+import StudentDashboard from "../components/StudentDashboard";
 
 export const StudentHome = () => {
   const { userInfo, setUserInfo } = useContext(userContext);
-  const [studentNumber, setStudentNumber] = useState(""); // State for student number
-  const [registerMessage, setRegisterMessage] = useState(""); // State for registration message
 
   const navigate = useNavigate();
 
@@ -55,7 +53,7 @@ export const StudentHome = () => {
           </button>
         </ul>
       </nav>
-      <StudentsOwnParticipations />
+      <StudentDashboard />
     </>
   );
 };

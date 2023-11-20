@@ -58,6 +58,96 @@ const CreateCourse = () => {
   };
 
   return (
+    <div className="min-h-screen w-full items-center flex flex-col px-6">
+      <div className="max-w-4xl w-full">
+        {" "}
+        <div className="text-center font-medium text-xl mb-4 font-roboto-slab">
+          Create a course
+        </div>
+        <form
+          className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg"
+          onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+              Course name
+            </label>
+            <input
+              required
+              className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+              type="text"
+              placeholder="Enter course name"
+              name="courseName"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+              Group name
+            </label>
+            <input
+              required
+              className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+              type="text"
+              placeholder="Enter group name"
+              name="groupName"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+              Topics
+            </label>
+            <input
+              required
+              className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+              type="text"
+              placeholder="Add course topics e.g. Mathematics, Physics, Chemistry"
+              name="topics"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+              Start date
+            </label>
+            <input
+              className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+              type="date"
+              name="startDate"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+              End date
+            </label>
+            <input
+              className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full"
+              type="date"
+              name="endDate"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="submit"
+              className="px-4 w-full p-3 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+              Create
+            </button>
+          </div>
+          <p
+            className={`mt-4 ${
+              respondMessage.includes("successfully")
+                ? "text-green-600"
+                : "text-red-600"
+            }`}>
+            {respondMessage}
+          </p>
+        </form>
+      </div>
+    </div>
+  );
         <div className="create-course-container">
             <form className="w-96" onSubmit={handleSubmit}>
                 {/* Course Name Input */}
