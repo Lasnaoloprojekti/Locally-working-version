@@ -10,6 +10,7 @@ export const StudentLandingPage = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userid");
     setUserInfo({ staff: false, firstname: "", lastname: "" });
     navigate("/login");
   };

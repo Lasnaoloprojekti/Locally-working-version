@@ -31,9 +31,13 @@ const useDeleteCourse = () => {
   return deleteCourse;
 };
 
-const selectCourse = async () => {
+const selectCourse = async (userId) => {
+
   try {
-    const response = await axios.get("http://localhost:3001/selectcourse", {
+    const response = await axios.get(`http://localhost:3001/selectcourse`, {
+      headers: {
+        'userId': userId,  // Pass the user's ID in the request headers
+      },
       withCredentials: true,
     });
     return response;

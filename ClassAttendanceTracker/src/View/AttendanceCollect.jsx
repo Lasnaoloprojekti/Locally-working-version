@@ -58,6 +58,7 @@ export const WaitingPage = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("UserId");
     setUserInfo({
       staff: false,
       firstname: "",

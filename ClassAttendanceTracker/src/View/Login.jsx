@@ -9,16 +9,14 @@ const Login = () => {
   const navigate = useNavigate();
 
 
-
-
-
   useEffect(() => {
 
-    if (userInfo.firstname !== "" && userInfo.lastname !== "") {
-      navigate("/studentHome");
-    }
+    if (userInfo && userInfo.firstname !== "" && userInfo.lastname !== "") {
 
-  }, [userInfo]);
+      //   navigate(userInfo.staff ? "/teacherhome" : "/studenthome");
+      navigate("/teacherhome");
+    }
+  }, [userInfo, navigate]);
 
   return (
     <>

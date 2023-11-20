@@ -38,15 +38,13 @@ const LoginForm = () => {
           staff: responseData.staff,
           firstname: responseData.firstname,
           lastname: responseData.lastname,
+          userId: responseData.UserId,
         });
-
-
-        console.log('token ehkä? ', responseData.accessToken)
-
+        localStorage.setItem("userid", responseData.UserId);
         localStorage.setItem("token", responseData.accessToken);
 
-        // navigate(responseData.staff ? '/teacherlanding' : '/studentlanding');
-        navigate("/teacherhome");
+        navigate(responseData.staff ? '/teacherhome' : '/studenthome');
+
       } else {
         console.error("Login failed:", response);
         setLoginError("Invalid username or password");

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { selectCourse, addStudentsToCourse } from "../Hooks/ApiHooks"; // Ensure this is the correct path to your API hook
 import useAddStudentsToCourse from "../Hooks/useAddStudentsToCourse";
 
+const userId = localStorage.getItem("userid");
+
 const AddStudents = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -18,7 +20,8 @@ const AddStudents = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse();
+
+        const response = await selectCourse(userId);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -147,11 +150,10 @@ const AddStudents = () => {
           </form>
           {alert.show && (
             <div
-              className={`mt-4 p-4 rounded-md transition-all ${
-                alert.isError
-                  ? "bg-red-100 border border-red-400 text-red-800"
-                  : "bg-green-100 border border-green-400 text-green-800"
-              }`}>
+              className={`mt-4 p-4 rounded-md transition-all ${alert.isError
+                ? "bg-red-100 border border-red-400 text-red-800"
+                : "bg-green-100 border border-green-400 text-green-800"
+                }`}>
               <p>{alert.message}</p>
             </div>
           )}

@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { fetchParticipationRates, selectCourse } from "../Hooks/ApiHooks";
 
+
+const userId = localStorage.getItem("userid");
+
 export const ParticipationRates = () => {
     const [courses, setCourses] = useState([]);
     const [selectedCourse, setSelectedCourse] = useState("");
@@ -10,7 +13,7 @@ export const ParticipationRates = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await selectCourse();
+                const response = await selectCourse(userId);
                 setCourses(response.data);
             } catch (error) {
                 console.error("Error fetching courses:", error);

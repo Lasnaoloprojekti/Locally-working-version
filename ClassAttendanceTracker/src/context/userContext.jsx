@@ -9,6 +9,7 @@ const UserContextProvider = ({ children }) => {
         staff: false,
         firstname: "",
         lastname: "",
+        userId: "",
     });
 
     const accessToken = localStorage.getItem("token");
@@ -32,7 +33,7 @@ const UserContextProvider = ({ children }) => {
     useEffect(() => {
 
         verify();
-        
+
     }, [accessToken]);
 
     console.log(userInfo.firstname !== "" && userInfo.lastname !== "");

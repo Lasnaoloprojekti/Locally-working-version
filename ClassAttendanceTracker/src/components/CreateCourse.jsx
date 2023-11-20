@@ -11,6 +11,7 @@ const CreateCourse = () => {
     endDate: "",
   });
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -20,11 +21,9 @@ const CreateCourse = () => {
         topics: courseData.topics,
         startDate: courseData.startDate,
         endDate: courseData.endDate,
+        userId: localStorage.getItem("UserId"),
       };
-
       const response = await createCourse(requestData);
-
-      console.log(response.message, "vastausssssss serverilttttttttttttt");
 
       if (response.message === "Course created successfully") {
         setRespondMessage("new course created successfully :)");
@@ -139,11 +138,10 @@ const CreateCourse = () => {
           </button>
         </div>
         <p
-          className={`mt-4 ${
-            respondMessage.includes("successfully")
-              ? "text-green-600"
-              : "text-red-600"
-          }`}>
+          className={`mt-4 ${respondMessage.includes("successfully")
+            ? "text-green-600"
+            : "text-red-600"
+            }`}>
           {respondMessage}
         </p>
       </form>
