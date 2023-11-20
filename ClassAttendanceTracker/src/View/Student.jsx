@@ -1,7 +1,9 @@
-import React, { useContext, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { userContext } from "../context/userContext";
+
 import logo from "../assets/metropolia_s_orange.png";
+import { userContext } from "../context/userContext";
+import { useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import StudentsOwnParticipations from "../components/StudentsOwnParticipations";
 
 export const StudentHome = () => {
   const { userInfo, setUserInfo } = useContext(userContext);
@@ -11,10 +13,11 @@ export const StudentHome = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUserInfo({ staff: false, firstname: "", lastname: "" });
+    localStorage.removeItem("token");
+		   setUserInfo({ staff: false, firstname: "", lastname: "" });
     navigate("/login");
   };
+
 
   const handleMainButtonClick = (mainButton) => {
     if (activeMainButton === mainButton) {
@@ -53,6 +56,8 @@ export const StudentHome = () => {
           </button>
         </ul>
       </nav>
+        <StudentsOwnParticipations />
+
     </>
   );
 };

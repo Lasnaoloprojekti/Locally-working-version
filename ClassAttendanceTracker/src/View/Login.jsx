@@ -14,6 +14,7 @@ const Login = () => {
       // Redirect based on staff status
       navigate(userInfo.staff ? "/teacherhome" : "/studenthome");
       // navigate(userInfo.staff ? "/teacherhome" : "/teacherhome");
+
     }
   }, [userInfo, navigate]);
 

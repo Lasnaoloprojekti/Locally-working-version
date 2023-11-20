@@ -7,12 +7,13 @@ import CreateCourse from "../components/CreateCourse";
 import SelectCourse from "../components/SelectCourse";
 import CourseDelete from "../components/CourseDelete";
 import OpenattendanceCollect from "../components/OpenattendanceCollect";
+import ParticipationRates from "../components/ParticipationRates";
 
 const TeacherHome = () => {
   const navigate = useNavigate();
   const { userInfo, setUserInfo } = useContext(userContext);
   const [activeMainButton, setActiveMainButton] = useState("");
-  const [activeView, setActiveView] = useState("");
+  const [activeView, setActiveView] = useState("openAttendanceCollect");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -43,6 +44,8 @@ const TeacherHome = () => {
         return <CourseDelete />;
       case "openAttendanceCollect":
         return <OpenattendanceCollect />;
+      case "participationRates":
+        return <ParticipationRates />;
       default:
         return null;
     }
@@ -70,21 +73,19 @@ const TeacherHome = () => {
         <div className="flex mb-7">
           <button
             onClick={() => handleMainButtonClick("selectCourse")}
-            className={`${
-              activeMainButton === "selectCourse"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-300"
-            } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+            className={`${activeMainButton === "selectCourse"
+              ? "bg-orange-600 text-white"
+              : "bg-gray-300"
+              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
             {" "}
             View Courses
           </button>
           <button
             onClick={() => handleMainButtonClick("modifyCourse")}
-            className={`${
-              activeMainButton === "modifyCourse"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-300"
-            } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+            className={`${activeMainButton === "modifyCourse"
+              ? "bg-orange-600 text-white"
+              : "bg-gray-300"
+              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
             {" "}
             Modify Courses
           </button>
@@ -95,13 +96,21 @@ const TeacherHome = () => {
           <div className="flex flex-col mb-7">
             <button
               onClick={() => setActiveView("openAttendanceCollect")}
-              className={`${
-                activeView === "openAttendanceCollect"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-300"
-              } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
+              className={`${activeView === "openAttendanceCollect"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+                } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
               {" "}
-              View Attendance
+              Collect attendances
+            </button>
+            <button
+              onClick={() => setActiveView("participationRates")}
+              className={`${activeView === "participationRates"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+                } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
+              {" "}
+              View course participations
             </button>
           </div>
         )}
@@ -109,31 +118,28 @@ const TeacherHome = () => {
           <div className="flex flex-col mb-7">
             <button
               onClick={() => setActiveView("createCourse")}
-              className={`${
-                activeView === "createCourse"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-300"
-              } px-4 py-2 rounded mr-2 font-roboto-slab`}>
+              className={`${activeView === "createCourse"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+                } px-4 py-2 rounded mr-2 font-roboto-slab`}>
               {" "}
               Create a new course
             </button>
             <button
               onClick={() => setActiveView("addStudents")}
-              className={`${
-                activeView === "addStudents"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-300"
-              } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
+              className={`${activeView === "addStudents"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+                } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
               {" "}
               Add students to a course
             </button>
             <button
               onClick={() => setActiveView("deleteCourse")}
-              className={`${
-                activeView === "deleteCourse"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-300"
-              } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
+              className={`${activeView === "deleteCourse"
+                ? "bg-orange-600 text-white"
+                : "bg-gray-300"
+                } px-4 py-2 rounded  mr-2 mt-2 font-roboto-slab`}>
               {" "}
               Delete Course
             </button>
