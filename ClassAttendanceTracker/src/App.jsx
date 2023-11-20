@@ -6,7 +6,6 @@ import TeacherHome from "./View/Teacher";
 import PrivateRoutes from "./Utils/privateRoute";
 import { UserContextProvider } from "./context/userContext";
 import { WaitingPage } from "./View/AttendanceCollect";
-import { Registration } from "./View/Registation";
 
 const App = () => {
   return (
@@ -22,7 +21,6 @@ const App = () => {
             path="/wait/:sessionId/:courseName/:topic"
             element={<WaitingPage />}
           />
-          <Route path="/Registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<Login />} />
         </Routes>
