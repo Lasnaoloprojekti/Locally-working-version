@@ -1,5 +1,5 @@
 import "../login.css";
-import LoginForm from "../components/LoginForm"; // Importing the LoginForm component
+import LoginForm from "../components/LoginForm";
 import { useContext, useEffect } from "react";
 import { userContext } from "../context/userContext";
 import { useNavigate } from "react-router-dom";
@@ -7,18 +7,15 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const { userInfo } = useContext(userContext);
   const navigate = useNavigate();
- 
-
-
-
 
   useEffect(() => {
-
-    if (userInfo.firstname !== "" && userInfo.lastname !== "") {
-      navigate("/teacherhome");
+    // Check if user is logged in (assuming userInfo is null or empty object when not logged in)
+    if (userInfo && userInfo.firstname !== "" && userInfo.lastname !== "") {
+      // Redirect based on staff status
+      navigate(userInfo.staff ? "/teacherhome" : "/studenthome");
+      // navigate(userInfo.staff ? "/teacherhome" : "/teacherhome");
     }
-
-  }, [userInfo]);
+  }, [userInfo, navigate]);
 
   return (
     <>
@@ -28,12 +25,9 @@ const Login = () => {
           Your browser does not support the video tag.
         </video>
       </div>
-      <LoginForm></LoginForm>
-
+      <LoginForm />
     </>
   );
 };
 
-// Author: Matian Naakka
-// Date: November 4, 2023
 export default Login;
