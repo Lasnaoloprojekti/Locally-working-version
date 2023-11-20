@@ -25,6 +25,14 @@ const LoginForm = () => {
       });
       console.log(response, "vastaus serveriltä");
       const responseData = response.data.apiData;
+      //tallennetaan user localstorageen
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          staff: responseData.staff,
+        })
+      );
+
       console.log(responseData, "vastaus serveriltä");
 
       // Checking server response and handling login success or failure
@@ -36,17 +44,16 @@ const LoginForm = () => {
 
         setUserInfo({
           staff: responseData.staff,
+          studentnumber: responseData.studentnumber,
           firstname: responseData.firstname,
           lastname: responseData.lastname,
         });
 
-
-        console.log('token ehkä? ', responseData.accessToken)
+        console.log("token ehkä? ", responseData.accessToken);
 
         localStorage.setItem("token", responseData.accessToken);
 
-        // navigate(responseData.staff ? '/teacherlanding' : '/studentlanding');
-        navigate("/teacherhome");
+        navigate(responseData.staff ? "/teacherhome" : "/studenthome");
       } else {
         console.error("Login failed:", response);
         setLoginError("Invalid username or password");
@@ -95,6 +102,5 @@ const LoginForm = () => {
     </Box>
   );
 };
-
 
 export default LoginForm;
