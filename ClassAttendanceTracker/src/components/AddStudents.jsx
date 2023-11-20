@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { selectCourse, addStudentsToCourse } from "../Hooks/ApiHooks"; // Ensure this is the correct path to your API hook
-import useAddStudentsToCourse from "../Hooks/useAddStudentsToCourse";
+import { selectCourse, useAddStudentsToCourse } from "../Hooks/ApiHooks"; // Ensure this is the correct path to your API hook
 
 const userId = localStorage.getItem("userid");
 
