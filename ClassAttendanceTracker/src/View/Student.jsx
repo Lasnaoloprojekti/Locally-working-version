@@ -40,10 +40,10 @@ export const StudentHome = () => {
     <>
       <nav className="flex justify-between items-center">
         <Link to="/teacherhome">
-          <img className="h-[18mm] m-4" src={logo} alt="Logo" />
+          <img className="h-10 m-4" src={logo} alt="Logo" />
         </Link>
         <ul className="flex items-center">
-          <li className="text-2xl ml-2 font-roboto-slab">
+          <li className="text-md ml-2 font-roboto-slab">
             Welcome! {userInfo.firstname} {userInfo.lastname}
           </li>
           <button

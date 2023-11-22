@@ -93,7 +93,7 @@ export const WaitingPage = () => {
           <h1 className=" font-roboto-slab text-xl mb-4 font-semibold tracking-wider">
             {decodeURIComponent(topic)}
           </h1>
-          <QRCode className="" value="http://localhost:5173/registation" />
+          <QRCode className="" value="http://localhost:5173/studenthome" />
           <Link
             className=" mt-4 text-red-800 hover:text-blue-600 font-open-sans"
             to="/registration"
