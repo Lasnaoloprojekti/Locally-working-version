@@ -65,7 +65,7 @@ const TeacherHome = () => {
       </nav>
 
       <div className="flex">
-        <div className="w-1/4 bg-gray-100 p-4">
+        <div className="w-1/4 border-r-2 p-4">
           <div className="mb-10">
             <h2 className="font-bold text-lg rounded-sm text-center mb-3">
               Course Management

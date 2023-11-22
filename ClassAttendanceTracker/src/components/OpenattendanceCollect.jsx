@@ -10,7 +10,6 @@ import {
   RadioGroup,
 } from "@mui/material";
 
-
 const userId = localStorage.getItem("userid");
 
 const OpenattendanceCollect = () => {
