@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const StudentSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
-  studentNumber: String,
+  studentNumber: { type: String, unique: true, required: true },
   gdprConsent: Boolean,
   courses: [
     {
@@ -124,8 +124,8 @@ const CourseSchema = new mongoose.Schema({
 //**Topics Schema */
 const TopicSchema = new mongoose.Schema({
   name: {
-      type: String,
-      required: true
+    type: String,
+    required: true
   }
 });
 

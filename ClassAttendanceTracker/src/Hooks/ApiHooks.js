@@ -112,7 +112,8 @@ const useAddStudentsToCourse = () => {
         courseId,
         studentsToAdd: studentsData
       });
-      return response.data;
+
+      return response;
     } catch (error) {
       throw error;
     }
@@ -146,6 +147,29 @@ const addTeacherToCourse = async (courseId, userId) => {
   }
 };
 
+const uploadStudentsFile = async (courseId, file) => {
+  const formData = new FormData();
+  formData.append('studentfile', file);
+  formData.append('courseId', courseId);
+
+  try {
+    const response = await axios.post("http://localhost:3001/uploadstudents", formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      withCredentials: true,
+    });
+
+    // Use the detailed message from the backend response
+    return {
+      success: response.data.newStudentsAdded,
+      message: response.data.message
+    };
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Failed to upload students. Please try again.";
+    throw new Error(errorMessage);
+  }
+};
+
+
 export {
   createCourse,
   useDeleteCourse,
@@ -154,5 +178,5 @@ export {
   createSession, fetchParticipationRates,
   createTopic,
   getTopics,
-  deleteTopic, getUsers, addTeacherToCourse
+  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile
 };

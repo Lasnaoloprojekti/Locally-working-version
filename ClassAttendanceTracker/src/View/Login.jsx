@@ -8,12 +8,11 @@ const Login = () => {
   const { userInfo } = useContext(userContext);
   const navigate = useNavigate();
 
-
   useEffect(() => {
 
     if (userInfo && userInfo.firstname !== "" && userInfo.lastname !== "") {
 
-      //   navigate(userInfo.staff ? "/teacherhome" : "/studenthome");
+      navigate(userInfo.staff ? "/teacherhome" : "/studenthome");
       navigate("/teacherhome");
     }
   }, [userInfo, navigate]);

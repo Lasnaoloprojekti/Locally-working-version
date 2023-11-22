@@ -8,6 +8,9 @@ const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, Attendance
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const fetch = require("node-fetch");
+const multer = require('multer');
+const xlsx = require('xlsx');
+const upload = multer({ dest: 'uploads/' });
 
 const app = express();
 const server = createServer(app);
@@ -41,6 +44,69 @@ io.on("connection", (socket) => {
     console.log('user disconnected');
   });
 });
+
+app.post('/uploadstudents', upload.single('studentfile'), async (req, res) => {
+  console.log("Upload students request received", req.file);
+  const courseId = req.body.courseId;
+
+  try {
+    const workbook = xlsx.readFile(req.file.path);
+    const sheetNames = workbook.SheetNames;
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNames[0]], { header: 1 });
+
+    const students = sheetData.slice(1).filter(row => row && row.length > 0);
+    let newStudentsAdded = 0;
+    let existingStudents = 0;
+
+    const studentPromises = students.map(async (row, index) => {
+      const [lastName, firstName, , email, studentNumber] = row;
+
+      if (lastName === 'Sukunimi' || firstName === 'Etunimi' || email === 'Email' || studentNumber === 'Op.num' || !lastName || !firstName || !email || !studentNumber) {
+        console.log(`Skipping row ${index + 1}: Header or empty row detected.`);
+        return null;
+      }
+
+      let student = await StudentDatabaseModel.findOne({ studentNumber });
+      if (!student) {
+        student = new StudentDatabaseModel({ lastName, firstName, email, studentNumber, gdprConsent: false, courses: [{ course: courseId }] });
+        newStudentsAdded++;
+        await student.save();
+      } else {
+        if (!student.courses.find(c => c.course.toString() === courseId)) {
+          student.courses.push({ course: courseId });
+          existingStudents++;
+          await student.save();
+        }
+      }
+
+      const course = await CourseDatabaseModel.findById(courseId);
+      if (course && !course.students.includes(student._id)) {
+        course.students.push(student._id);
+        await course.save();
+      }
+
+      console.log(`Processed student #${index + 1}: ${firstName} ${lastName}`);
+    });
+
+    await Promise.allSettled(studentPromises.filter(Boolean));
+    const message = newStudentsAdded > 0 ? `${newStudentsAdded} new students added.` : 'No new students added.';
+
+    // Check if newStudentsAdded is 0, and send a 404 response if true
+    if (newStudentsAdded === 0) {
+      res.status(404).json({ message: message });
+    } else {
+      if (existingStudents > 0) {
+        message += ` ${existingStudents} students were already enrolled in the course.`;
+      }
+
+      res.status(200).json({ message: message, newStudentsAdded: newStudentsAdded > 0 });
+    }
+  } catch (error) {
+    console.error('Error processing file:', error);
+    res.status(500).send('Error processing file');
+  }
+});
+
 
 app.post("/login", async (req, res) => {
 
@@ -187,11 +253,12 @@ app.post("/addstudents", async (req, res) => {
         });
         await student.save({ session });
       } else {
-        // If the student exists, just update the courses array
-        if (!student.courses.some(courseEnrollment => courseEnrollment.course.equals(courseId))) {
-          student.courses.push({ course: courseId });
-          await student.save({ session });
-        }
+        // If the student exists, send a response to the client indicating the conflict
+        // You can customize the response message as needed
+        return res.status(409).json({
+          message: `Student with student number ${studentNumber} already exists.`,
+          student: student
+        });
       }
 
       // Add the student to the course's students list if not already added
@@ -207,7 +274,7 @@ app.post("/addstudents", async (req, res) => {
     session.endSession();
 
     res.status(200).json({
-      message: 'Students added successfully',
+      message: 'Student added successfully',
       students: addedStudents
     });
   } catch (error) {
@@ -251,7 +318,6 @@ app.get('/api/users', async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching users" });
   }
 });
-
 
 //course delete/students
 app.delete('/api/courses/:id', async (req, res) => {
@@ -560,6 +626,8 @@ app.post('/addTeacherToCourse', async (req, res) => {
     res.status(500).json({ error: "An error occurred while adding the teacher to the course" });
   }
 });
+
+
 
 
 server.listen(3001, () => {

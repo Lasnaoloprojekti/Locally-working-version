@@ -9,11 +9,12 @@ import OpenattendanceCollect from "../components/OpenattendanceCollect";
 import ParticipationRates from "../components/ParticipationRates";
 import logo from "../assets/metropolia_s_orange.png";
 import AddTopics from "../components/AddTopics";
+import AddTeacherToCourse from "../components/AddTeachers";
 
 const TeacherHome = () => {
   const navigate = useNavigate();
   const { userInfo, setUserInfo } = useContext(userContext);
-  const [activeView, setActiveView] = useState("");
+  const [activeView, setActiveView] = useState("openAttendanceCollect");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -38,6 +39,8 @@ const TeacherHome = () => {
         return <ParticipationRates />;
       case "addTopic":
         return <AddTopics />;
+      case "addTeacherToCourse":
+        return <AddTeacherToCourse />;
       default:
         return null;
     }
@@ -76,6 +79,11 @@ const TeacherHome = () => {
               onClick={() => setActiveView("addStudents")}
               className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
               Add students
+            </button>
+            <button
+              onClick={() => setActiveView("addTeacherToCourse")}
+              className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
+              Add teacher to course
             </button>
             <button
               onClick={() => setActiveView("addTopic")}

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { selectCourse, useAddStudentsToCourse } from "../Hooks/ApiHooks"; // Ensure this is the correct path to your API hook
+import { selectCourse, useAddStudentsToCourse, uploadStudentsFile } from "../Hooks/ApiHooks";
 
 const userId = localStorage.getItem("userid");
 
 const AddStudents = () => {
+  const [file, setFile] = useState(null);
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [studentData, setStudentData] = useState("");
+  const [isAdding, setIsAdding] = useState(false); // New state to track adding process
   const [alert, setAlert] = useState({
     show: false,
     message: "",
@@ -16,9 +18,9 @@ const AddStudents = () => {
   const addStudents = useAddStudentsToCourse();
 
   useEffect(() => {
+    // Fetch courses on component mount
     const fetchCourses = async () => {
       try {
-
         const response = await selectCourse(userId);
         setCourses(response.data);
       } catch (error) {
@@ -42,65 +44,74 @@ const AddStudents = () => {
     setStudentData(event.target.value);
   };
 
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
   const validateStudentData = (data) => {
     const validFormatRegex = /^[A-Za-z]+;[A-Za-z]+;\d+;$/;
     return data.split("\n").every((line) => validFormatRegex.test(line));
   };
 
+  const setFileNull = () => {
+    setFile(null);
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsAdding(true);
+    setAlert({ show: false, message: "", isError: false });
+
     if (!selectedCourse) {
-      setAlert({
-        show: true,
-        message: "Please select a course.",
-        isError: true,
-      });
+      setAlert({ show: true, message: "Please select a course.", isError: true });
+      setIsAdding(false);
       return;
     }
 
-    if (!validateStudentData(studentData)) {
-      setAlert({
-        show: true,
-        message: "Invalid student data format.",
-        isError: true,
-      });
-      return;
+    // Handle text area data submission
+    if (studentData && validateStudentData(studentData)) {
+      try {
+        const studentDataArray = studentData.split("\n").map(line => {
+          const [lastName, firstName, studentNumber] = line.split(';');
+          return { lastName, firstName, studentNumber };
+        });
+
+        const addResult = await addStudents(selectedCourse, studentDataArray);
+        setAlert({ show: true, message: addResult.data.message, isError: false });
+      } catch (error) {
+        setAlert({ show: true, message: "Student with provided student number already exists!", isError: true });
+      }
     }
 
-    if (!window.confirm("Are you sure you want to add these students?")) return;
+    // Handle file upload submission
+    if (file) {
+      try {
+        const uploadResult = await uploadStudentsFile(selectedCourse, file);
 
-    try {
-      const studentArray = studentData.split("\n").map((line) => {
-        const [lastName, firstName, studentNumber] = line
-          .split(";")
-          .map((s) => s.trim());
-        return { lastName, firstName, studentNumber };
-      });
+        console.log(uploadResult);
 
-      await addStudents(selectedCourse, studentArray);
-      setStudentData("");
-      setAlert({
-        show: true,
-        message: "Students added successfully!",
-        isError: false,
-      });
-    } catch (error) {
-      console.error("Error adding students:", error);
-      setAlert({
-        show: true,
-        message: "Failed to add students. Please try again.",
-        isError: true,
-      });
+
+        setAlert({ show: true, message: uploadResult.message, isError: false });
+      } catch (error) {
+        setAlert({ show: true, message: error.message, isError: true });
+      }
+      setFileNull();
     }
+
+    setIsAdding(false);
   };
+
+
+
 
   return (
     <div className="min-h-screen w-full items-center flex flex-col px-6">
       <div className="max-w-4xl w-full">
         <div className="text-center font-medium text-xl mb-4 font-roboto-slab">
-          Add Students Manually
+          Add Students to course
         </div>
         <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
+
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
               <label
@@ -127,7 +138,7 @@ const AddStudents = () => {
               <label
                 htmlFor="studentData"
                 className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
-                Enter student data (LastName;FirstName;StudentNumber; format):
+                Enter student (LastName;FirstName;StudentNumber; format):
               </label>
               <textarea
                 id="studentData"
@@ -136,6 +147,22 @@ const AddStudents = () => {
                 value={studentData}
                 onChange={handleInputChange}
                 placeholder="Doe;John;123456;"
+              />
+              <label
+                htmlFor="studentData"
+                className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+                Upload a file with student data
+              </label>
+              <input
+                id="studentData"
+                type="file"
+                className="border border-gray-300 p-3 rounded-lg block w-full font-open-sans cursor-pointer file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100
+              "
+                onChange={handleFileChange}
               />
             </div>
             <div className="flex justify-end space-x-2">
