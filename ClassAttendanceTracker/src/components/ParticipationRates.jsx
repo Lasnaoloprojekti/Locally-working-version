@@ -43,6 +43,69 @@ export const ParticipationRates = () => {
         }
     };
 
+    const handleDownloadPdf = async () => {
+        if (!selectedCourse) {
+            alert("Please select a course to download its report");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3001/download/attendance/pdf/${selectedCourse}`, {
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            // Create a Blob from the PDF Stream
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `attendance_report_${selectedCourse}.pdf`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl); // Clean up the URL
+        } catch (error) {
+            console.error("Error downloading the PDF:", error);
+            alert('Error downloading PDF');
+        }
+    };
+
+    const handleDownloadExcel = async () => {
+        if (!selectedCourse) {
+            alert("Please select a course to download its report");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3001/download/attendance/excel/${selectedCourse}`, {
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            // Create a Blob from the PDF Stream
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `attendance_report_${selectedCourse}.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(downloadUrl); // Clean up the URL
+        } catch (error) {
+            console.error("Error downloading the Excel:", error);
+            alert('Error downloading Excel');
+        }
+    }
+
+
+
+
+
+
     return (
         <div className="min-h-screen w-full flex flex-col items-center px-6">
             <div className="max-w-4xl w-full">
@@ -74,6 +137,10 @@ export const ParticipationRates = () => {
                             className="px-4 w-full p-3 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
                             Get Participations
                         </button>
+
+                        <button onClick={handleDownloadExcel}>Download Excel</button>
+                        <button onClick={handleDownloadPdf}>Download Pdf</button>
+
                     </div>
                 </div>
             </div>
