@@ -6,6 +6,7 @@ import { userContext } from "../context/userContext";
 import io from "socket.io-client";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteSession } from "../Hooks/ApiHooks";
+import { useHistory } from "react-router-dom";
 
 const socket = io("http://localhost:3001");
 
@@ -13,10 +14,19 @@ export const WaitingPage = () => {
   const navigate = useNavigate();
   const { sessionId, courseName, topic } = useParams();
   const { userInfo, setUserInfo } = useContext(userContext);
-  const [attendingStudents, setAttendingStudnets] = useState([]);
+  const [attendingStudents, setAttendingStudents] = useState([]);
   const [serverMessage, setServerMessage] = useState("");
   const [sessionClosed, setSessionClosed] = useState(false);
   const [studentCount, setStudentCount] = useState(0);
+  const history = useHistory();
+
+
+  useEffect(() => {
+    return () => {
+      // Redirect the user to a different page (e.g., "/dashboard") when the component unmounts
+      history.push("/teacherhome"); // Replace "/dashboard" with the desired URL
+    };
+  }, []);
 
   useEffect(() => {
     // Fetch student count from the backend
@@ -44,7 +54,8 @@ export const WaitingPage = () => {
 
     socket.on("studentAdded", (newStudent) => {
       console.log("Students from the server:", newStudent);
-      setAttendingStudnets((prev) => [...prev, newStudent]); // Update state with received data
+      setAttendingStudents((prev) => [...prev, newStudent]);  // Update state with received data
+      setStudentCount((prevCount) => prevCount + 1);
     });
 
     return () => {
@@ -53,13 +64,14 @@ export const WaitingPage = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch enrolled students from the backend
+    // Fetch enrolled students from the backend for the specific session
     async function fetchEnrolledStudents() {
       try {
         const response = await fetch(`http://localhost:3001/enrolledstudents/${sessionId}`);
         if (response.ok) {
           const data = await response.json();
-          setEnrolledStudents(data.enrolledStudents);
+          setAttendingStudents(data.enrolledStudents);
+          setStudentCount(data.enrolledStudents.length);
         } else {
           console.error("Failed to fetch enrolled students");
         }
@@ -70,6 +82,7 @@ export const WaitingPage = () => {
 
     fetchEnrolledStudents(); // Call the fetchEnrolledStudents function when the component mounts
   }, [sessionId]);
+
 
   const handleCloseSession = async () => {
     try {

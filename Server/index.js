@@ -677,6 +677,26 @@ app.get("/coursestudentscount/:sessionId", async (req, res) => {
   }
 });
 
+app.get('/enrolledstudents/:sessionId', async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    // Find all attendance records with the matching session ID
+    const attendanceRecords = await AttendanceDatabaseModel.find({ session: sessionId });
+
+    // Extract the unique student IDs from the attendance records
+    const studentIds = [...new Set(attendanceRecords.map(record => record.student))];
+
+    // Fetch the student details based on the extracted student IDs
+    const enrolledStudents = await StudentDatabaseModel.find({ _id: { $in: studentIds } });
+
+    res.status(200).json({ enrolledStudents });
+  } catch (error) {
+    console.error("Error fetching enrolled students:", error);
+    res.status(500).json({ error: "An error occurred while fetching enrolled students" });
+  }
+});
+
 
 
 
