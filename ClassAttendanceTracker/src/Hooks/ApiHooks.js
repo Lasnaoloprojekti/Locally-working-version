@@ -59,6 +59,29 @@ const createSession = async (sessionData) => {
   }
 };
 
+const deleteSession = async (sessionId, onSuccess, onError) => {
+  try {
+    const response = await fetch("http://localhost:3001/deletesession", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sessionId: sessionId }),
+    });
+
+    if (response.ok) {
+      console.log("Session deleted successfully");
+      onSuccess("Session deleted successfully");
+    } else {
+      console.error("Failed to delete session");
+      onError("Failed to delete session");
+    }
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    onError("Error deleting session");
+  }
+};
+
 const fetchParticipationRates = async (courseId) => {
   try {
     const response = await axios.get(`http://localhost:3001/participations/${courseId}`, {
@@ -206,6 +229,7 @@ export {
   createSession, fetchParticipationRates,
   createTopic,
   getTopics,
-  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile,
-  addTopicToCourse, deleteTopicFromCourse
+  topicmodify,
+  addTopicToCourse, deleteTopicFromCourse,
+  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession
 };

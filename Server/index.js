@@ -107,7 +107,6 @@ app.post('/uploadstudents', upload.single('studentfile'), async (req, res) => {
   }
 });
 
-
 app.post("/login", async (req, res) => {
 
   const { username, password } = req.body;
@@ -378,6 +377,27 @@ app.post('/createsession', async (req, res) => {
   }
 });
 
+app.delete("/deletesession", async (req, res) => {
+  const { sessionId } = req.body;
+
+  try {
+    // Find the session by its ID and delete it
+    const deletedSession = await AttendanceSessionDatabaseModel.findByIdAndDelete(sessionId);
+
+    if (!deletedSession) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    // Emit an event to notify clients that the session has been deleted
+    io.emit("sessionDeleted", { sessionId: deletedSession._id });
+
+    res.status(200).json({ message: "Session deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    res.status(500).json({ error: "An error occurred while deleting the session" });
+  }
+});
+
 app.post('/registration', async (req, res) => {
   const { studentNumber } = req.body;
 
@@ -590,7 +610,6 @@ app.get("/api/topics", async (req, res) => {
   }
 });
 
-
 app.delete('/api/topics/:id', async (req, res) => {
   try {
     const topicId = req.params.id;
@@ -627,6 +646,38 @@ app.post('/addTeacherToCourse', async (req, res) => {
   }
 });
 
+
+app.get("/coursestudentscount/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    // Find the session document by its ID
+    const session = await AttendanceSessionDatabaseModel.findById(sessionId);
+
+    if (!session) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    // Retrieve the course ID from the session document
+    const courseId = session.course;
+
+    // Find the course document by its ID
+    const course = await CourseDatabaseModel.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    // Get the number of students in the course
+    const studentCount = course.students.length;
+
+    res.status(200).json({ studentCount });
+  } catch (error) {
+    console.error("Error fetching student count:", error);
+    res.status(500).json({ error: "An error occurred while fetching student count" });
+  }
+});
+
 app.post('/api/courses/:courseId/topics', async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
@@ -650,6 +701,28 @@ app.post('/api/courses/:courseId/topics', async (req, res) => {
     res.status(500).json({ error: "An error occurred while adding the topic to the course" });
   }
 });
+
+app.get('/enrolledstudents/:sessionId', async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    // Find all attendance records with the matching session ID
+    const attendanceRecords = await AttendanceDatabaseModel.find({ session: sessionId });
+
+    // Extract the unique student IDs from the attendance records
+    const studentIds = [...new Set(attendanceRecords.map(record => record.student))];
+
+    // Fetch the student details based on the extracted student IDs
+    const enrolledStudents = await StudentDatabaseModel.find({ _id: { $in: studentIds } });
+
+    res.status(200).json({ enrolledStudents });
+  } catch (error) {
+    console.error("Error fetching enrolled students:", error);
+    res.status(500).json({ error: "An error occurred while fetching enrolled students" });
+  }
+});
+
+
 
 app.delete('/api/courses/:courseId/topics', async (req, res) => {
   const courseId = req.params.courseId;
