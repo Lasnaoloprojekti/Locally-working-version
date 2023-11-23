@@ -4,13 +4,16 @@ const express = require("express");
 const { createServer } = require('node:http');
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, AttendanceSessionDatabaseModel, AttendanceDatabaseModel, TopicDatabaseModel } = require("./models/CollectionSchemas");
+const { UserDatabaseModel, CourseDatabaseModel, StudentDatabaseModel, AttendanceSessionDatabaseModel, AttendanceDatabaseModel, TopicDatabaseModel } = require("./models/collectionSchemas");
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const fetch = require("node-fetch");
 const multer = require('multer');
 const xlsx = require('xlsx');
 const upload = multer({ dest: 'uploads/' });
+const PDFDocument = require('pdfkit');
+const Excel = require('exceljs');
+
 
 const app = express();
 const server = createServer(app);
@@ -646,7 +649,6 @@ app.post('/addTeacherToCourse', async (req, res) => {
   }
 });
 
-
 app.get("/coursestudentscount/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
@@ -722,8 +724,6 @@ app.get('/enrolledstudents/:sessionId', async (req, res) => {
   }
 });
 
-
-
 app.delete('/api/courses/:courseId/topics', async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
@@ -748,6 +748,151 @@ app.delete('/api/courses/:courseId/topics', async (req, res) => {
     res.status(500).json({ error: "An error occurred while removing the topic from the course" });
   }
 });
+
+app.get('/download/attendance/pdf/:courseId', async (req, res) => {
+  const courseId = req.params.courseId;
+
+  try {
+    const course = await CourseDatabaseModel.findById(courseId)
+      .populate({ path: 'students' })
+      .exec();
+
+    if (!course) {
+      return res.status(404).send('Course not found');
+    }
+
+    let participationData = [];
+
+    for (const student of course.students) {
+      let studentParticipation = {
+        lastName: student.lastName,
+        firstName: student.firstName,
+        studentNumber: student.studentNumber, // Assuming you have studentNumber on student object
+        participation: {}
+      };
+
+      for (const topic of course.topics) {
+        const totalSessions = await AttendanceSessionDatabaseModel.countDocuments({ course: courseId, topic: topic });
+        const attendedSessions = await AttendanceDatabaseModel.countDocuments({ student: student._id, course: courseId, topic: topic, status: 'Present' });
+
+        studentParticipation.participation[topic] = totalSessions > 0 ? ((attendedSessions / totalSessions) * 100).toFixed(2) + '%' : 'N/A';
+      }
+
+      participationData.push(studentParticipation);
+    }
+
+    const doc = new PDFDocument();
+    res.setHeader('Content-disposition', 'attachment; filename="attendance.pdf"');
+    res.setHeader('Content-type', 'application/pdf');
+
+    doc.fontSize(16).text(`Attendance Report for Course: ${course.name}`, { align: 'center' });
+    doc.moveDown(2);
+
+    const tableColumns = ['Lastname', 'Firstname', 'Studentnumber', ...course.topics];
+    const columnWidths = 100; // Modify this if you need wider columns
+    const startX = 50;
+    let startY = doc.y;
+
+    // Headers
+    tableColumns.forEach((header, i) => {
+      doc.fontSize(12).text(header, startX + (i * columnWidths), startY, { width: columnWidths, align: 'center' });
+    });
+
+    startY += 20; // Space for header
+
+    // Rows
+    participationData.forEach(student => {
+      let xPosition = startX;
+      doc.fontSize(10).text(student.lastName, xPosition, startY, { width: columnWidths, align: 'center' });
+      xPosition += columnWidths;
+      doc.text(student.firstName, xPosition, startY, { width: columnWidths, align: 'center' });
+      xPosition += columnWidths;
+      doc.text(student.studentNumber, xPosition, startY, { width: columnWidths, align: 'center' });
+
+      course.topics.forEach(topic => {
+        xPosition += columnWidths;
+        doc.text(student.participation[topic], xPosition, startY, { width: columnWidths, align: 'center' });
+      });
+
+      startY += 20; // Move down for next student row
+
+      if (startY >= 700) { // Check for page end and add new page
+        doc.addPage();
+        startY = 50; // Reset startY for new page
+      }
+    });
+
+    doc.pipe(res);
+    doc.end();
+
+  } catch (error) {
+    console.error("Error generating attendance report:", error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/download/attendance/excel/:courseId', async (req, res) => {
+  const courseId = req.params.courseId;
+
+  try {
+    const course = await CourseDatabaseModel.findById(courseId)
+      .populate({ path: 'students' })
+      .exec();
+
+    if (!course) {
+      return res.status(404).send('Course not found');
+    }
+
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet('Attendance Report');
+
+
+
+    // Add headers to the Excel sheet
+    const titleRow = worksheet.addRow([`Attendance Report for Course: ${course.name}`]);
+    // Adjust the range according to the number of columns (topics + 3 for Lastname, Firstname, and Studentnumber)
+    worksheet.mergeCells(1, 1, 1, course.topics.length + 3);
+    titleRow.font = { size: 10, bold: true };
+    titleRow.alignment = { horizontal: 'center' };
+
+    // Add headers to the Excel sheet
+    const headers = ['Lastname', 'Firstname', 'Studentnumber', ...course.topics];
+    worksheet.addRow(headers);
+
+    for (const student of course.students) {
+      let studentData = [student.lastName, student.firstName, student.studentNumber];
+
+      for (const topic of course.topics) {
+        const totalSessions = await AttendanceSessionDatabaseModel.countDocuments({ course: courseId, topic: topic });
+        const attendedSessions = await AttendanceDatabaseModel.countDocuments({
+          student: student._id,
+          course: courseId,
+          topic: topic,
+          status: 'Present',
+        });
+
+        const participation = totalSessions > 0 ? ((attendedSessions / totalSessions) * 100).toFixed(2) + '%' : 'N/A';
+        studentData.push(participation);
+      }
+
+      // Add student data to the Excel sheet
+      worksheet.addRow(studentData);
+    }
+
+    // Set content type and disposition for the response
+    res.setHeader('Content-Disposition', `attachment; filename="attendance.xlsx"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    // Send the Excel workbook as a response
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (error) {
+    console.error('Error generating attendance report:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 
 server.listen(3001, () => {
