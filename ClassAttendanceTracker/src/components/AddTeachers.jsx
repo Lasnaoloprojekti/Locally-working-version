@@ -59,24 +59,6 @@ const AddTeacherToCourse = () => {
                     <form onSubmit={handleSubmit}>
                         <div className="mb-5">
                             <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
-                                Select a User:
-                            </label>
-                            <select
-                                value={selectedUser}
-                                onChange={e => setSelectedUser(e.target.value)}
-                                className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full mb-4"
-                            >
-                                <option value="">Select User</option>
-                                {users.map(user => (
-                                    <option key={user._id} value={user._id}>
-                                        {user.firstName} {user.lastName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="mb-5">
-                            <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
                                 Select a Course:
                             </label>
                             <select
@@ -92,7 +74,23 @@ const AddTeacherToCourse = () => {
                                 ))}
                             </select>
                         </div>
-
+                        <div className="mb-5">
+                            <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
+                                Select a User:
+                            </label>
+                            <select
+                                value={selectedUser}
+                                onChange={e => setSelectedUser(e.target.value)}
+                                className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full mb-4"
+                            >
+                                <option value="">Select User</option>
+                                {users.map(user => (
+                                    <option key={user._id} value={user._id}>
+                                        {user.firstName} {user.lastName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <button
                             type="submit"
                             className="px-4 w-full p-3 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
