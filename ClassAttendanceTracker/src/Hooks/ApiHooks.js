@@ -192,6 +192,34 @@ const uploadStudentsFile = async (courseId, file) => {
   }
 };
 
+// Add a topic to a course
+const addTopicToCourse = async (courseId, topicName) => {
+  try {
+    const response = await axios.post(
+      `http://localhost:3001/api/courses/${courseId}/topics`,
+      { topicName },
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Delete a topic from a course
+const deleteTopicFromCourse = async (courseId, topicName) => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3001/api/courses/${courseId}/topics`,
+      { data: { topicName } },  // Axios DELETE with body
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 export {
   createCourse,
@@ -201,5 +229,7 @@ export {
   createSession, fetchParticipationRates,
   createTopic,
   getTopics,
+  topicmodify,
+  addTopicToCourse, deleteTopicFromCourse,
   deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession
 };
