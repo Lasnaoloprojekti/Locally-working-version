@@ -229,7 +229,6 @@ export {
   createSession, fetchParticipationRates,
   createTopic,
   getTopics,
-  topicmodify,
   addTopicToCourse, deleteTopicFromCourse,
   deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession
 };

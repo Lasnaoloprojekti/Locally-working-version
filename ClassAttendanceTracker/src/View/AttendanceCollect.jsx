@@ -6,7 +6,7 @@ import { userContext } from "../context/userContext";
 import io from "socket.io-client";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteSession } from "../Hooks/ApiHooks";
-import { useHistory } from "react-router-dom";
+
 
 const socket = io("http://localhost:3001");
 
@@ -18,15 +18,10 @@ export const WaitingPage = () => {
   const [serverMessage, setServerMessage] = useState("");
   const [sessionClosed, setSessionClosed] = useState(false);
   const [studentCount, setStudentCount] = useState(0);
-  const history = useHistory();
 
 
-  useEffect(() => {
-    return () => {
-      // Redirect the user to a different page (e.g., "/dashboard") when the component unmounts
-      history.push("/teacherhome"); // Replace "/dashboard" with the desired URL
-    };
-  }, []);
+
+
 
   useEffect(() => {
     // Fetch student count from the backend
