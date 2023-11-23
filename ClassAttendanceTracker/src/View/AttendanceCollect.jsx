@@ -4,6 +4,8 @@ import logo from "../assets/metropolia_s_orange.png";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { userContext } from "../context/userContext";
 import io from "socket.io-client";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { deleteSession } from "../Hooks/ApiHooks";
 
 const socket = io("http://localhost:3001");
 
@@ -14,6 +16,26 @@ export const WaitingPage = () => {
   const [attendingStudents, setAttendingStudnets] = useState([]);
   const [serverMessage, setServerMessage] = useState("");
   const [sessionClosed, setSessionClosed] = useState(false);
+  const [studentCount, setStudentCount] = useState(0);
+
+  useEffect(() => {
+    // Fetch student count from the backend
+    async function fetchStudentCount() {
+      try {
+        const response = await fetch(`http://localhost:3001/coursestudentscount/${sessionId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setStudentCount(data.studentCount);
+        } else {
+          console.error("Failed to fetch student count");
+        }
+      } catch (error) {
+        console.error("Error fetching student count:", error);
+      }
+    }
+
+    fetchStudentCount(); // Call the fetchStudentCount function when the component mounts
+  }, [sessionId]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -29,6 +51,25 @@ export const WaitingPage = () => {
       socket.off("studentAdded"); // Clean up
     };
   }, []);
+
+  useEffect(() => {
+    // Fetch enrolled students from the backend
+    async function fetchEnrolledStudents() {
+      try {
+        const response = await fetch(`http://localhost:3001/enrolledstudents/${sessionId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setEnrolledStudents(data.enrolledStudents);
+        } else {
+          console.error("Failed to fetch enrolled students");
+        }
+      } catch (error) {
+        console.error("Error fetching enrolled students:", error);
+      }
+    }
+
+    fetchEnrolledStudents(); // Call the fetchEnrolledStudents function when the component mounts
+  }, [sessionId]);
 
   const handleCloseSession = async () => {
     try {
@@ -55,6 +96,29 @@ export const WaitingPage = () => {
       setServerMessage("Error closing session");
     }
   };
+
+  const handleDeleteSession = async () => {
+    try {
+      await deleteSession(sessionId, (message) => {
+        console.log(message);
+        setServerMessage(message);
+        setSessionClosed(true);
+        // Close the modal or perform any other necessary actions
+      }, (errorMessage) => {
+        console.error(errorMessage);
+        setServerMessage(errorMessage);
+        // Handle the error or display an error message in your UI
+      });
+    } catch (error) {
+      console.error("Error deleting session:", error);
+      setServerMessage("Error deleting session");
+      // Handle the error or display an error message in your UI
+    }
+    setTimeout(() => {
+      navigate("/teacherhome");
+    }, 1000);
+  };
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -85,7 +149,8 @@ export const WaitingPage = () => {
           </button>
         </ul>
       </nav>
-      <section className=" flex-row h-[80vh] mt-8 flex ">
+
+      <section className=" flex-row h-[80vh] mt-5 flex ">
         <div className=" w-1/2 flex items-center flex-col">
           <h1 className=" font-roboto-slab text-3xl mb-5 font-bold tracking-wide">
             {decodeURIComponent(courseName)}
@@ -94,26 +159,31 @@ export const WaitingPage = () => {
             {decodeURIComponent(topic)}
           </h1>
           <QRCode className="" value="http://localhost:5173/studenthome" />
-          <Link
-            className=" mt-4 text-red-800 hover:text-blue-600 font-open-sans"
-            to="/registration"
-            value>
-            Link to student registration form
-          </Link>
+
           <button
             className=" py-2 px-6 bg-orange-600 rounded-md text-white font-roboto-slab mt-5 hover:bg-red-800 "
             onClick={handleCloseSession}>
             Deactive collecting attendances
           </button>
+          {!sessionClosed && (
+            <div className="flex flex-col mt-4">
+              <h3 className="font-roboto-slab text-lg mb-2">Did you accidentally open this session?</h3>
+              <button onClick={handleDeleteSession}
+                className="py-2 px-4 bg-blue-800 rounded-md text-white font-roboto-slab mb-5 hover:bg-red-800">
+                Delete this session
+                <DeleteIcon className="ml-2"></DeleteIcon>
+              </button>
+            </div>
+          )}
           <p className=" text-base mt-4 text-green-500">{serverMessage}</p>
         </div>
         <div className=" w-1/2 h-[80vh]  flex flex-col">
-          <div className="flex gap-4 justify-center text-2xl font-bold ">
+          <div className="flex gap-4 justify-center text-2xl font-bold">
             <h2 className="mb-10 font-roboto-slab tracking-wide">
               Students attending:
             </h2>
-            <span className=" font-roboto-slab">
-              {attendingStudents.length}
+            <span className="font-roboto-slab">
+              {attendingStudents.length}/{studentCount}
             </span>
           </div>
           <li className="flex justify-center font-open-sans">
