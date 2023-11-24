@@ -1,7 +1,7 @@
 // AddTeacherToCourse.jsx
 
 import React, { useState, useEffect } from 'react';
-import { getUsers, addTeacherToCourse, selectCourse } from '../Hooks/ApiHooks';
+import { getUsers, addTeacherToCourse, selectActiveCourse } from '../Hooks/ApiHooks';
 
 const AddTeacherToCourse = () => {
     const [users, setUsers] = useState([]);
@@ -25,7 +25,7 @@ const AddTeacherToCourse = () => {
                 console.log('Users fetched:', normalizedUsers);
 
                 const userId = localStorage.getItem('userid');
-                const fetchedCourses = await selectCourse(userId);
+                const fetchedCourses = await selectActiveCourse(userId);
                 setCourses(fetchedCourses.data);
             } catch (error) {
                 console.error('Error fetching data:', error);

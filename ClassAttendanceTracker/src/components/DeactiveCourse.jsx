@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { selectCourse, deactiveCourse } from "../Hooks/ApiHooks";
+import { selectActiveCourse, deactiveCourse } from "../Hooks/ApiHooks";
 
 
 const userId = localStorage.getItem("userid");
@@ -17,7 +17,7 @@ const DeactiveCourse = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await selectCourse(userId);
+                const response = await selectActiveCourse(userId);
                 setCourses(response.data);
             } catch (error) {
                 console.error("Error fetching courses:", error);
@@ -41,24 +41,34 @@ const DeactiveCourse = () => {
 
         try {
             const response = await deactiveCourse(selectedCourse);
-            if (response.status === 200) {
+            console.log("Response from server:", response);
+
+            if (response && response._id) {
+                // Assuming that if the response contains _id, it was successful
                 setCourses(courses.filter((course) => course._id !== selectedCourse));
                 setSelectedCourse("");
                 setAlert({
                     show: true,
-                    message: "Course deactivated.",
+                    message: "Course deactivated successfully.",
                     isError: false,
+                });
+            } else {
+                setAlert({
+                    show: true,
+                    message: "Failed to deactivate the course. Please try again.",
+                    isError: true,
                 });
             }
         } catch (error) {
             console.error("Error deactivating course:", error);
             setAlert({
                 show: true,
-                message: "Failed to delete the course. Please try again.",
+                message: "An error occurred while deactivating the course. Please try again.",
                 isError: true,
             });
         }
     };
+
 
     return (
         <div className="min-h-screen w-full items-center flex flex-col px-6">

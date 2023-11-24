@@ -1,20 +1,27 @@
 // ParticipationRates.jsx
 import React, { useState, useEffect } from "react";
-import { fetchParticipationRates, selectCourse } from "../Hooks/ApiHooks";
+import { fetchParticipationRates, allCourses } from "../Hooks/ApiHooks";
 
 
 const userId = localStorage.getItem("userid");
 
 export const ParticipationRates = () => {
-    const [courses, setCourses] = useState([]);
+    const [activeCourses, setActiveCourses] = useState([]);
+    const [inactiveCourses, setInactiveCourses] = useState([]);
     const [selectedCourse, setSelectedCourse] = useState("");
     const [participationData, setParticipationData] = useState([]);
 
+
+
     useEffect(() => {
+
         const fetchCourses = async () => {
             try {
-                const response = await selectCourse(userId);
-                setCourses(response.data);
+                const response = await allCourses(userId);
+                console.log("haetaan kaikki kurssit ", response);
+                const { active, inactive } = response;
+                setActiveCourses(active);
+                setInactiveCourses(inactive);
             } catch (error) {
                 console.error("Error fetching courses:", error);
             }
@@ -120,17 +127,34 @@ export const ParticipationRates = () => {
                         <select
                             value={selectedCourse}
                             onChange={handleCourseChange}
-                            className="border border-gray-300 p-3 rounded-lg block w-full mb-4 font-open-sans">
-                            <option value="" disabled>
-                                Select Course
-                            </option>
-                            {courses.map((course) => (
-                                <option key={course._id} value={course._id}>
-                                    {course.name}
+                            className="border border-gray-300 p-3 rounded-lg block w-full mb-4 font-open-sans"
+                        >
+                            {selectedCourse === "" && (
+                                <option value="" disabled>
+                                    Select Course
                                 </option>
-                            ))}
+                            )}
+                            {activeCourses.length > 0 && (
+                                <optgroup label="Active Courses">
+                                    {activeCourses.map((course) => (
+                                        <option key={course._id} value={course._id}>
+                                            {course.name}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
+                            {inactiveCourses.length > 0 && (
+                                <optgroup label="Unactive Courses">
+                                    {inactiveCourses.map((course) => (
+                                        <option key={course._id} value={course._id}>
+                                            {course.name}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
                         </select>
                     </div>
+
                     <div className="flex justify-end">
                         <button
                             onClick={getParticipationRates}

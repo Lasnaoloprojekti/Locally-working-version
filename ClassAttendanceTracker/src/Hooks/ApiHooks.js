@@ -31,16 +31,30 @@ const useDeleteCourse = () => {
   return deleteCourse;
 };
 
-const selectCourse = async (userId) => {
+const selectActiveCourse = async (userId) => {
 
   try {
-    const response = await axios.get(`http://localhost:3001/selectcourse`, {
+    const response = await axios.get(`http://localhost:3001/selectactivecourse`, {
       headers: {
         'userId': userId,  // Pass the user's ID in the request headers
       },
       withCredentials: true,
     });
     return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const allCourses = async (userId) => {
+  try {
+    const response = await axios.get(`http://localhost:3001/allcourses`, {
+      headers: {
+        'userId': userId,
+      },
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -227,6 +241,8 @@ const deactiveCourse = async (courseId) => {
       { courseId },
       { withCredentials: true }
     );
+
+    console.log("vastaus hookissa ", response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -237,11 +253,11 @@ const deactiveCourse = async (courseId) => {
 export {
   createCourse,
   useDeleteCourse,
-  selectCourse,
+  selectActiveCourse,
   useAddStudentsToCourse,
   createSession, fetchParticipationRates,
   createTopic,
   getTopics,
   addTopicToCourse, deleteTopicFromCourse,
-  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession, deactiveCourse
+  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession, deactiveCourse, allCourses
 };

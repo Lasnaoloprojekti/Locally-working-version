@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { selectCourse, useDeleteCourse } from "../Hooks/ApiHooks";
+import { selectActiveCourse, useDeleteCourse } from "../Hooks/ApiHooks";
 
 
 const userId = localStorage.getItem("userid");
@@ -17,7 +17,7 @@ const CourseDelete = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse(userId);
+        const response = await selectActiveCourse(userId);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);

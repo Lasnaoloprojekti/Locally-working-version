@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { selectCourse } from "../Hooks/ApiHooks";
+import { selectActiveCourse } from "../Hooks/ApiHooks";
 
 const SelectCourse = () => {
   const [courses, setCourses] = useState([]);
@@ -10,7 +10,7 @@ const SelectCourse = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse();
+        const response = await selectActiveCourse();
         console.log("Courses fetched:", response);
         setCourses(response.data);
       } catch (error) {
