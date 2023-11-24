@@ -220,6 +220,19 @@ const deleteTopicFromCourse = async (courseId, topicName) => {
   }
 };
 
+const deactiveCourse = async (courseId) => {
+  try {
+    const response = await axios.post(
+      'http://localhost:3001/deactivatecourse',
+      { courseId },
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 export {
   createCourse,
@@ -230,5 +243,5 @@ export {
   createTopic,
   getTopics,
   addTopicToCourse, deleteTopicFromCourse,
-  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession
+  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession, deactiveCourse
 };
