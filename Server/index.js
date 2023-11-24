@@ -301,16 +301,6 @@ app.get("/selectcourse", async (req, res) => {
 
 });
 
-app.get("/api/courses", async (req, res) => {
-  try {
-    const courses = await CourseDatabaseModel.find({}); // Find all courses
-    res.json(courses);
-  } catch (error) {
-    console.error("Error retrieving courses:", error);
-    res.status(500).json({ error: "An error occurred while retrieving the courses" });
-  }
-});
-
 app.get('/api/users', async (req, res) => {
   try {
     const users = await UserDatabaseModel.find({});
@@ -893,7 +883,28 @@ app.get('/download/attendance/excel/:courseId', async (req, res) => {
   }
 });
 
+app.post("/deactivatecourse", async (req, res) => {
 
+  console.log("Deactivate course request received", req.body);
+  try {
+    const courseId = req.body.courseId;
+    const updatedCourse = await CourseDatabaseModel.findByIdAndUpdate(
+      courseId,
+      { isActive: false },
+      { new: true } // This option returns the updated document
+    );
+
+    if (!updatedCourse) {
+      // If the course with the given ID is not found, return an error
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    res.status(200).json(updatedCourse);
+  } catch (error) {
+    console.error("Error deactivating course:", error);
+    res.status(500).json({ error: "An error occurred while deactivating the course" });
+  }
+});
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");
