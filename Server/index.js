@@ -222,8 +222,7 @@ app.get("/verify", (req, res) => {
 app.post("/createcourse", async (req, res) => {
   console.log("Create course request received", req.body);
 
-  const { courseName, groupName, topics, startDate, endDate, userId } =
-    req.body;
+  const { courseName, groupName, topics, startDate, endDate, userId, teachers } = req.body;
 
   try {
     const existingCourse = await CourseDatabaseModel.findOne({
@@ -234,15 +233,21 @@ app.post("/createcourse", async (req, res) => {
       return res.status(409).json({ error: "Course already exists" });
     }
 
+    let teacherIds = Array.isArray(teachers) ? teachers : [];
+
+    if (!teacherIds.includes(userId)) {
+      teacherIds.push(userId);
+    }
+
     const newCourse = new CourseDatabaseModel({
       name: courseName,
       groupName: groupName,
       startDate: startDate,
       endDate: endDate,
       isActive: true,
-      topics: topics, // Assuming default type for all topics
-      teachers: [userId], // Assuming you want to initialize with an empty array
-      students: [], // Assuming you want to initialize with an empty array
+      topics: topics, 
+      teachers: teacherIds,
+      students: [], 
     });
 
     await newCourse.save();
@@ -844,7 +849,7 @@ app.get("/coursestudentscount/:sessionId", async (req, res) => {
   }
 });
 
-app.post("/api/courses/:courseId/topics", async (req, res) => {
+app.post('/api/courses/:courseId/topics', async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
 
@@ -852,23 +857,44 @@ app.post("/api/courses/:courseId/topics", async (req, res) => {
     const course = await CourseDatabaseModel.findById(courseId);
 
     if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+      return res.status(404).json({ message: 'Course not found' });
     }
 
     if (!course.topics.includes(topicName)) {
       course.topics.push(topicName);
       await course.save();
-      res
-        .status(200)
-        .json({ message: "Topic added successfully to the course" });
+      res.status(200).json({ message: 'Topic added successfully to the course' });
     } else {
-      res.status(409).json({ message: "Topic already exists in this course" });
+      res.status(409).json({ message: 'Topic already exists in this course' });
     }
   } catch (error) {
     console.error("Error adding topic to course:", error);
-    res.status(500).json({
-      error: "An error occurred while adding the topic to the course",
-    });
+    res.status(500).json({ error: "An error occurred while adding the topic to the course" });
+  }
+});
+
+app.delete('/api/courses/:courseId/topics', async (req, res) => {
+  const courseId = req.params.courseId;
+  const { topicName } = req.body;
+
+  try {
+    const course = await CourseDatabaseModel.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    const topicIndex = course.topics.indexOf(topicName);
+    if (topicIndex > -1) {
+      course.topics.splice(topicIndex, 1);
+      await course.save();
+      res.status(200).json({ message: 'Topic removed successfully from the course' });
+    } else {
+      res.status(404).json({ message: 'Topic not found in this course' });
+    }
+  } catch (error) {
+    console.error("Error removing topic from course:", error);
+    res.status(500).json({ error: "An error occurred while removing the topic from the course" });
   }
 });
 
