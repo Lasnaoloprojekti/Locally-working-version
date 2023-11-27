@@ -1,32 +1,28 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { userContext } from "../context/userContext.jsx";
+import { submitGdprConsent } from "../hooks/ApiHooks"; // Import the function
 
 const GDPRConsentForm = () => {
   const [studentNumber, setStudentNumber] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
   const navigate = useNavigate();
 
+  const { userInfo } = useContext(userContext); // Use context to get userInfo
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!gdprConsent) {
-      // Alert the user that they must give consent
       alert("You must consent to the data policy to continue.");
       return;
     }
 
     try {
-      // POST to your backend endpoint to save the student number and GDPR consent
-      await axios.post("http://localhost:3001/api/students", {
-        studentNumber,
-        gdprConsent,
-      });
-
-      // Navigate to the student home
+      const userId = userInfo.userId; // Get userId from userInfo
+      await submitGdprConsent(userId, studentNumber, gdprConsent);
       navigate("/studenthome");
     } catch (error) {
       console.error("Failed to save GDPR consent and student number:", error);
-      // Handle error (show error message to user)
     }
   };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { selectCourse, useDeleteCourse } from "../Hooks/ApiHooks";
 
-
 const userId = localStorage.getItem("userid");
 
 const CourseDelete = () => {
@@ -94,10 +93,11 @@ const CourseDelete = () => {
           </button>
           {alert.show && (
             <div
-              className={`mt-4 p-4 rounded-md transition-all ${alert.isError
-                ? "bg-red-100 border border-red-400 text-red-800"
-                : "bg-green-100 border border-green-400 text-green-800"
-                }`}>
+              className={`mt-4 p-4 rounded-md transition-all ${
+                alert.isError
+                  ? "bg-red-100 border border-red-400 text-red-800"
+                  : "bg-green-100 border border-green-400 text-green-800"
+              }`}>
               <p>{alert.message}</p>
             </div>
           )}
