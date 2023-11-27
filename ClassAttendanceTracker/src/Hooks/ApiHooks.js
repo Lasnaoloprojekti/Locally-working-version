@@ -31,12 +31,14 @@ const useDeleteCourse = () => {
   return deleteCourse;
 };
 
+const selectCourse = async (userId) => {
+
 const selectActiveCourse = async (userId) => {
 
   try {
     const response = await axios.get(`http://localhost:3001/selectactivecourse`, {
       headers: {
-        'userId': userId,  // Pass the user's ID in the request headers
+        userId: userId, // Pass the user's ID in the request headers
       },
       withCredentials: true,
     });
@@ -98,9 +100,12 @@ const deleteSession = async (sessionId, onSuccess, onError) => {
 
 const fetchParticipationRates = async (courseId) => {
   try {
-    const response = await axios.get(`http://localhost:3001/participations/${courseId}`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `http://localhost:3001/participations/${courseId}`,
+      {
+        withCredentials: true,
+      }
+    );
     return response;
   } catch (error) {
     throw error;
@@ -133,9 +138,12 @@ const getTopics = async () => {
 
 const deleteTopic = async (topicId) => {
   try {
-    const response = await axios.delete(`http://localhost:3001/api/topics/${topicId}`, {
-      withCredentials: true,
-    });
+    const response = await axios.delete(
+      `http://localhost:3001/api/topics/${topicId}`,
+      {
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -145,9 +153,9 @@ const deleteTopic = async (topicId) => {
 const useAddStudentsToCourse = () => {
   const addStudents = async (courseId, studentsData) => {
     try {
-      const response = await axios.post('http://localhost:3001/addstudents', {
+      const response = await axios.post("http://localhost:3001/addstudents", {
         courseId,
-        studentsToAdd: studentsData
+        studentsToAdd: studentsData,
       });
 
       return response;
@@ -172,12 +180,16 @@ const getUsers = async () => {
 
 const addTeacherToCourse = async (courseId, userId) => {
   try {
-    const response = await axios.post("http://localhost:3001/addTeacherToCourse", {
-      courseId,
-      userId,
-    }, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      "http://localhost:3001/addTeacherToCourse",
+      {
+        courseId,
+        userId,
+      },
+      {
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -186,22 +198,28 @@ const addTeacherToCourse = async (courseId, userId) => {
 
 const uploadStudentsFile = async (courseId, file) => {
   const formData = new FormData();
-  formData.append('studentfile', file);
-  formData.append('courseId', courseId);
+  formData.append("studentfile", file);
+  formData.append("courseId", courseId);
 
   try {
-    const response = await axios.post("http://localhost:3001/uploadstudents", formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      "http://localhost:3001/uploadstudents",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      }
+    );
 
     // Use the detailed message from the backend response
     return {
       success: response.data.newStudentsAdded,
-      message: response.data.message
+      message: response.data.message,
     };
   } catch (error) {
-    const errorMessage = error.response?.data?.message || "Failed to upload students. Please try again.";
+    const errorMessage =
+      error.response?.data?.message ||
+      "Failed to upload students. Please try again.";
     throw new Error(errorMessage);
   }
 };
@@ -225,7 +243,19 @@ const deleteTopicFromCourse = async (courseId, topicName) => {
   try {
     const response = await axios.delete(
       `http://localhost:3001/api/courses/${courseId}/topics`,
-      { data: { topicName } },  // Axios DELETE with body
+      { data: { topicName } }, // Axios DELETE with body
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+const submitGdprConsent = async (userId, studentNumber, gdprConsent) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3001/api/students/update",
+      { userId, studentNumber, gdprConsent },
       { withCredentials: true }
     );
     return response.data;
@@ -255,9 +285,11 @@ export {
   useDeleteCourse,
   selectActiveCourse,
   useAddStudentsToCourse,
-  createSession, fetchParticipationRates,
+  createSession,
+  fetchParticipationRates,
   createTopic,
   getTopics,
-  addTopicToCourse, deleteTopicFromCourse,
+
+  addTopicToCourse, deleteTopicFromCourse, submitGdprConsent,
   deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession, deactiveCourse, allCourses
 };

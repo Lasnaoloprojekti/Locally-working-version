@@ -6,7 +6,7 @@ import { userContext } from "../context/userContext";
 import { Box } from "@mui/material";
 
 const LoginForm = () => {
-  const { userInfo, setUserInfo } = useContext(userContext);
+  const { setUserInfo } = useContext(userContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -18,22 +18,17 @@ const LoginForm = () => {
     e.preventDefault();
 
     try {
-      // Sending a POST request to the server with the provided username and password
       const response = await axios.post("http://localhost:3001/login", {
         username,
         password,
       });
-      console.log(response, "vastaus serveriltä");
-      const responseData = response.data.apiData;
-      console.log(responseData, "vastaus serveriltä");
 
-      // Checking server response and handling login success or failure
+      const responseData = response.data.apiData;
+
       if (
         !responseData.message ||
         responseData.message !== "invalid username or password"
       ) {
-        console.log("Login was successful:", responseData);
-
         setUserInfo({
           staff: responseData.staff,
           firstname: responseData.firstname,
@@ -41,18 +36,21 @@ const LoginForm = () => {
           userId: responseData.UserId,
         });
 
-
         localStorage.setItem("userid", responseData.UserId);
         localStorage.setItem("token", responseData.accessToken);
-        navigate(responseData.staff ? '/teacherhome' : '/studenthome');
 
+        if (!responseData.staff && responseData.needsGdprConsent) {
+          // Redirect to GDPR consent form for students who haven't given consent
+          navigate("/gdprconsentform");
+        } else {
+          // Navigate to the appropriate home page
+          navigate(responseData.staff ? "/teacherhome" : "/studenthome");
+        }
       } else {
-        console.error("Login failed:", response);
         setLoginError("Invalid username or password");
       }
     } catch (error) {
-      console.error("Login failed:", error);
-      setLoginError("Error logging in check your credentials and connection");
+      setLoginError("Error logging in. Check your credentials and connection.");
     }
   };
 
@@ -94,6 +92,5 @@ const LoginForm = () => {
     </Box>
   );
 };
-
 
 export default LoginForm;
