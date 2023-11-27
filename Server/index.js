@@ -391,26 +391,44 @@ app.post("/addstudents", async (req, res) => {
   }
 });
 
-app.get("/selectcourse", async (req, res) => {
+
+app.get("/selectactivecourse", async (req, res) => {
   try {
     const userId = req.headers.userid;
-    const selectCourse = await CourseDatabaseModel.find({ teachers: userId }); // Fetch all courses from the database
-    res.status(200).json(selectCourse); // Send the courses back in the response
+    const selectCourse = await CourseDatabaseModel.find({
+      teachers: userId,
+      isActive: true, // Add this condition to fetch only active courses
+    });
+    res.status(200).json(selectCourse);
   } catch (error) {
-    console.error("Error fetching courses:", error);
-    res.status(500).json({ error: "An error occurred while fetching courses" });
+    console.error("Error fetching active courses:", error);
+    res.status(500).json({ error: "An error occurred while fetching active courses" });
   }
 });
 
-app.get("/api/courses", async (req, res) => {
+app.get("/allcourses", async (req, res) => {
   try {
-    const courses = await CourseDatabaseModel.find({}); // Find all courses
-    res.json(courses);
+    const userId = req.headers.userid;
+    const activeCourses = await CourseDatabaseModel.find({
+      teachers: userId,
+      isActive: true, // Fetch only active courses
+    });
+
+    const inactiveCourses = await CourseDatabaseModel.find({
+      teachers: userId,
+      isActive: false, // Fetch only inactive courses
+    });
+
+    const coursesData = {
+      active: activeCourses,
+      inactive: inactiveCourses,
+    };
+
+    res.status(200).json(coursesData);
   } catch (error) {
-    console.error("Error retrieving courses:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while retrieving the courses" });
+
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "An error occurred while fetching courses" });
   }
 });
 
@@ -1112,6 +1130,30 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
   } catch (error) {
     console.error("Error generating attendance report:", error);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+
+app.post("/deactivatecourse", async (req, res) => {
+
+  console.log("Deactivate course request received", req.body);
+  try {
+    const courseId = req.body.courseId;
+    const updatedCourse = await CourseDatabaseModel.findByIdAndUpdate(
+      courseId,
+      { isActive: false },
+      { new: true } // This option returns the updated document
+    );
+
+    if (!updatedCourse) {
+      // If the course with the given ID is not found, return an error
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    res.status(200).json(updatedCourse);
+  } catch (error) {
+    console.error("Error deactivating course:", error);
+    res.status(500).json({ error: "An error occurred while deactivating the course" });
   }
 });
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { createTopic, deleteTopic, getTopics, selectCourse, addTopicToCourse, deleteTopicFromCourse } from "../Hooks/ApiHooks";
+import { createTopic, deleteTopic, getTopics, selectActiveCourse, addTopicToCourse, deleteTopicFromCourse } from "../Hooks/ApiHooks";
 
 const AddTopics = () => {
   const [topics, setTopics] = useState([]);
@@ -17,7 +17,7 @@ const AddTopics = () => {
     try {
       const fetchedTopics = await getTopics();
       setTopics(fetchedTopics);
-      const coursesResponse = await selectCourse(localStorage.getItem("userid"));
+      const coursesResponse = await selectActiveCourse(localStorage.getItem("userid"));
       setCourses(coursesResponse.data);
     } catch (error) {
       console.error('Error fetching topics and courses:', error);

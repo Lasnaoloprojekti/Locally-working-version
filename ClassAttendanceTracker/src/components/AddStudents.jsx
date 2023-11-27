@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { selectCourse, useAddStudentsToCourse, uploadStudentsFile } from "../Hooks/ApiHooks";
+import { selectActiveCourse, useAddStudentsToCourse, uploadStudentsFile } from "../Hooks/ApiHooks";
 
 const userId = localStorage.getItem("userid");
 
@@ -21,7 +21,7 @@ const AddStudents = () => {
     // Fetch courses on component mount
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse(userId);
+        const response = await selectActiveCourse(userId);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);

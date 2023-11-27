@@ -32,14 +32,31 @@ const useDeleteCourse = () => {
 };
 
 const selectCourse = async (userId) => {
+
+const selectActiveCourse = async (userId) => {
+
   try {
-    const response = await axios.get(`http://localhost:3001/selectcourse`, {
+    const response = await axios.get(`http://localhost:3001/selectactivecourse`, {
       headers: {
         userId: userId, // Pass the user's ID in the request headers
       },
       withCredentials: true,
     });
     return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const allCourses = async (userId) => {
+  try {
+    const response = await axios.get(`http://localhost:3001/allcourses`, {
+      headers: {
+        'userId': userId,
+      },
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -247,21 +264,32 @@ const submitGdprConsent = async (userId, studentNumber, gdprConsent) => {
   }
 };
 
+const deactiveCourse = async (courseId) => {
+  try {
+    const response = await axios.post(
+      'http://localhost:3001/deactivatecourse',
+      { courseId },
+      { withCredentials: true }
+    );
+
+    console.log("vastaus hookissa ", response.data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 export {
   createCourse,
   useDeleteCourse,
-  selectCourse,
+  selectActiveCourse,
   useAddStudentsToCourse,
   createSession,
   fetchParticipationRates,
   createTopic,
   getTopics,
-  addTopicToCourse,
-  deleteTopicFromCourse,
-  submitGdprConsent,
-  deleteTopic,
-  getUsers,
-  addTeacherToCourse,
-  uploadStudentsFile,
-  deleteSession,
+
+  addTopicToCourse, deleteTopicFromCourse, submitGdprConsent,
+  deleteTopic, getUsers, addTeacherToCourse, uploadStudentsFile, deleteSession, deactiveCourse, allCourses
 };

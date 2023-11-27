@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createSession, selectCourse } from "../Hooks/ApiHooks";
+import { createSession, selectActiveCourse } from "../Hooks/ApiHooks";
 import {
   Select,
   MenuItem,
@@ -39,7 +39,7 @@ const OpenattendanceCollect = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await selectCourse(userId);
+        const response = await selectActiveCourse(userId);
         console.log("Courses fetched:", response);
         setCourses(response.data);
       } catch (error) {
