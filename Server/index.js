@@ -172,21 +172,19 @@ app.post("/login", async (req, res) => {
         });
 
         await newUser.save();
-        console.log("New user created:", newUser);
+        existingUser = newUser; // Set the existingUser to the newly created user
       }
 
+      // Now check if the user is a student and needs GDPR consent
       if (!existingUser.staff) {
-        // Find student data associated with the user
         const studentData = await StudentDatabaseModel.findOne({
           user: existingUser._id,
         });
-        if (studentData && studentData.gdprConsent === false) {
-          // Student exists but hasn't given GDPR consent
-          apiData.needsGdprConsent = true;
-        } else {
-          // Either not a student or has already given GDPR consent
-          apiData.needsGdprConsent = false;
-        }
+        apiData.needsGdprConsent = studentData
+          ? !studentData.gdprConsent
+          : true;
+      } else {
+        apiData.needsGdprConsent = false;
       }
 
       const accessToken = jwt.sign(
@@ -391,7 +389,6 @@ app.post("/addstudents", async (req, res) => {
   }
 });
 
-
 app.get("/selectactivecourse", async (req, res) => {
   try {
     const userId = req.headers.userid;
@@ -402,7 +399,9 @@ app.get("/selectactivecourse", async (req, res) => {
     res.status(200).json(selectCourse);
   } catch (error) {
     console.error("Error fetching active courses:", error);
-    res.status(500).json({ error: "An error occurred while fetching active courses" });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching active courses" });
   }
 });
 
@@ -426,7 +425,6 @@ app.get("/allcourses", async (req, res) => {
 
     res.status(200).json(coursesData);
   } catch (error) {
-
     console.error("Error fetching courses:", error);
     res.status(500).json({ error: "An error occurred while fetching courses" });
   }
@@ -1133,9 +1131,7 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
   }
 });
 
-
 app.post("/deactivatecourse", async (req, res) => {
-
   console.log("Deactivate course request received", req.body);
   try {
     const courseId = req.body.courseId;
@@ -1153,7 +1149,9 @@ app.post("/deactivatecourse", async (req, res) => {
     res.status(200).json(updatedCourse);
   } catch (error) {
     console.error("Error deactivating course:", error);
-    res.status(500).json({ error: "An error occurred while deactivating the course" });
+    res
+      .status(500)
+      .json({ error: "An error occurred while deactivating the course" });
   }
 });
 
