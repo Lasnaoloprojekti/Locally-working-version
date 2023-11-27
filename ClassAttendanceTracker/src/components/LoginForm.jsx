@@ -41,7 +41,8 @@ const LoginForm = () => {
 
         if (!responseData.staff && responseData.needsGdprConsent) {
           // Redirect to GDPR consent form for students who haven't given consent
-          navigate("/gdprconsentform");
+          // navigate("/gdprconsentform");
+          navigate("/teacherhome");
         } else {
           // Navigate to the appropriate home page
           navigate(responseData.staff ? "/teacherhome" : "/studenthome");
