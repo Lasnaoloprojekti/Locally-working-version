@@ -54,6 +54,22 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get('/getstudents/:courseId', async (req, res) => {
+  const { courseId } = req.params;
+  try {
+    const course = await CourseDatabaseModel.findById(courseId).populate('students');
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    const studentCount = course.students.length;
+    res.status(200).json({ studentCount });
+  } catch (error) {
+    console.error("Error fetching student count:", error);
+    res.status(500).json({ error: "An error occurred while fetching student count" });
+  }
+});
+
 app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
   console.log("Upload students request received", req.file);
   const courseId = req.body.courseId;
@@ -244,9 +260,9 @@ app.post("/createcourse", async (req, res) => {
       startDate: startDate,
       endDate: endDate,
       isActive: true,
-      topics: topics, 
+      topics: topics,
       teachers: teacherIds,
-      students: [], 
+      students: [],
     });
 
     await newCourse.save();
@@ -446,6 +462,7 @@ app.get("/api/users", async (req, res) => {
 
 //course delete/students
 app.delete("/api/courses/:id", async (req, res) => {
+  console.log("Delete course request received");
   const courseId = req.params.id;
 
   // Start a session for the transaction
@@ -537,6 +554,7 @@ app.delete("/deletesession", async (req, res) => {
 
 app.post("/registration", async (req, res) => {
   const { studentNumber } = req.body;
+  console.log("Registration request received", req.body);
 
   try {
     // Find student based on student number
@@ -545,62 +563,105 @@ app.post("/registration", async (req, res) => {
       return res.status(404).send("Student not found");
     }
 
-    // Iterate through student's courses to find open sessions
+    // Determine the current session based on date, time, and student's courses
+    // This is a simplified example; you may need more complex logic based on your requirements
+    const currentDate = new Date();
+    let registered = false;
+
     for (let courseEnrollment of student.courses) {
       const openSessions = await AttendanceSessionDatabaseModel.find({
         course: courseEnrollment.course,
         isOpen: true,
+        date: { $lte: currentDate }, // Example condition: session date is today or earlier
+        // ... other conditions based on time or additional rules
       }).populate("studentsPresent");
 
       for (let session of openSessions) {
-        // Check if student is already registered in the session
-        if (session.studentsPresent.some((s) => s._id.equals(student._id))) {
-          return res
-            .status(400)
-            .send("Student already registered in this session");
+        if (!session.studentsPresent.some((s) => s._id.equals(student._id))) {
+          // Register the student in this session
+          session.studentsPresent.push(student._id);
+          await session.save();
+
+          // Create a new attendance record
+          const newAttendance = new AttendanceDatabaseModel({
+            session: session._id,
+            student: student._id,
+            course: session.course,
+            topic: session.topic,
+            date: session.date,
+            timeOfDay: session.timeOfDay,
+            status: "Present",
+            gdprConsent: student.gdprConsent,
+          });
+
+          await newAttendance.save();
+          registered = true;
+          break; // Break out of the loop once the student is registered in a session
         }
       }
 
-      // If student is not registered in any open session, register them in the first one
-      if (openSessions.length > 0) {
-        const sessionToUpdate = openSessions[0]; // Assuming we take the first open session
-        sessionToUpdate.studentsPresent.push(student._id);
-        await sessionToUpdate.save();
-
-        io.emit("studentAdded", {
-          firstName: student.firstName,
-          lastName: student.lastName,
-        });
-
-        const newAttendance = new AttendanceDatabaseModel({
-          session: sessionToUpdate._id,
-          student: student._id,
-          course: courseEnrollment.course,
-          topic: sessionToUpdate.topic,
-          date: sessionToUpdate.date,
-          timeOfDay: sessionToUpdate.timeOfDay,
-          status: "Present",
-          gdprConsent: student.gdprConsent,
-        });
-
-        console.log("newAttendance", newAttendance);
-
-        await newAttendance.save();
-
-        return res.status(200).json({
-          message: "Student registered for session",
-          sessionId: sessionToUpdate._id,
-        });
-      }
+      if (registered) break; // Break out of the outer loop once registered
     }
 
-    // If no open sessions found for any of the student's courses
-    return res.status(404).send("No open sessions available for your courses");
+    if (!registered) {
+      return res.status(404).send("No suitable session found for registration");
+    }
+
+    io.emit("studentAdded", {
+      firstName: student.firstName,
+      lastName: student.lastName,
+    });
+
+    res.status(200).json({ message: "Student registered successfully" });
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
+
+app.post("/unregister", async (req, res) => {
+  const { studentNumber, sessionId } = req.body;
+  console.log("Unregister request received", req.body);
+
+  try {
+    // Find the student's ID based on their student number
+    const student = await StudentDatabaseModel.findOne({ studentNumber });
+    if (!student) {
+      return res.status(404).send("Student not found");
+    }
+
+    // Find and delete the specific attendance record
+    const result = await AttendanceDatabaseModel.deleteOne({
+      student: student._id,
+      session: sessionId,
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send("Attendance record not found");
+    }
+
+    // Optionally, update the session's studentsPresent array
+    const session = await AttendanceSessionDatabaseModel.findById(sessionId);
+    if (session) {
+      session.studentsPresent = session.studentsPresent.filter((s) => !s.equals(student._id));
+      await session.save();
+    }
+
+    // Optionally emit an event for real-time updates
+    io.emit("studentRemoved", {
+      firstName: student.firstName,
+      lastName: student.lastName,
+      sessionId: sessionId,
+    });
+
+    res.status(200).send("Student unregistered successfully");
+  } catch (error) {
+    console.error("Error during unregistration:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 app.post("/closesession", async (req, res) => {
   const { sessionId } = req.body;
@@ -1212,8 +1273,6 @@ app.get("/getcoursestudents/:sessionId", async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching students" });
   }
 });
-
-
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");

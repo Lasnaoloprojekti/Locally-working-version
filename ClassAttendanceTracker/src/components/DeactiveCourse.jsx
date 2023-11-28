@@ -74,7 +74,7 @@ const DeactiveCourse = () => {
         <div className="min-h-screen w-full items-center flex flex-col px-6">
             <div className="max-w-4xl w-full">
                 <div className="text-center font-medium text-xl mb-4 font-roboto-slab">
-                    Delete Course
+                    Course Deactivation
                 </div>
                 <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
                     <div className="mb-5">

@@ -9,6 +9,7 @@ import {
   Radio,
   RadioGroup,
 } from "@mui/material";
+import axios from 'axios';
 
 const userId = localStorage.getItem("userid");
 
@@ -78,8 +79,36 @@ const OpenattendanceCollect = () => {
     setTimeOfDay(event.target.value);
   };
 
+
+  const checkStudentsAndNavigate = async (sessionId, courseName, topic, path) => {
+    try {
+
+      console.log("Checking student count for course:", selectedCourse);
+      const response = await axios.get(`http://localhost:3001/getstudents/${selectedCourse}`);
+      const { studentCount } = response.data;
+      console.log("Student count:", studentCount);
+
+      if (studentCount > 0) {
+        // If there are students, navigate to the next page
+        navigate(
+          `/${path}/${sessionId}/${encodeURIComponent(
+            courseName
+          )}/${encodeURIComponent(topic)}`
+        );
+      } else {
+        // If there are no students, display a message
+        alert("This course does not have any students currently, please add them first.");
+      }
+    } catch (error) {
+      console.error("Error checking student count:", error);
+      // Optionally set an error message in the state to display in the UI
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!validateForm()) return;
 
     const sessionData = {
       courseId: selectedCourse,
@@ -88,33 +117,25 @@ const OpenattendanceCollect = () => {
       timeOfDay,
     };
 
-    try {
-      const response = await createSession(sessionData);
-      console.log("Session created:", response);
+    const response = await createSession(sessionData);
+    console.log("Session created:", response);
 
-      // Extracting session ID from the response
-      const sessionId = response.sessionId;
+    // Extracting session ID from the response
+    const sessionId = response.sessionId;
 
-      // Get the selected course name
-      const selectedCourseName = courses.find(
-        (course) => course._id === selectedCourse
-      )?.name;
+    // Get the selected course name
+    const selectedCourseName = courses.find(
+      (course) => course._id === selectedCourse
+    )?.name;
 
-      // Navigate to the waiting page with session ID, course name, and topic
-      navigate(
-        `/wait/${sessionId}/${encodeURIComponent(
-          selectedCourseName
-        )}/${encodeURIComponent(selectedTopic)}`
-      );
-    } catch (error) {
-      console.error("Error creating session:", error);
-      // Handle error here
-    }
+    await checkStudentsAndNavigate(sessionId, selectedCourseName, selectedTopic, 'wait');
   };
 
   const HandleManualAttendanceCollect = async (event) => {
     event.preventDefault();
 
+    if (!validateForm()) return;
+
     const sessionData = {
       courseId: selectedCourse,
       topic: selectedTopic,
@@ -122,28 +143,26 @@ const OpenattendanceCollect = () => {
       timeOfDay,
     };
 
-    try {
-      const response = await createSession(sessionData);
-      console.log("Session created:", response);
+    const response = await createSession(sessionData);
+    console.log("Session created:", response);
 
-      // Extracting session ID from the response
-      const sessionId = response.sessionId;
+    // Extracting session ID from the response
+    const sessionId = response.sessionId;
 
-      // Get the selected course name
-      const selectedCourseName = courses.find(
-        (course) => course._id === selectedCourse
-      )?.name;
+    // Get the selected course name
+    const selectedCourseName = courses.find(
+      (course) => course._id === selectedCourse
+    )?.name;
 
-      // Navigate to the waiting page with session ID, course name, and topic
-      navigate(
-        `/manual/${sessionId}/${encodeURIComponent(
-          selectedCourseName
-        )}/${encodeURIComponent(selectedTopic)}`
-      );
-    } catch (error) {
-      console.error("Error creating session:", error);
-      // Handle error here
+    await checkStudentsAndNavigate(sessionId, selectedCourseName, selectedTopic, 'manual');
+  };
+
+  const validateForm = () => {
+    if (!selectedCourse || !selectedTopic || !date || !timeOfDay) {
+      alert("Please fill all the fields in the form.");
+      return false;
     }
+    return true;
   };
 
 
@@ -161,6 +180,7 @@ const OpenattendanceCollect = () => {
               Select Course
             </label>
             <Select
+              required
               className="border border-gray-300 p-3 h-14 block w-full font-open-sans"
               style={{ borderRadius: "8px" }}
               value={selectedCourse}
@@ -181,7 +201,7 @@ const OpenattendanceCollect = () => {
             <label className="block mb-2 text-sm font-medium text-gray-600 font-roboto-slab">
               Select Topic
             </label>
-            <Select
+            <Select required
               className="border border-gray-300 p-3 h-14 block w-full font-open-sans"
               style={{ borderRadius: "8px" }}
               value={selectedTopic}

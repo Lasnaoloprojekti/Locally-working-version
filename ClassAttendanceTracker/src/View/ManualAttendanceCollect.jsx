@@ -13,6 +13,7 @@ export const ManualAttendanceCollect = () => {
     const [serverMessage, setServerMessage] = useState("");
     const [attendingStudents, setAttendingStudents] = useState([]);
     const [nonAttendingStudents, setNonAttendingStudents] = useState([]);
+    const [showModal, setShowModal] = useState(true);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -24,6 +25,19 @@ export const ManualAttendanceCollect = () => {
         });
         navigate("/login");
     };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
+    // Modal component
+    const Modal = ({ children }) => (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-5 rounded">
+                {children}
+            </div>
+        </div>
+    );
 
     useEffect(() => {
         // Fetch all students from the server when the component mounts
@@ -86,6 +100,29 @@ export const ManualAttendanceCollect = () => {
         }
     };
 
+    const handleUnregisterStudent = async (student) => {
+        try {
+            const response = await fetch("http://localhost:3001/unregister", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ studentNumber: student.studentNumber, sessionId: sessionId }),
+            });
+
+            if (response.ok) {
+                // Update state to move student back to non-attending list
+                setAttendingStudents(attendingStudents.filter(s => s.studentNumber !== student.studentNumber));
+                setNonAttendingStudents([...nonAttendingStudents, student]);
+            } else {
+                // Handle case where unregistration wasn't successful
+                console.error("Failed to unregister student attendance");
+            }
+        } catch (error) {
+            console.error("Error unregistering student attendance:", error);
+        }
+    };
+
     const handleCloseSession = async () => {
         try {
             const response = await fetch("http://localhost:3001/closesession", {
@@ -113,21 +150,25 @@ export const ManualAttendanceCollect = () => {
     };
 
 
+
     return (
         <>
+            {showModal && (
+                <Modal>
+                    <h2 className=" text-3xl mb-4">Are you sure you want to start collecting participations?</h2>
+
+                    <div className=" flex justify-center ">
+                        <button onClick={handleCloseModal} className=" bg-green-700 hover:bg-green-950 text-2xl text-white p-7 rounded mr-2">Yes 👍</button>
+                        <button onClick={handleDeleteSession} className=" bg-red-800 hover:bg-red-950 text-2xl text-white p-7 rounded">No 👎</button>
+                    </div>
+                    <p className=" text-red-600 text-center mt-4">Remember that this will effect course participation rates!</p>
+                </Modal>
+            )}
             <nav className="flex justify-between items-center">
                 <Link to="/teacherhome">
                     <img className="h-12 m-4" src={logo} alt="Logo" />
                 </Link>
-                <div className="flex flex-row m-4 items-baseline">
-                    <h3 className="font-roboto-slab mr-3">Did you accidentally open this session?</h3>
-                    <button
-                        className="text-white text-sm flex items-center bg-blue-800 rounded-lg py-2 px-2 font-roboto-slab  hover:bg-red-800" onClick={handleDeleteSession}>
-                        Delete this session
-                        <DeleteIcon></DeleteIcon>
 
-                    </button>
-                </div>
                 <ul className="flex items-center">
                     <li className="text-2xl ml-2 font-roboto-slab">
                         Welcome! {userInfo.firstname} {userInfo.lastname}
@@ -139,56 +180,66 @@ export const ManualAttendanceCollect = () => {
                     </button>
                 </ul>
             </nav>
-            <section className="flex flex-col items-center mt-5">
-                <h1 className=" font-roboto-slab text-3xl mb-5 font-bold tracking-wide">
-                    {decodeURIComponent(courseName)}
-                </h1>
-                <h1 className=" font-roboto-slab text-xl mb-1 font-semibold tracking-wider">
-                    {decodeURIComponent(topic)}
-                </h1>
-                {sessionClosed && (
-                    <Link
-                        to="/teacherhome"
-                        className=" text-blue-500 text-lg underline hover:text-green-800">
-                        Create new attendance registration
-                    </Link>
-                )}
-            </section>
-            <section className="flex flex-col flex-grow mt-4">
-                <div className=" flex-grow">
-                    <h3 className="m-4">Students Not Attending:</h3>
-                    <ul className="flex flex-wrap">
-                        {nonAttendingStudents.map((student) => (
-                            <li
-                                key={student.studentNumber}
-                                onClick={() => handleStudentClick(student)}
-                                className="bg-orange-500 text-white p-2 m-2 rounded cursor-pointer hover:bg-orange-600 transition-colors"
-                            >
-                                {student.firstName} {student.lastName}
-                            </li>
-                        ))}
-                    </ul>
+
+            <div className="flex flex-col justify-between">
+                <div>
+                    <section className="flex flex-col items-center mt-5">
+                        <h1 className="font-roboto-slab text-3xl mb-5 font-bold tracking-wide">
+                            {decodeURIComponent(courseName)}
+                        </h1>
+                        <h1 className="font-roboto-slab text-xl mb-1 font-semibold tracking-wider">
+                            {decodeURIComponent(topic)}
+                        </h1>
+                    </section>
+
+                    <section className="mt-4">
+                        <div>
+                            <h3 className="m-4">Students Not Attending:</h3>
+                            <ul className="flex flex-wrap">
+                                {nonAttendingStudents.map(student => (
+                                    <li
+                                        key={student.studentNumber}
+                                        onClick={() => handleStudentClick(student)}
+                                        className="bg-orange-500 text-white text-sm p-2 m-2 rounded cursor-pointer hover:bg-orange-600 transition-colors">
+                                        {student.firstName} {student.lastName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 className="m-4">Students Attending:</h3>
+                            <ul className="flex flex-wrap">
+                                {attendingStudents.map(student => (
+                                    <li key={student.studentNumber} className="bg-blue-500 text-white p-2 m-2 rounded" onClick={() => handleUnregisterStudent(student)}>
+                                        {student.firstName} {student.lastName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </section>
                 </div>
-                <div className=" flex-grow">
-                    <h3 className="m-4">Students Attending:</h3>
-                    <ul className="flex flex-wrap">
-                        {attendingStudents.map((student) => (
-                            <li
-                                key={student.studentNumber}
-                                className="bg-blue-500 text-white p-2 m-2 rounded"
-                            >
-                                {student.firstName} {student.lastName}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </section>
-            <section className="w-full flex flex-col justify-center items-center ">
-                <p className=" text-base mt-4 text-green-500">{serverMessage}</p>
-                <button onClick={handleCloseSession} className="text-white flex items-center bg-blue-800 rounded-lg py-2 px-2 font-roboto-slab hover:bg-red-800">
-                    Stop collecting attendances
-                </button>
-            </section>
+
+                <section className="w-full flex justify-center pb-4">
+                    <div className=" flex flex-col text-center gap-2">
+                        <p className="text-base text-green-500">{serverMessage}</p>
+                        {sessionClosed && (
+                            <Link
+                                to="/teacherhome"
+                                className=" text-blue-500 text-lg underline hover:text-green-800">
+                                Create new attendance registration
+                            </Link>
+                        )}
+                    </div>
+                    <button
+                        disabled={showModal}
+                        onClick={handleCloseSession}
+                        className={`text-white text-xl flex items-center rounded-lg py-2 mb-5 px-6 font-roboto-slab absolute bottom-0 left-1/2 transform -translate-x-1/2 ${showModal ? ' hidden cursor-not-allowed' : 'bg-blue-800 hover:bg-blue-900'}`}
+                    >
+                        Stop collecting attendances
+                    </button>
+                </section>
+            </div>
+
         </>
     );
 };

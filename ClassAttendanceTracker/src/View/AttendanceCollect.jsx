@@ -18,6 +18,20 @@ export const WaitingPage = () => {
   const [serverMessage, setServerMessage] = useState("");
   const [sessionClosed, setSessionClosed] = useState(false);
   const [studentCount, setStudentCount] = useState(0);
+  const [showModal, setShowModal] = useState(true);
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  // Modal component
+  const Modal = ({ children }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="bg-white p-5 rounded">
+        {children}
+      </div>
+    </div>
+  );
 
   useEffect(() => {
     // Fetch student count from the backend
@@ -137,6 +151,17 @@ export const WaitingPage = () => {
 
   return (
     <>
+      {showModal && (
+        <Modal>
+          <h2 className=" text-3xl mb-4">Are you sure you want to start collecting participations?</h2>
+
+          <div className=" flex justify-center ">
+            <button onClick={handleCloseModal} className=" bg-green-700 hover:bg-green-950 text-2xl text-white p-7 rounded mr-2">Yes 👍</button>
+            <button onClick={handleDeleteSession} className=" bg-red-800 hover:bg-red-950 text-2xl text-white p-7 rounded">No 👎</button>
+          </div>
+          <p className=" text-red-600 text-center mt-4">Remember that this will effect course participation rates!</p>
+        </Modal>
+      )}
       {" "}
       <nav className="flex justify-between items-center">
         <Link to="/teacherhome">
@@ -169,16 +194,7 @@ export const WaitingPage = () => {
             onClick={handleCloseSession}>
             Deactive collecting attendances
           </button>
-          {!sessionClosed && (
-            <div className="flex flex-col mt-4">
-              <h3 className="font-roboto-slab text-lg mb-2">Did you accidentally open this session?</h3>
-              <button onClick={handleDeleteSession}
-                className="py-2 px-4 bg-blue-800 rounded-md text-white font-roboto-slab mb-5 hover:bg-red-800">
-                Delete this session
-                <DeleteIcon className="ml-2"></DeleteIcon>
-              </button>
-            </div>
-          )}
+
           <p className=" text-base mt-4 text-green-500">{serverMessage}</p>
         </div>
         <div className=" w-1/2 h-[80vh]  flex flex-col">
