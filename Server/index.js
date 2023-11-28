@@ -197,7 +197,6 @@ app.post("/createcourse", async (req, res) => {
 
     const newCourse = new CourseDatabaseModel({
       name: courseName,
-      groupName: groupName,
       startDate: startDate,
       endDate: endDate,
       isActive: true,
@@ -337,7 +336,6 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-//course delete/students
 app.delete('/api/courses/:id', async (req, res) => {
   const courseId = req.params.id;
 
@@ -931,6 +929,41 @@ app.post("/deactivatecourse", async (req, res) => {
     res.status(500).json({ error: "An error occurred while deactivating the course" });
   }
 });
+
+app.get("/getcoursestudents/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    // Find the session document by its ID
+    const session = await AttendanceSessionDatabaseModel.findById(sessionId).populate('course');
+
+    if (!session) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    // Assuming session.course now contains the full course document after population
+    const courseId = session.course._id;
+
+    // Find students enrolled in the course
+    const students = await StudentDatabaseModel.find({
+      courses: { $elemMatch: { course: courseId } }
+    });
+
+    // Map through the students to return only the required fields
+    const studentData = students.map(student => ({
+      firstName: student.firstName,
+      lastName: student.lastName,
+      studentNumber: student.studentNumber
+    }));
+
+    res.status(200).json({ students: studentData });
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    res.status(500).json({ error: "An error occurred while fetching students" });
+  }
+});
+
+
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");

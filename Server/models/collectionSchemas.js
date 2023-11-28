@@ -27,7 +27,6 @@ const StudentSchema = new mongoose.Schema({
       ],
     },
   ],
-  // Other fields related to attendance...
 });
 
 //***Attendance Schema***

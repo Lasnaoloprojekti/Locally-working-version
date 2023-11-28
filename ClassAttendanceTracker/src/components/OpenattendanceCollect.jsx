@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { createSession, selectActiveCourse } from "../Hooks/ApiHooks";
 import {
   Select,
@@ -21,6 +21,7 @@ const OpenattendanceCollect = () => {
   const [timeOfDay, setTimeOfDay] = useState("");
   const navigate = useNavigate();
   const [date, setDate] = useState("");
+  const [manualAttendanceClicked, setManualAttendanceClicked] = useState(false);
 
   useEffect(() => {
     const today = new Date();
@@ -111,6 +112,41 @@ const OpenattendanceCollect = () => {
     }
   };
 
+  const HandleManualAttendanceCollect = async (event) => {
+    event.preventDefault();
+
+    const sessionData = {
+      courseId: selectedCourse,
+      topic: selectedTopic,
+      date: date, // Use the date state here
+      timeOfDay,
+    };
+
+    try {
+      const response = await createSession(sessionData);
+      console.log("Session created:", response);
+
+      // Extracting session ID from the response
+      const sessionId = response.sessionId;
+
+      // Get the selected course name
+      const selectedCourseName = courses.find(
+        (course) => course._id === selectedCourse
+      )?.name;
+
+      // Navigate to the waiting page with session ID, course name, and topic
+      navigate(
+        `/manual/${sessionId}/${encodeURIComponent(
+          selectedCourseName
+        )}/${encodeURIComponent(selectedTopic)}`
+      );
+    } catch (error) {
+      console.error("Error creating session:", error);
+      // Handle error here
+    }
+  };
+
+
   return (
     <div className="min-h-screen w-full items-center flex flex-col px-6">
       <div className="max-w-4xl w-full">
@@ -197,13 +233,18 @@ const OpenattendanceCollect = () => {
               />
             </RadioGroup>
           </FormControl>
-
           <div className="flex justify-end mt-4">
             <button
               type="submit"
               className="px-4 w-full p-3 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
               Collect Attendances
             </button>
+          </div>
+          <div className=" text-center mt-2">
+            <Link
+              className="text-blue-500"
+              onClick={HandleManualAttendanceCollect}>
+              Take attendances manually</Link>
           </div>
         </form>
       </div>

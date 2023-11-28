@@ -19,10 +19,6 @@ export const WaitingPage = () => {
   const [sessionClosed, setSessionClosed] = useState(false);
   const [studentCount, setStudentCount] = useState(0);
 
-
-
-
-
   useEffect(() => {
     // Fetch student count from the backend
     async function fetchStudentCount() {
