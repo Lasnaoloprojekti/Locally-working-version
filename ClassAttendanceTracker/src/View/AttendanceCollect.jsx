@@ -90,28 +90,33 @@ export const WaitingPage = () => {
 
 
   const handleCloseSession = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/closesession", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sessionId: sessionId }),
-      });
+    // Display a confirmation dialog
+    const confirmClose = window.confirm("Are you sure you want to stop collecting attendances and save the changes?");
 
-      if (response.ok) {
-        console.log("Session closed successfully");
-        // Handle successful session closure
-        setServerMessage("Session closed successfully");
-        setSessionClosed(true);
-      } else {
-        console.error("Failed to close session");
-        // Handle error
-        setServerMessage("Failed to close session");
+    if (confirmClose) {
+      try {
+        const response = await fetch("http://localhost:3001/closesession", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ sessionId: sessionId }),
+        });
+
+        if (response.ok) {
+          console.log("Session closed successfully");
+          // Handle successful session closure
+          setServerMessage("Session closed successfully");
+          setSessionClosed(true);
+        } else {
+          console.error("Failed to close session");
+          // Handle error
+          setServerMessage("Failed to close session");
+        }
+      } catch (error) {
+        console.error("Error closing session:", error);
+        setServerMessage("Error closing session");
       }
-    } catch (error) {
-      console.error("Error closing session:", error);
-      setServerMessage("Error closing session");
     }
   };
 

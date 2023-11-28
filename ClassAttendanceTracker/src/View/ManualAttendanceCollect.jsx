@@ -74,8 +74,18 @@ export const ManualAttendanceCollect = () => {
         }
         setTimeout(() => {
             navigate("/teacherhome");
-        }, 1000);
+        }, 500);
     };
+
+    useEffect(() => {
+        if (sessionClosed) {
+            const timer = setTimeout(() => {
+                navigate("/teacherhome");
+            }, 1000); // Delay of 1000 milliseconds (1 second)
+
+            return () => clearTimeout(timer); // Clean up the timer
+        }
+    }, [sessionClosed, navigate]);
 
     const handleStudentClick = async (student) => {
         try {
@@ -124,31 +134,35 @@ export const ManualAttendanceCollect = () => {
     };
 
     const handleCloseSession = async () => {
-        try {
-            const response = await fetch("http://localhost:3001/closesession", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ sessionId: sessionId }),
-            });
+        // Display a confirmation dialog
+        const confirmClose = window.confirm("Are you sure you want to stop collecting attendances and save the changes?");
 
-            if (response.ok) {
-                console.log("Session closed successfully");
-                // Handle successful session closure
-                setServerMessage("Session closed successfully");
-                setSessionClosed(true);
-            } else {
-                console.error("Failed to close session");
-                // Handle error
-                setServerMessage("Failed to close session");
+        if (confirmClose) {
+            try {
+                const response = await fetch("http://localhost:3001/closesession", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ sessionId: sessionId }),
+                });
+
+                if (response.ok) {
+                    console.log("Session closed successfully");
+                    // Handle successful session closure
+                    setServerMessage("Session closed successfully");
+                    setSessionClosed(true);
+                } else {
+                    console.error("Failed to close session");
+                    // Handle error
+                    setServerMessage("Failed to close session");
+                }
+            } catch (error) {
+                console.error("Error closing session:", error);
+                setServerMessage("Error closing session");
             }
-        } catch (error) {
-            console.error("Error closing session:", error);
-            setServerMessage("Error closing session");
         }
     };
-
 
 
     return (
@@ -220,15 +234,8 @@ export const ManualAttendanceCollect = () => {
                 </div>
 
                 <section className="w-full flex justify-center pb-4">
-                    <div className=" flex flex-col text-center gap-2">
+                    <div className=" flex flex-col text-center gap-2 mt-4">
                         <p className="text-base text-green-500">{serverMessage}</p>
-                        {sessionClosed && (
-                            <Link
-                                to="/teacherhome"
-                                className=" text-blue-500 text-lg underline hover:text-green-800">
-                                Create new attendance registration
-                            </Link>
-                        )}
                     </div>
                     <button
                         disabled={showModal}
