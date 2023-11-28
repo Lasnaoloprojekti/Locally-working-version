@@ -137,7 +137,7 @@ export const ManualAttendanceCollect = () => {
         // Check if there are no students in the attendingStudents state
         if (attendingStudents.length === 0) {
             const confirmClose = window.confirm(
-                "No attendances were saved. Are you sure you want to stop collecting attendances? This will affect the total attendance percent of the course."
+                "No attendances were saved. Are you sure you want to stop collecting attendances? THIS WILL HAVE EFFECT ON THE COURSES PARTICIPATION RATES!."
             );
 
             if (!confirmClose) {
@@ -240,7 +240,7 @@ export const ManualAttendanceCollect = () => {
                             <h3 className="m-4">Students Attending:</h3>
                             <ul className="flex flex-wrap">
                                 {attendingStudents.map(student => (
-                                    <li key={student.studentNumber} className="bg-blue-500 text-white p-2 m-2 rounded" onClick={() => handleUnregisterStudent(student)}>
+                                    <li key={student.studentNumber} className="bg-blue-500 text-white p-2 m-2 rounded cursor-pointer" onClick={() => handleUnregisterStudent(student)}>
                                         {student.firstName} {student.lastName}
                                     </li>
                                 ))}

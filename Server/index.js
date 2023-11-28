@@ -563,17 +563,12 @@ app.post("/registration", async (req, res) => {
       return res.status(404).send("Student not found");
     }
 
-    // Determine the current session based on date, time, and student's courses
-    // This is a simplified example; you may need more complex logic based on your requirements
-    const currentDate = new Date();
     let registered = false;
 
     for (let courseEnrollment of student.courses) {
       const openSessions = await AttendanceSessionDatabaseModel.find({
         course: courseEnrollment.course,
         isOpen: true,
-        date: { $lte: currentDate }, // Example condition: session date is today or earlier
-        // ... other conditions based on time or additional rules
       }).populate("studentsPresent");
 
       for (let session of openSessions) {
@@ -619,7 +614,6 @@ app.post("/registration", async (req, res) => {
   }
 });
 
-
 app.post("/unregister", async (req, res) => {
   const { studentNumber, sessionId } = req.body;
   console.log("Unregister request received", req.body);
@@ -661,7 +655,6 @@ app.post("/unregister", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 app.post("/closesession", async (req, res) => {
   const { sessionId } = req.body;
@@ -1273,6 +1266,8 @@ app.get("/getcoursestudents/:sessionId", async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching students" });
   }
 });
+
+
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");
