@@ -7,6 +7,7 @@ import PrivateRoutes from "./Utils/privateRoute";
 import { UserContextProvider } from "./context/userContext";
 import { WaitingPage } from "./View/AttendanceCollect";
 import { ManualAttendanceCollect } from "./View/ManualAttendanceCollect";
+import GDPRConsentForm from "./View/GDPRConsentForm";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
             <Route path="/teacherhome" element={<TeacherHome />} />
             <Route path="/studenthome" element={<StudentHome />} />
             <Route path="/coursemodify" element={<CourseModification />} />
+            <Route path="/gdprconsentform" element={<GDPRConsentForm />} />
           </Route>
           <Route
             path="/wait/:sessionId/:courseName/:topic"
