@@ -16,8 +16,7 @@ const App = () => {
         <Routes>
           <Route element={<PrivateRoutes />}>
             <Route path="/teacherhome" element={<TeacherHome />} />
-            <Route path="/studenthome" element={<TeacherHome />} />{" "}
-            //studenthome on deployment
+            <Route path="/studenthome" element={<StudentHome />} />
             <Route path="/coursemodify" element={<CourseModification />} />
             <Route path="/gdprconsentform" element={<GDPRConsentForm />} />
           </Route>

@@ -1,26 +1,22 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// Student Schema
-const StudentSchema = new Schema({
+//***Student Schema***
+
+const StudentSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
-  studentNumber: String,
+  studentNumber: { type: String, unique: true, required: true },
   gdprConsent: Boolean,
-  email: String,
-  username: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-  },
   courses: [
     {
       course: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Course",
       },
       attendance: [
         {
-          type: Schema.Types.ObjectId,
+          type: mongoose.Schema.Types.ObjectId,
           ref: "Attendance",
         },
       ],
@@ -33,18 +29,19 @@ const StudentSchema = new Schema({
   ],
 });
 
-// Attendance Schema
-const AttendanceSchema = new Schema({
+//***Attendance Schema***
+
+const AttendanceSchema = new mongoose.Schema({
   session: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "AttendanceSession",
   },
   student: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
   },
   course: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Course",
   },
   topic: String,
@@ -54,10 +51,9 @@ const AttendanceSchema = new Schema({
   gdprConsent: Boolean,
 });
 
-// Attendance Session Schema
-const AttendanceSessionSchema = new Schema({
+const AttendanceSessionSchema = new mongoose.Schema({
   course: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Course",
     required: true,
   },
@@ -85,23 +81,25 @@ const AttendanceSessionSchema = new Schema({
   ],
 });
 
-// User Schema
-const UserSchema = new Schema({
-  username: String, // Renamed from 'user'
+//***User Schema***
+
+const UserSchema = new mongoose.Schema({
+  user: String,
   firstName: String,
   lastName: String,
   email: String,
   staff: Boolean,
   courses: [
     {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Course",
     },
   ],
 });
 
-// Course Schema
-const CourseSchema = new Schema({
+//***course Schema***
+
+const CourseSchema = new mongoose.Schema({
   name: String,
   groupName: String,
   startDate: Date,
@@ -109,28 +107,29 @@ const CourseSchema = new Schema({
   topics: [String],
   teachers: [
     {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   ],
   students: [
     {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
     },
   ],
   isActive: Boolean,
 });
 
-// Topics Schema
-const TopicSchema = new Schema({
+//**Topics Schema */
+const TopicSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-  },
+    required: true
+  }
 });
 
-// Setting the Schemas to models
+//Setting the Schemas to models
+
 const CourseDatabaseModel = mongoose.model("Course", CourseSchema);
 const UserDatabaseModel = mongoose.model("User", UserSchema);
 const AttendanceDatabaseModel = mongoose.model("Attendance", AttendanceSchema);
@@ -139,7 +138,7 @@ const AttendanceSessionDatabaseModel = mongoose.model(
   AttendanceSessionSchema
 );
 const StudentDatabaseModel = mongoose.model("Student", StudentSchema);
-const TopicDatabaseModel = mongoose.model("Topic", TopicSchema);
+const TopicDatabaseModel = mongoose.model('Topic', TopicSchema);
 
 module.exports = {
   UserDatabaseModel,
@@ -147,5 +146,5 @@ module.exports = {
   StudentDatabaseModel,
   AttendanceDatabaseModel,
   AttendanceSessionDatabaseModel,
-  TopicDatabaseModel,
+  TopicDatabaseModel
 };

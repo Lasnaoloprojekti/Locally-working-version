@@ -254,7 +254,7 @@ const deleteTopicFromCourse = async (courseId, topicName) => {
 const submitGdprConsent = async (userId, studentNumber, gdprConsent) => {
   try {
     const response = await axios.post(
-      "http://localhost:3001/api/students/updategdpr",
+      "http://localhost:3001/api/students/update",
       { userId, studentNumber, gdprConsent },
       { withCredentials: true }
     );
@@ -281,16 +281,16 @@ const deactiveCourse = async (courseId) => {
 
 const searchRealization = async (codes) => {
   const body = JSON.stringify({ codes });
-  const url = "/r1/realization/search";
+  const url = '/r1/realization/search'; 
 
   const apiKey = "uXIj6PjeH9oUHC6IQ7qG";
-  const authString = btoa(apiKey + ":");
+  const authString = btoa(apiKey + ":"); 
 
   try {
     const response = await axios.post(url, body, {
       headers: {
-        Authorization: "Basic " + authString,
-        "Content-Type": "application/json",
+        Authorization: 'Basic ' + authString,
+        'Content-Type': 'application/json',
       },
     });
     return response.data;

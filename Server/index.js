@@ -54,12 +54,10 @@ io.on("connection", (socket) => {
   });
 });
 
-app.get("/getstudents/:courseId", async (req, res) => {
+app.get('/getstudents/:courseId', async (req, res) => {
   const { courseId } = req.params;
   try {
-    const course = await CourseDatabaseModel.findById(courseId).populate(
-      "students"
-    );
+    const course = await CourseDatabaseModel.findById(courseId).populate('students');
     if (!course) {
       return res.status(404).json({ error: "Course not found" });
     }
@@ -68,9 +66,7 @@ app.get("/getstudents/:courseId", async (req, res) => {
     res.status(200).json({ studentCount });
   } catch (error) {
     console.error("Error fetching student count:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching student count" });
+    res.status(500).json({ error: "An error occurred while fetching student count" });
   }
 });
 
@@ -163,7 +159,6 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Replace this with your actual API request to authenticate the user
     const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
       method: "POST",
       headers: {
@@ -175,90 +170,51 @@ app.post("/login", async (req, res) => {
     const apiData = await apiResponse.json();
 
     if (apiData.message === "invalid username or password") {
-      return res.status(401).json({ error: "Invalid username or password" });
+      return res.status(401).json({ error: "invalid username or password" });
     } else {
-      // Find existing user by email
       let existingUser = await UserDatabaseModel.findOne({
-        email: apiData.email,
+        user: apiData.user,
       });
 
       if (!existingUser) {
         // User does not exist, create a new user
-        existingUser = new UserDatabaseModel({
+        const newUser = new UserDatabaseModel({
           user: apiData.user,
           firstName: apiData.firstname,
           lastName: apiData.lastname,
           email: apiData.email,
           staff: apiData.staff,
-          courses: [],
+          courses: null,
         });
 
-        await existingUser.save();
+        await newUser.save();
+        existingUser = newUser; // Set the existingUser to the newly created user
       }
 
-      // For non-staff users, check or create a student record
-      let needsGdprConsent = false;
+      // Now check if the user is a student and needs GDPR consent
       if (!existingUser.staff) {
-        let existingStudent = await StudentDatabaseModel.findOne({
-          email: existingUser.email,
+        const studentData = await StudentDatabaseModel.findOne({
+          user: existingUser._id,
         });
-
-        if (!existingStudent) {
-          // Create new student if it doesn't exist
-          existingStudent = new StudentDatabaseModel({
-            firstName: existingUser.firstName,
-            lastName: existingUser.lastName,
-            user: existingUser._id,
-            email: existingUser.email, // Make sure this email is unique across all students
-            gdprConsent: false,
-            courses: [],
-          });
-          await existingStudent.save();
-          needsGdprConsent = true;
-        } else {
-          // Update existing student's GDPR consent if necessary
-          needsGdprConsent = !existingStudent.gdprConsent;
-        }
+        apiData.needsGdprConsent = studentData
+          ? !studentData.gdprConsent
+          : true;
+      } else {
+        apiData.needsGdprConsent = false;
       }
 
-      // Create a JWT token
       const accessToken = jwt.sign(
-        { user: existingUser._id },
+        apiData.user,
         process.env.ACCESS_TOKEN_SECRET
       );
 
-      // Send response with user data and token
-      res.status(apiResponse.status).json({
-        user: existingUser,
-        userId: existingUser._id, // Include userId in the response
-        accessToken: accessToken,
-        needsGdprConsent: needsGdprConsent,
-      });
+      apiData.accessToken = accessToken;
+      apiData.UserId = existingUser._id.toString();
+      res.status(apiResponse.status).json({ apiData });
     }
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ error: "An error occurred during login" });
-  }
-});
-
-app.post("/api/students/updategdpr", async (req, res) => {
-  const { userId, studentNumber, gdprConsent } = req.body;
-
-  try {
-    const updatedStudent = await StudentDatabaseModel.findOneAndUpdate(
-      { user: userId },
-      { studentNumber, gdprConsent },
-      { new: true }
-    );
-
-    if (!updatedStudent) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-
-    res.status(200).json({ message: "GDPR consent updated successfully" });
-  } catch (error) {
-    console.error("Error updating GDPR consent:", error);
-    res.status(500).json({ message: "Error updating GDPR consent" });
   }
 });
 
@@ -278,43 +234,33 @@ app.get("/verify", (req, res) => {
     res.status(200).json(existingUser);
   });
 });
-// /createcourse Endpoint with JWT Verification
-app.post("/createcourse", verifyToken, async (req, res) => {
-  const {
-    courseName,
-    groupName,
-    topics,
-    startDate,
-    endDate,
-    teachers, // Array of teacher IDs (excluding the creator)
-  } = req.body;
+
+app.post("/createcourse", async (req, res) => {
+  console.log("Create course request received", req.body);
+
+  const { courseName, groupName, topics, startDate, endDate, userId, teachers } = req.body;
 
   try {
-    // Check if the course already exists
     const existingCourse = await CourseDatabaseModel.findOne({
       name: courseName,
     });
+
     if (existingCourse) {
       return res.status(409).json({ error: "Course already exists" });
     }
 
-    // Extract userId from JWT token
-    const userId = req.userId; // Creator's userId
-
-    // Include the creator's userId in the teachers array if not already included
     let teacherIds = Array.isArray(teachers) ? teachers : [];
+
     if (!teacherIds.includes(userId)) {
       teacherIds.push(userId);
     }
 
-    // Create and save the new course
     const newCourse = new CourseDatabaseModel({
       name: courseName,
-      groupName,
-      startDate,
-      endDate,
+      startDate: startDate,
+      endDate: endDate,
       isActive: true,
-      topics,
+      topics: topics,
       teachers: teacherIds,
       students: [],
     });
@@ -327,6 +273,48 @@ app.post("/createcourse", verifyToken, async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while creating the course" });
+  }
+});
+
+app.post("/api/students/update", async (req, res) => {
+  const { studentNumber, gdprConsent, userId } = req.body;
+
+  try {
+    const updatedStudent = await StudentDatabaseModel.findOneAndUpdate(
+      { user: userId },
+      { studentNumber, gdprConsent },
+      { new: true }
+    );
+
+    if (!updatedStudent) {
+      res.status(404).json({ message: "Student not found" });
+    } else {
+      res.status(200).json({ message: "Student updated successfully" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Could not update student data." });
+  }
+});
+
+app.post("/api/students/updategdpr", async (req, res) => {
+  const { studentNumber, gdprConsent } = req.body;
+
+  try {
+    const updatedStudent = await StudentDatabaseModel.findOneAndUpdate(
+      { studentNumber },
+      { gdprConsent },
+      { new: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.status(200).json({ message: "GDPR consent updated successfully" });
+  } catch (error) {
+    console.error("Error updating GDPR consent:", error);
+    res.status(500).json({ message: "Error updating GDPR consent" });
   }
 });
 
@@ -346,7 +334,7 @@ app.get("/api/student/:studentId/gdpr-consent", async (req, res) => {
   }
 });
 
-app.post("/addstudents", verifyToken, async (req, res) => {
+app.post("/addstudents", async (req, res) => {
   const { studentsToAdd, courseId } = req.body;
 
   console.log("Add students request received", studentsToAdd);
@@ -421,28 +409,12 @@ app.post("/addstudents", verifyToken, async (req, res) => {
   }
 });
 
-// JWT Verification Middleware
-function verifyToken(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token)
-    return res.status(401).json({ error: "Access denied, no token provided" });
-
+app.get("/selectactivecourse", async (req, res) => {
   try {
-    const verified = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    req.userId = verified.user; // Attach userId to the request object
-    next();
-  } catch (error) {
-    res.status(400).json({ error: "Invalid token" });
-  }
-}
-
-// Example Usage in /selectactivecourse Endpoint
-app.get("/selectactivecourse", verifyToken, async (req, res) => {
-  try {
-    const userId = req.userId; // Now using userId from JWT token
+    const userId = req.headers.userid;
     const selectCourse = await CourseDatabaseModel.find({
       teachers: userId,
-      isActive: true,
+      isActive: true, // Add this condition to fetch only active courses
     });
     res.status(200).json(selectCourse);
   } catch (error) {
@@ -453,24 +425,19 @@ app.get("/selectactivecourse", verifyToken, async (req, res) => {
   }
 });
 
-// /allcourses Endpoint with JWT Verification
-app.get("/allcourses", verifyToken, async (req, res) => {
+app.get("/allcourses", async (req, res) => {
   try {
-    // Extract userId from JWT token
-    const userId = req.userId;
-
-    // Fetch only courses where the authenticated user is a teacher
+    const userId = req.headers.userid;
     const activeCourses = await CourseDatabaseModel.find({
       teachers: userId,
-      isActive: true,
+      isActive: true, // Fetch only active courses
     });
 
     const inactiveCourses = await CourseDatabaseModel.find({
       teachers: userId,
-      isActive: false,
+      isActive: false, // Fetch only inactive courses
     });
 
-    // Structure the response data
     const coursesData = {
       active: activeCourses,
       inactive: inactiveCourses,
@@ -537,7 +504,7 @@ app.delete("/api/courses/:id", async (req, res) => {
   }
 });
 
-app.post("/createsession", verifyToken, async (req, res) => {
+app.post("/createsession", async (req, res) => {
   const { courseId, topic, date, timeOfDay } = req.body;
 
   try {
@@ -671,9 +638,7 @@ app.post("/unregister", async (req, res) => {
     // Optionally, update the session's studentsPresent array
     const session = await AttendanceSessionDatabaseModel.findById(sessionId);
     if (session) {
-      session.studentsPresent = session.studentsPresent.filter(
-        (s) => !s.equals(student._id)
-      );
+      session.studentsPresent = session.studentsPresent.filter((s) => !s.equals(student._id));
       await session.save();
     }
 
@@ -879,7 +844,7 @@ app.delete("/api/topics/:id", async (req, res) => {
   }
 });
 
-app.post("/addTeacherToCourse", verifyToken, async (req, res) => {
+app.post("/addTeacherToCourse", async (req, res) => {
   const { courseId, userId } = req.body;
 
   try {
@@ -937,7 +902,7 @@ app.get("/coursestudentscount/:sessionId", async (req, res) => {
   }
 });
 
-app.post("/api/courses/:courseId/topics", async (req, res) => {
+app.post('/api/courses/:courseId/topics', async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
 
@@ -945,27 +910,23 @@ app.post("/api/courses/:courseId/topics", async (req, res) => {
     const course = await CourseDatabaseModel.findById(courseId);
 
     if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+      return res.status(404).json({ message: 'Course not found' });
     }
 
     if (!course.topics.includes(topicName)) {
       course.topics.push(topicName);
       await course.save();
-      res
-        .status(200)
-        .json({ message: "Topic added successfully to the course" });
+      res.status(200).json({ message: 'Topic added successfully to the course' });
     } else {
-      res.status(409).json({ message: "Topic already exists in this course" });
+      res.status(409).json({ message: 'Topic already exists in this course' });
     }
   } catch (error) {
     console.error("Error adding topic to course:", error);
-    res.status(500).json({
-      error: "An error occurred while adding the topic to the course",
-    });
+    res.status(500).json({ error: "An error occurred while adding the topic to the course" });
   }
 });
 
-app.delete("/api/courses/:courseId/topics", async (req, res) => {
+app.delete('/api/courses/:courseId/topics', async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
 
@@ -973,24 +934,20 @@ app.delete("/api/courses/:courseId/topics", async (req, res) => {
     const course = await CourseDatabaseModel.findById(courseId);
 
     if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+      return res.status(404).json({ message: 'Course not found' });
     }
 
     const topicIndex = course.topics.indexOf(topicName);
     if (topicIndex > -1) {
       course.topics.splice(topicIndex, 1);
       await course.save();
-      res
-        .status(200)
-        .json({ message: "Topic removed successfully from the course" });
+      res.status(200).json({ message: 'Topic removed successfully from the course' });
     } else {
-      res.status(404).json({ message: "Topic not found in this course" });
+      res.status(404).json({ message: 'Topic not found in this course' });
     }
   } catch (error) {
     console.error("Error removing topic from course:", error);
-    res.status(500).json({
-      error: "An error occurred while removing the topic from the course",
-    });
+    res.status(500).json({ error: "An error occurred while removing the topic from the course" });
   }
 });
 
@@ -1282,9 +1239,7 @@ app.get("/getcoursestudents/:sessionId", async (req, res) => {
 
   try {
     // Find the session document by its ID
-    const session = await AttendanceSessionDatabaseModel.findById(
-      sessionId
-    ).populate("course");
+    const session = await AttendanceSessionDatabaseModel.findById(sessionId).populate('course');
 
     if (!session) {
       return res.status(404).json({ error: "Session not found" });
@@ -1295,24 +1250,24 @@ app.get("/getcoursestudents/:sessionId", async (req, res) => {
 
     // Find students enrolled in the course
     const students = await StudentDatabaseModel.find({
-      courses: { $elemMatch: { course: courseId } },
+      courses: { $elemMatch: { course: courseId } }
     });
 
     // Map through the students to return only the required fields
-    const studentData = students.map((student) => ({
+    const studentData = students.map(student => ({
       firstName: student.firstName,
       lastName: student.lastName,
-      studentNumber: student.studentNumber,
+      studentNumber: student.studentNumber
     }));
 
     res.status(200).json({ students: studentData });
   } catch (error) {
     console.error("Error fetching students:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching students" });
+    res.status(500).json({ error: "An error occurred while fetching students" });
   }
 });
+
+
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");
