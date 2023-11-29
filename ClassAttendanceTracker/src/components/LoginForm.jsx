@@ -23,10 +23,10 @@ const LoginForm = () => {
         password,
       });
 
-      const responseData = response.data.apiData;
+      const responseData = response.data;
 
       if (
-        !responseData.message ||
+        responseData &&
         responseData.message !== "invalid username or password"
       ) {
         setUserInfo({
@@ -40,11 +40,8 @@ const LoginForm = () => {
         localStorage.setItem("token", responseData.accessToken);
 
         if (!responseData.staff && responseData.needsGdprConsent) {
-          // Redirect to GDPR consent form for students who haven't given consent
-          // navigate("/gdprconsentform");
-          navigate("/teacherhome");
+          navigate("/gdprconsentform");
         } else {
-          // Navigate to the appropriate home page
           navigate(responseData.staff ? "/teacherhome" : "/studenthome");
         }
       } else {
