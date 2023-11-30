@@ -187,14 +187,15 @@ const OpenattendanceCollect = () => {
               onChange={handleCourseChange}
               displayEmpty>
               <MenuItem value="" disabled>
-                Course
+                Select Course
               </MenuItem>
               {courses.map((course) => (
                 <MenuItem key={course._id} value={course._id}>
-                  {course.name}
+                  {course.name} / {course.groupName} {/* Concatenating course name and group name */}
                 </MenuItem>
               ))}
             </Select>
+
           </div>
 
           <div className="mb-4">

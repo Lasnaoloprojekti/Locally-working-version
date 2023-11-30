@@ -148,11 +148,14 @@ const AddTopics = () => {
               id="courseSelector"
               value={selectedCourse}
               onChange={handleCourseChange}
-              className="border border-gray-300 p-3 rounded-lg block w-full mb-4"
-            >
-              <option value="" disabled>Select Course</option>
+              className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full mb-4">
+              <option value="" disabled>
+                Select Course
+              </option>
               {courses.map((course) => (
-                <option key={course._id} value={course._id}>{course.name}</option>
+                <option key={course._id} value={course._id}>
+                  {course.name} / {course.groupName} {/* Concatenating name and groupName */}
+                </option>
               ))}
             </select>
 

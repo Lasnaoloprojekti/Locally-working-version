@@ -129,7 +129,7 @@ const AddStudents = () => {
                 </option>
                 {courses.map((course) => (
                   <option key={course._id} value={course._id}>
-                    {course.name}
+                    {course.name} / {course.groupName} {/* Concatenating name and groupName */}
                   </option>
                 ))}
               </select>

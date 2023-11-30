@@ -82,6 +82,7 @@ const DeactiveCourse = () => {
                             Select Course
                         </label>
                         <select
+                            id="courseSelector"
                             value={selectedCourse}
                             onChange={handleCourseChange}
                             className="border font-open-sans border-gray-300 p-3 rounded-lg block w-full mb-4">
@@ -90,7 +91,7 @@ const DeactiveCourse = () => {
                             </option>
                             {courses.map((course) => (
                                 <option key={course._id} value={course._id}>
-                                    {course.name}
+                                    {course.name} / {course.groupName} {/* Concatenating name and groupName */}
                                 </option>
                             ))}
                         </select>

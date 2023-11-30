@@ -138,7 +138,7 @@ export const ParticipationRates = () => {
                                 <optgroup label="Active Courses">
                                     {activeCourses.map((course) => (
                                         <option key={course._id} value={course._id}>
-                                            {course.name}
+                                            {course.name} / {course.groupName} {/* Concatenating course name and group name */}
                                         </option>
                                     ))}
                                 </optgroup>
@@ -147,12 +147,13 @@ export const ParticipationRates = () => {
                                 <optgroup label="Unactive Courses">
                                     {inactiveCourses.map((course) => (
                                         <option key={course._id} value={course._id}>
-                                            {course.name}
+                                            {course.name} / {course.groupName} {/* Concatenating course name and group name */}
                                         </option>
                                     ))}
                                 </optgroup>
                             )}
                         </select>
+
                     </div>
 
                     <div className="flex justify-end">
