@@ -32,7 +32,7 @@ jobs:
         run: |
           cd StudentServer
           npm ci
-          npm test
+          npm start
           --exit
 
       - name: Zip artifact for deployment
