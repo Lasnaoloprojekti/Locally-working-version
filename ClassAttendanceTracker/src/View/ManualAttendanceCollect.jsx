@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from "react";
 import logo from "../assets/metropolia_s_orange.png";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { userContext } from "../context/userContext";
-import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteSession } from "../Hooks/ApiHooks";
 
 export const ManualAttendanceCollect = () => {
@@ -14,6 +13,8 @@ export const ManualAttendanceCollect = () => {
     const [attendingStudents, setAttendingStudents] = useState([]);
     const [nonAttendingStudents, setNonAttendingStudents] = useState([]);
     const [showModal, setShowModal] = useState(true);
+    // Default to 5 minutes
+
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -198,7 +199,10 @@ export const ManualAttendanceCollect = () => {
                 <Link to="/teacherhome">
                     <img className="h-12 m-4" src={logo} alt="Logo" />
                 </Link>
-
+                <div className="flex flex-col gap-2 items-center">
+          <p>Did you accidently create this session?</p>
+          <button onClick={handleDeleteSession} className=" bg-blue-800 px-2 py-1 hover:bg-blue-950  text-white rounded-md ">Delete session</button>
+        </div>
                 <ul className="flex items-center">
                     <li className="text-2xl ml-2 font-roboto-slab">
                         Welcome! {userInfo.firstname} {userInfo.lastname}

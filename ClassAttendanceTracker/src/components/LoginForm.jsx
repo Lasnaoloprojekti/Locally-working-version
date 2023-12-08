@@ -16,44 +16,49 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    console.log('handleSubmit triggered with', { username, password }); // Log the input values
+  
     try {
+      console.log('Sending login request...');
       const response = await axios.post("http://localhost:3001/login", {
         username,
         password,
       });
-
-      const responseData = response.data.apiData;
-
+  
+      console.log('Login response received:', response);
+  
+      const responseData = response.data; // Note: Verify if apiData is the correct key
+  
+      console.log('Response data:', responseData);
+  
       if (
         !responseData.message ||
         responseData.message !== "invalid username or password"
       ) {
+        console.log('Setting user info...');
         setUserInfo({
           staff: responseData.staff,
           firstname: responseData.firstname,
           lastname: responseData.lastname,
-          userId: responseData.UserId,
+          userId: responseData.userId,
         });
-
-        localStorage.setItem("userid", responseData.UserId);
+  
+        localStorage.setItem("userid", responseData.userId);
         localStorage.setItem("token", responseData.accessToken);
-
-        if (!responseData.staff && responseData.needsGdprConsent) {
-          // Redirect to GDPR consent form for students who haven't given consent
-          // navigate("/gdprconsentform");
-          navigate("/teacherhome");
-        } else {
-          // Navigate to the appropriate home page
-          navigate(responseData.staff ? "/teacherhome" : "/studenthome");
-        }
+  
+        console.log('Items set to localStorage:', responseData.userId, responseData.accessToken);
+        navigate(responseData.redirectUrl);
       } else {
+        console.log('Invalid username or password error');
         setLoginError("Invalid username or password");
       }
     } catch (error) {
+      console.error('Error during login:', error);
       setLoginError("Error logging in. Check your credentials and connection.");
     }
   };
+  
 
   return (
     <Box className="min-h-screen flex flex-col items-center justify-center">
@@ -67,7 +72,7 @@ const LoginForm = () => {
             <input
               className="w-full text-black p-2 border rounded font-open-sans"
               type="text"
-              placeholder="Enter your email"
+              placeholder="Enter your username"
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
@@ -82,6 +87,7 @@ const LoginForm = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
           <h3 className="text-red-600">{loginError}</h3>
           <button
             className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-600 focus:outline-none focus:ring focus:border-orange-700 font-roboto-slab"
