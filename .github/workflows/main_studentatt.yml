@@ -12,6 +12,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+        mongodb:
+            image: mongo
+            env:
+              MONGO_INITDB_ROOT_USERNAME: Johannes@admin
+              MONGO_INITDB_ROOT_PASSWORD: Projekti123
+              MONGO_INITDB_DATABASE: Attendance
+            options: >-
+              --health-cmd mongo
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+            ports:
+              - 27017:27017
 
     steps:
       - uses: actions/checkout@v4
@@ -24,11 +38,6 @@ jobs:
       - name: npm install, build, and test
         run: |
           cd StudentServer
-          npm install
-          npm run build --if-present
-          npm run test --if-present
-          cd ..
-          cd Server
           npm install
           npm run build --if-present
           npm run test --if-present
