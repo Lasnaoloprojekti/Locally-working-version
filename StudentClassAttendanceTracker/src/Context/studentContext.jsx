@@ -17,11 +17,13 @@ const StudentContextProvider = ({ children }) => {
     if (accessToken) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       try {
-        const response = await axios.get("http://localhost:3002/studentverify");
+        const response = await axios.get(
+          "https://mdds-server-jj.northeurope.cloudapp.azure.com:3002/studentverify"
+        );
         const studentData = response.data;
-        const studentInfo = studentData.student; 
+        const studentInfo = studentData.student;
         console.log("API response data: ", studentInfo);
-  
+
         if (studentInfo) {
           setStudentInfo({
             staff: studentInfo.staff, // Assuming staff is a direct field of studentInfo
@@ -35,8 +37,6 @@ const StudentContextProvider = ({ children }) => {
       }
     }
   };
-  
-  
 
   useEffect(() => {
     verify();

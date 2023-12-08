@@ -18,7 +18,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5174",
+    origin: "https://mdds-server-jj.northeurope.cloudapp.azure.com",
     methods: ["GET", "POST"],
   },
 });
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://mdds-server-jj.northeurope.cloudapp.azure.com",
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
@@ -105,9 +105,8 @@ app.post("/studentlogin", async (req, res) => {
 });
 
 app.get("/studentverify", async (req, res) => {
-  console.log('verify request received')
+  console.log("verify request received");
   const token = req.headers.authorization.split(" ")[1];
-
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) {
@@ -122,7 +121,7 @@ app.get("/studentverify", async (req, res) => {
         });
       }
 
-      console.log('verifying')
+      console.log("verifying");
 
       const responseData = {
         student: existingStudent ? existingStudent.toObject() : null,
@@ -140,7 +139,12 @@ app.post("/qrcoderegistration", async (req, res) => {
   console.log("qrcode registration received");
   const { studentNumber, qrCodeIdentifier } = req.body;
 
-  console.log('new qr registration: ', qrCodeIdentifier, " studentnumber ", studentNumber);
+  console.log(
+    "new qr registration: ",
+    qrCodeIdentifier,
+    " studentnumber ",
+    studentNumber
+  );
 
   try {
     // Find student based on student number
@@ -160,14 +164,18 @@ app.post("/qrcoderegistration", async (req, res) => {
     }
 
     // Check if student is enrolled in the course related to the session
-    const isEnrolled = student.courses.some(courseEnrollment => courseEnrollment.course.equals(session.course._id));
+    const isEnrolled = student.courses.some((courseEnrollment) =>
+      courseEnrollment.course.equals(session.course._id)
+    );
     if (!isEnrolled) {
       return res.status(403).send("Student not enrolled in this course");
     }
 
     // Check if student is already registered in the session
-    if (session.studentsPresent.some(s => s.equals(student._id))) {
-      return res.status(400).json({ message: "You have already enrolled to current session!" });
+    if (session.studentsPresent.some((s) => s.equals(student._id))) {
+      return res
+        .status(400)
+        .json({ message: "You have already enrolled to current session!" });
     }
 
     // Register the student in the found session
@@ -179,8 +187,11 @@ app.post("/qrcoderegistration", async (req, res) => {
       lastName: student.lastName,
     });
 
-    console.log('Student Courses:', student.courses.map(course => course.toString()));
-    console.log('Session Course ID:', session.course._id.toString());
+    console.log(
+      "Student Courses:",
+      student.courses.map((course) => course.toString())
+    );
+    console.log("Session Course ID:", session.course._id.toString());
 
     const newAttendance = new AttendanceDatabaseModel({
       session: session._id,
@@ -206,7 +217,6 @@ app.post("/qrcoderegistration", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 app.get("/api/participation/:studentNumber", async (req, res) => {
   const studentNumber = req.params.studentNumber;
@@ -266,7 +276,6 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 server.listen(3002, () => {
   console.log("Server is running in port 3002");
