@@ -18,7 +18,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://mdds-server-jj.northeurope.cloudapp.azure.com",
+    origin: "http://20.238.66.90:5173",
     methods: ["GET", "POST"],
   },
 });
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://mdds-server-jj.northeurope.cloudapp.azure.com",
+    origin: "http://20.238.66.90:5174",
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
