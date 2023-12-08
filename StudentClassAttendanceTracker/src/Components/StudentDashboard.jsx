@@ -12,6 +12,7 @@ export const StudentDashboard = () => {
   const [isProcessingScan, setIsProcessingScan] = useState(false);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
 
+
   const handleScanQrCode = async (data) => {
     if (data && !isProcessingScan) {
       setIsProcessingScan(true);
@@ -58,7 +59,7 @@ export const StudentDashboard = () => {
   const fetchParticipationData = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3002/api/participations/${studentNumber}`
+        `http://localhost:3002/api/participation/${studentNumber}`
       );
       const data = await response.json();
       setParticipationData(data);
@@ -145,11 +146,10 @@ export const StudentDashboard = () => {
           />
         )}
         <p
-          className={`mt-6 text-center text-xl ${
-            registerMessage.includes("registered")
-              ? "text-green-600"
-              : "text-red-600"
-          }`}>
+          className={`mt-6 text-center text-xl ${registerMessage.includes("registered")
+            ? "text-green-600"
+            : "text-red-600"
+            }`}>
           {registerMessage}
         </p>
         {showSuccessGif && registerMessage.includes("registered") && (

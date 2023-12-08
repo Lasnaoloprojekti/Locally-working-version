@@ -5,7 +5,7 @@ import { userContext } from "../context/userContext";
 import { deleteSession } from "../Hooks/ApiHooks";
 
 export const ManualAttendanceCollect = () => {
-    const { sessionId, courseName, topic } = useParams();
+    const { sessionId, courseName, topic, date, timeOfDay } = useParams();
     const navigate = useNavigate();
     const { userInfo, setUserInfo } = useContext(userContext);
     const [sessionClosed, setSessionClosed] = useState(false);
@@ -200,9 +200,9 @@ export const ManualAttendanceCollect = () => {
                     <img className="h-12 m-4" src={logo} alt="Logo" />
                 </Link>
                 <div className="flex flex-col gap-2 items-center">
-          <p>Did you accidently create this session?</p>
-          <button onClick={handleDeleteSession} className=" bg-blue-800 px-2 py-1 hover:bg-blue-950  text-white rounded-md ">Delete session</button>
-        </div>
+                    <p>Did you accidently create this session?</p>
+                    <button onClick={handleDeleteSession} className=" bg-blue-800 px-2 py-1 hover:bg-blue-950  text-white rounded-md ">Delete session</button>
+                </div>
                 <ul className="flex items-center">
                     <li className="text-2xl ml-2 font-roboto-slab">
                         Welcome! {userInfo.firstname} {userInfo.lastname}
@@ -221,9 +221,12 @@ export const ManualAttendanceCollect = () => {
                         <h1 className="font-roboto-slab text-3xl mb-5 font-bold tracking-wide">
                             {decodeURIComponent(courseName)}
                         </h1>
-                        <h1 className="font-roboto-slab text-xl mb-1 font-semibold tracking-wider">
+                        <h1 className="font-roboto-slab text-xl text-black mb-1 font-semibold tracking-wider">
                             {decodeURIComponent(topic)}
                         </h1>
+                        <h2 className="font-roboto-slab tracking-wide mb-3 text-lg underline">
+                            {decodeURIComponent(date)} {decodeURIComponent(timeOfDay)}
+                        </h2>
                     </section>
 
                     <section className="mt-4">

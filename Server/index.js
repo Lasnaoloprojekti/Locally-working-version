@@ -25,7 +25,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin:  "http://localhost:5174", 
+    origin: "http://localhost:5174",
     methods: ["GET", "POST"],
   },
 });
@@ -86,7 +86,7 @@ app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
     });
 
     const students = sheetData.slice(1).filter((row) => row && row.length > 0);
-    
+
     const uniqueStudentNumbers = new Set();
     const duplicateStudentNumbers = new Set();
 
@@ -274,8 +274,8 @@ app.post("/login", async (req, res) => {
 
     redirectUrl = existingUser ? "/teacherhome" : "/teacherhome";
     apiData.userId = existingUser._id.toString();
-    
-    console.log( "testiiiiiiiiiiiiiii", apiData.userId);
+
+    console.log("testiiiiiiiiiiiiiii", apiData.userId);
 
     const accessToken = jwt.sign(
       { userId: existingUser._id, staff: apiData.staff },
@@ -738,7 +738,7 @@ app.post("/qrcoderegistration", async (req, res) => {
     });
 
     console.log('Student Courses:', student.courses.map(course => course.toString()));
-console.log('Session Course ID:', session.course._id.toString());
+    console.log('Session Course ID:', session.course._id.toString());
 
     const newAttendance = new AttendanceDatabaseModel({
       session: session._id,

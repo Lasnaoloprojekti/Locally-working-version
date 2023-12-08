@@ -17,11 +17,11 @@ const App = () => {
             <Route path="/coursemodify" element={<CourseModification />} />
           </Route>
           <Route
-            path="/wait/:sessionId/:courseName/:topic"
+            path="/wait/:sessionId/:courseName/:topic/:date/:timeOfDay"
             element={<WaitingPage />}
           />
           <Route
-            path="/manual/:sessionId/:courseName/:topic"
+            path="/manual/:sessionId/:courseName/:topic/:date/:timeOfDay"
             element={<ManualAttendanceCollect />}
           />
           <Route path="/login" element={<Login />} />
