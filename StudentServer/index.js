@@ -8,6 +8,7 @@ const {
   StudentDatabaseModel,
   AttendanceSessionDatabaseModel,
   AttendanceDatabaseModel,
+  CourseDatabaseModel,
 } = require("./models/collectionSchemas");
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
@@ -103,11 +104,10 @@ app.post("/studentlogin", async (req, res) => {
   }
 });
 
-
 app.get("/studentverify", async (req, res) => {
   console.log('verify request received')
   const token = req.headers.authorization.split(" ")[1];
-  
+
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) {
@@ -180,7 +180,7 @@ app.post("/qrcoderegistration", async (req, res) => {
     });
 
     console.log('Student Courses:', student.courses.map(course => course.toString()));
-console.log('Session Course ID:', session.course._id.toString());
+    console.log('Session Course ID:', session.course._id.toString());
 
     const newAttendance = new AttendanceDatabaseModel({
       session: session._id,
@@ -206,6 +206,67 @@ console.log('Session Course ID:', session.course._id.toString());
     res.status(500).send("Internal Server Error");
   }
 });
+
+
+app.get("/api/participation/:studentNumber", async (req, res) => {
+  const studentNumber = req.params.studentNumber;
+
+  try {
+    const existingStudent = await StudentDatabaseModel.findOne({
+      studentNumber,
+    }).exec();
+    if (!existingStudent) {
+      return res.status(404).send("Student not found");
+    }
+
+    const courses = existingStudent.courses.map((c) => c.course);
+
+    let participationData = [];
+
+    for (const courseId of courses) {
+      const course = await CourseDatabaseModel.findById(courseId)
+        .populate("topics")
+        .exec();
+
+      if (!course) {
+        continue; // Skip if course not found
+      }
+
+      let studentParticipation = {
+        courseName: course.name,
+        participation: {},
+      };
+
+      for (const topic of course.topics) {
+        const totalSessions =
+          await AttendanceSessionDatabaseModel.countDocuments({
+            course: courseId,
+            topic: topic,
+          });
+
+        const attendedSessions = await AttendanceDatabaseModel.countDocuments({
+          student: existingStudent._id,
+          course: courseId,
+          topic: topic,
+          status: "Present",
+        });
+
+        studentParticipation.participation[topic] =
+          totalSessions > 0
+            ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
+            : "N/A";
+      }
+
+      participationData.push(studentParticipation);
+    }
+
+    res.json(participationData);
+  } catch (error) {
+    console.error("Error retrieving participation data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 server.listen(3002, () => {
   console.log("Server is running in port 3002");
