@@ -23,6 +23,12 @@ jobs:
 
       - name: npm install, build, and test
         run: |
+          cd StudentServer
+          npm install
+          npm run build --if-present
+          npm run test --if-present
+          cd ..
+          cd Server
           npm install
           npm run build --if-present
           npm run test --if-present
