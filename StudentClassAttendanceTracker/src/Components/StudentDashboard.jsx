@@ -20,7 +20,7 @@ export const StudentDashboard = () => {
         const qrCodeText = data.text;
         console.log("teksti qr koodista ", qrCodeText);
         const response = await fetch(
-          "http://mdds-server-jj.northeurope.cloudapp.azure.com:3002/qrcoderegistration",
+          "http://20.238.66.90:3002/qrcoderegistration",
           {
             method: "POST",
             headers: {
@@ -58,7 +58,7 @@ export const StudentDashboard = () => {
   const fetchParticipationData = async () => {
     try {
       const response = await fetch(
-        `http://mdds-server-jj.northeurope.cloudapp.azure.com:3002/api/participation/${studentNumber}`
+        `http://20.238.66.90:3002/api/participation/${studentNumber}`
       );
       const data = await response.json();
       setParticipationData(data);

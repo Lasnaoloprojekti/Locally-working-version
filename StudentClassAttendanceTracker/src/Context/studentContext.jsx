@@ -18,7 +18,7 @@ const StudentContextProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       try {
         const response = await axios.get(
-          "http://mdds-server-jj.northeurope.cloudapp.azure.com:3002/studentverify"
+          "http://20.238.66.90:3002/studentverify"
         );
         const studentData = response.data;
         const studentInfo = studentData.student;
