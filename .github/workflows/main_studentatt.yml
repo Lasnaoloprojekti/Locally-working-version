@@ -13,7 +13,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      PORT: 3002
+      MONGO_DB_URL_DEV: mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance
+
     steps:
+      - name: Check env
+        run: echo $MONGO_DB_URL_DEV
+
       - uses: actions/checkout@v4
 
       - name: Set up Node.js version
@@ -34,8 +41,7 @@ jobs:
           npm run build --if-present
           npm ci
           npm start
-        env:
-          CI: true
+          ^C
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
