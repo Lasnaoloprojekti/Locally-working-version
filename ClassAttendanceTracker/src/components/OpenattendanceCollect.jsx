@@ -83,7 +83,9 @@ const OpenattendanceCollect = () => {
     sessionId,
     courseName,
     topic,
-    path
+    path,
+    date, // Add date as a parameter
+    timeOfDay // Add timeOfDay as a parameter
   ) => {
     try {
       console.log("Checking student count for course:", selectedCourse);
@@ -98,7 +100,7 @@ const OpenattendanceCollect = () => {
         navigate(
           `/${path}/${sessionId}/${encodeURIComponent(
             courseName
-          )}/${encodeURIComponent(topic)}`
+          )}/${encodeURIComponent(topic)}/${encodeURIComponent(date)}/${encodeURIComponent(timeOfDay)}`
         );
       } else {
         // If there are no students, display a message
@@ -112,6 +114,7 @@ const OpenattendanceCollect = () => {
     }
   };
 
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -121,6 +124,8 @@ const OpenattendanceCollect = () => {
       courseId: selectedCourse,
       topic: selectedTopic,
       date: date, // Use the date state here
+      timeOfDay: timeOfDay,
+      date,
       timeOfDay,
     };
 
@@ -139,7 +144,9 @@ const OpenattendanceCollect = () => {
       sessionId,
       selectedCourseName,
       selectedTopic,
-      "wait"
+      "wait",
+      date,
+      timeOfDay,
     );
   };
 
@@ -151,28 +158,29 @@ const OpenattendanceCollect = () => {
     const sessionData = {
       courseId: selectedCourse,
       topic: selectedTopic,
-      date: date, // Use the date state here
+      date: date,
       timeOfDay,
     };
 
     const response = await createSession(sessionData);
     console.log("Session created:", response);
 
-    // Extracting session ID from the response
     const sessionId = response.sessionId;
-
-    // Get the selected course name
     const selectedCourseName = courses.find(
       (course) => course._id === selectedCourse
     )?.name;
 
+    // Include date and timeOfDay in the navigation call
     await checkStudentsAndNavigate(
       sessionId,
       selectedCourseName,
       selectedTopic,
-      "manual"
+      "manual",
+      date,
+      timeOfDay
     );
   };
+
 
   const validateForm = () => {
     if (!selectedCourse || !selectedTopic || !date || !timeOfDay) {
