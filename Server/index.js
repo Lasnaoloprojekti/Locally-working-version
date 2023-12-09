@@ -169,10 +169,6 @@ app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
     res.status(500).send("Error processing file");
   }
 });
-
-
-
-
 // DEPLOYMENT ONLY
 
 /*
@@ -534,7 +530,6 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-//course delete/students
 app.delete("/api/courses/:id", async (req, res) => {
   const courseId = req.params.id;
 
@@ -543,6 +538,16 @@ app.delete("/api/courses/:id", async (req, res) => {
   session.startTransaction();
 
   try {
+    // Delete all attendances associated with the course
+    await AttendanceDatabaseModel.deleteMany({
+      course: courseId,
+    }).session(session);
+
+    // Delete all attendance sessions associated with the course
+    await AttendanceSessionDatabaseModel.deleteMany({
+      course: courseId,
+    }).session(session);
+
     // Delete all students associated with the course
     await StudentDatabaseModel.deleteMany({
       "courses.course": courseId,
@@ -563,14 +568,14 @@ app.delete("/api/courses/:id", async (req, res) => {
     session.endSession();
 
     res.send({
-      message: "Course and associated students deleted successfully",
+      message: "Course, associated students, attendances, and attendance sessions deleted successfully",
     });
   } catch (error) {
     // If an error occurs, abort the transaction
     await session.abortTransaction();
     session.endSession();
 
-    console.error("Error deleting course and associated students:", error);
+    console.error("Error deleting course and associated data:", error);
     res
       .status(500)
       .send({ message: "Internal Server Error", error: error.toString() });
@@ -841,22 +846,51 @@ app.post("/closesession", async (req, res) => {
 
   try {
     const session = await AttendanceSessionDatabaseModel.findById(sessionId);
-
     if (!session) {
       return res.status(404).send("Session not found");
     }
 
+    // Close the session
     session.isOpen = false;
     await session.save();
 
-    io.emit("sessionClosed", { sessionId: session._id });
+    // Fetch all students in the course
+    const course = await CourseDatabaseModel.findById(session.course);
+    if (!course) {
+      return res.status(404).send("Course not found");
+    }
 
-    res.status(200).send("Session closed successfully");
+    // Fetch all attendance records for this session
+    const attendances = await AttendanceDatabaseModel.find({ session: sessionId });
+
+    // Get student IDs who have already enrolled in the session
+    const enrolledStudentIds = attendances.map(attendance => attendance.student.toString());
+
+    // Identify students who have not enrolled and mark them as absent
+    for (let student of course.students) {
+      if (!enrolledStudentIds.includes(student.toString())) {
+        const newAttendance = new AttendanceDatabaseModel({
+          session: sessionId,
+          student: student,
+          course: session.course,
+          topic: session.topic,
+          date: session.date,
+          timeOfDay: session.timeOfDay,
+          status: "Absent",
+          gdprConsent: false // Set this according to your application's logic
+        });
+        await newAttendance.save();
+      }
+    }
+
+    io.emit("sessionClosed", { sessionId: session._id });
+    res.status(200).send("Session closed successfully and absentees marked");
   } catch (error) {
     console.error("Error closing session:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 app.get("/participations/:id", async (req, res) => {
   console.log("Participation request received");
@@ -975,7 +1009,7 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
   }
 });
 
-app.post("/addtopic", async (req, res) => {
+app.post("/addtopic", async (req, res) => { // Add a new topic
   try {
     const { name } = req.body;
 
@@ -998,7 +1032,7 @@ app.post("/addtopic", async (req, res) => {
   }
 });
 
-app.get("/api/topics", async (req, res) => {
+app.get("/api/topics", async (req, res) => { // Fetch all topics
   try {
     const topics = await TopicDatabaseModel.find(); // Fetch all topics from the database
     res.status(200).json(topics); // Send the topics back in the response
@@ -1082,7 +1116,7 @@ app.get("/coursestudentscount/:sessionId", async (req, res) => {
   }
 });
 
-app.post("/api/courses/:courseId/topics", async (req, res) => {
+app.post("/api/courses/:courseId/topics", async (req, res) => { // Add a topic to a course
   const courseId = req.params.courseId;
   const { topicName } = req.body;
 
@@ -1144,7 +1178,6 @@ app.get("/enrolledstudents/:sessionId", async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching enrolled students" });
   }
 });
-
 
 app.delete("/api/courses/:courseId/topics", async (req, res) => {
   const courseId = req.params.courseId;
@@ -1437,6 +1470,76 @@ app.get("/getcoursestudents/:sessionId", async (req, res) => {
       .json({ error: "An error occurred while fetching students" });
   }
 });
+//uudet endpointit
+
+app.get('/api/coursestudents/:courseId', async (req, res) => {
+  try {
+    const courseId = req.params.courseId;
+    const course = await CourseDatabaseModel.findById(courseId).populate('students');
+    if (!course) {
+      console.error("Course not found with ID:", courseId);
+      return res.status(404).json({ error: "Course not found" });
+    }
+    res.status(200).json({ students: course.students });
+  } catch (error) {
+    console.error("Error fetching course students:", error);
+    res.status(500).json({ error: "An error occurred while fetching students", details: error.message });
+  }
+});
+
+app.get('/api/studentattendance/:studentId', async (req, res) => {
+  try {
+    const studentId = req.params.studentId;
+    const attendances = await AttendanceDatabaseModel.find({ student: studentId });
+    res.status(200).json({ attendances });
+  } catch (error) {
+    console.error("Error fetching student attendances:", error);
+    res.status(500).json({ error: "An error occurred while fetching attendances" });
+  }
+});
+
+app.post('/api/markabsent/:attendanceId', async (req, res) => {
+  try {
+    const attendanceId = req.params.attendanceId;
+    const updatedAttendance = await AttendanceDatabaseModel.findByIdAndUpdate(
+      attendanceId,
+      { status: "Absent" },
+      { new: true }
+    );
+    if (!updatedAttendance) return res.status(404).json({ error: "Attendance not found" });
+    res.status(200).json({ message: "Attendance marked as absent", attendance: updatedAttendance });
+  } catch (error) {
+    console.error("Error updating attendance:", error);
+    res.status(500).json({ error: "An error occurred while updating attendance" });
+  }
+});
+
+app.post('/api/updateattendancestatus', async (req, res) => {
+  const { attendanceId, newStatus } = req.body;
+
+  try {
+    const attendance = await AttendanceDatabaseModel.findByIdAndUpdate(attendanceId, { status: newStatus }, { new: true }).populate('session');
+    if (!attendance) return res.status(404).json({ error: "Attendance not found" });
+
+    const session = await AttendanceSessionDatabaseModel.findById(attendance.session._id);
+    if (!session) return res.status(404).json({ error: "Session not found" });
+
+    if (newStatus === "Present" || newStatus === "Accept absence") {
+      if (!session.studentsPresent.includes(attendance.student._id)) {
+        session.studentsPresent.push(attendance.student._id);
+      }
+    } else if (newStatus === "Absent") {
+      session.studentsPresent = session.studentsPresent.filter(studentId => !studentId.equals(attendance.student._id));
+    }
+
+    await session.save();
+    res.status(200).json({ message: "Attendance status updated successfully" });
+  } catch (error) {
+    console.error("Error updating attendance status:", error);
+    res.status(500).json({ error: "An error occurred while updating attendance status" });
+  }
+});
+
 
 server.listen(3001, () => {
   console.log("Server is running in port 3001");
