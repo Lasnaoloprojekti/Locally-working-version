@@ -351,39 +351,76 @@ app.get("/verify", async (req, res) => {
 });
 */
 app.post("/createcourse", async (req, res) => {
-  console.log("Create course request received", req.body);
-
-  const { courseName, groupName, topics, startDate, endDate, userId } =
-    req.body;
+  const { courseName, groupName, topics, startDate, endDate, userId, teachers, studentsToAdd } = req.body;
 
   try {
-    const existingCourse = await CourseDatabaseModel.findOne({
-      name: courseName,
-    });
-
+    // Check if the course already exists
+    const existingCourse = await CourseDatabaseModel.findOne({ name: courseName });
     if (existingCourse) {
       return res.status(409).json({ error: "Course already exists" });
     }
 
+    // Include the creator's ID in the teacher list if not already present
+    let teacherIds = Array.isArray(teachers) ? teachers : [];
+    if (!teacherIds.includes(userId)) {
+      teacherIds.push(userId);
+    }
+
+    // Create a new course
     const newCourse = new CourseDatabaseModel({
       name: courseName,
-      groupName: groupName,
-      startDate: startDate,
-      endDate: endDate,
+      groupName,
+      startDate,
+      endDate,
       isActive: true,
-      topics: topics, // Assuming default type for all topics
-      teachers: [userId], // Assuming you want to initialize with an empty array
-      students: [], // Assuming you want to initialize with an empty array
+      topics,
+      teachers: teacherIds,
+      students: [],
     });
 
+    // Save the course
     await newCourse.save();
-    console.log("New course created:", newCourse);
-    res.status(200).json({ message: "Course created successfully" });
+
+    // If there are students to add, handle their addition
+    if (studentsToAdd && studentsToAdd.length > 0) {
+      for (const studentData of studentsToAdd) {
+        const { firstName, lastName, studentNumber } = studentData;
+
+        let student = await StudentDatabaseModel.findOne({ studentNumber });
+
+        if (!student) {
+          // Create a new student record
+          student = new StudentDatabaseModel({
+            firstName,
+            lastName,
+            studentNumber,
+            courses: [newCourse._id],
+          });
+          await student.save();
+        } else {
+          // Add course to existing student's course list if not already present
+          if (!student.courses.includes(newCourse._id)) {
+            student.courses.push(newCourse._id);
+            await student.save();
+          }
+        }
+
+        // Add student to the course's student list if not already added
+        if (!newCourse.students.includes(student._id)) {
+          newCourse.students.push(student._id);
+        }
+      }
+
+      // Save the course with the updated student list
+      await newCourse.save();
+    }
+
+    // Send a success response
+    res.status(200).json({ message: "Course created successfully", courseId: newCourse._id });
+
   } catch (error) {
     console.error("Error creating course:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the course" });
+    res.status(500).json({ error: "An error occurred while creating the course" });
   }
 });
 
