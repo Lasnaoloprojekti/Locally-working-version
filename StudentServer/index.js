@@ -18,7 +18,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "httos://localhost:3002",
     methods: ["GET", "POST"],
   },
 });
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "*",
+    origin: "https://localhost:3002",
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
