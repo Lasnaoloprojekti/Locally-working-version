@@ -3,7 +3,7 @@ import axios from "axios";
 const fetchParticipationRates = async (courseId) => {
   try {
     const response = await axios.get(
-      `http://localhost:3002/participations/${courseId}`,
+      `https://student.northeurope.cloudapp.azure.com/api/participations/${courseId}`,
       {
         withCredentials: true,
       }
@@ -17,7 +17,7 @@ const fetchParticipationRates = async (courseId) => {
 const submitGdprConsent = async (studentNumber, gdprConsent, userId) => {
   try {
     const response = await axios.post(
-      "http://localhost:3002/api/students/updategdpr",
+      `https://student.northeurope.cloudapp.azure.com/api/students/updategdpr`,
       { studentNumber, gdprConsent, userId },
       { withCredentials: true }
     );

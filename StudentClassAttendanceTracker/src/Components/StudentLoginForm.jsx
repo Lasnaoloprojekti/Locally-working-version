@@ -33,11 +33,14 @@ const StudentLoginForm = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3002/studentlogin", {
-        username,
-        password,
-        studentNumber,
-      });
+      const response = await axios.post(
+        `https://student.northeurope.cloudapp.azure.com/api/studentlogin`,
+        {
+          username,
+          password,
+          studentNumber,
+        }
+      );
 
       const responseData = response.data.apiData;
 

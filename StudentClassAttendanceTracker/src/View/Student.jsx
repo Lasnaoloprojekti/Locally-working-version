@@ -13,7 +13,7 @@ export const StudentHome = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userid");
     setStudentInfo({ staff: false, firstname: "", lastname: "" });
-    navigate("/studentlogin");
+    navigate("/");
   };
 
   const handleMainButtonClick = (mainButton) => {

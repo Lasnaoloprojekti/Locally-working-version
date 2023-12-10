@@ -6,7 +6,7 @@ import { submitGdprConsent } from "../Hooks/ApiHooks.js"; // Import the function
 const GDPRConsentForm = () => {
   const [gdprConsent, setGdprConsent] = useState(false);
   const navigate = useNavigate();
-  const { studentContext } = useContext(studentContext);
+  const { studentInfo } = useContext(studentContext);
   const userId = localStorage.getItem("userid");
 
   useEffect(() => {

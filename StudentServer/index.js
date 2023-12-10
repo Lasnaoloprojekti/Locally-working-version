@@ -16,27 +16,21 @@ const fetch = require("node-fetch");
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5174",
-    methods: ["GET", "POST"],
-  },
-});
 
+const corsOptions = {
+  origin:
+    process.env.CORS_ORIGIN || "https://student.northeurope.cloudapp.azure.com",
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "DELETE"],
-    credentials: true,
-  })
-);
+mongoose.connect(process.env.MONGODB_URI);
 
-mongoose.connect(
-  "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
-);
+const io = new Server(server, { cors: corsOptions });
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
@@ -46,11 +40,12 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
+
 app.post("/studentlogin", async (req, res) => {
   const { username, password, studentNumber } = req.body;
 
   try {
-    const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
+    const apiResponse = await fetch(`https://streams.metropolia.fi/2.0/api/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -104,10 +99,9 @@ app.post("/studentlogin", async (req, res) => {
   }
 });
 
-app.get("/studentverify", async (req, res) => {
-  console.log('verify request received')
+app.get(`/studentverify`, async (req, res) => {
+  console.log("verify request received");
   const token = req.headers.authorization.split(" ")[1];
-
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) {
@@ -122,7 +116,7 @@ app.get("/studentverify", async (req, res) => {
         });
       }
 
-      console.log('verifying')
+      console.log("verifying");
 
       const responseData = {
         student: existingStudent ? existingStudent.toObject() : null,
@@ -136,11 +130,16 @@ app.get("/studentverify", async (req, res) => {
   });
 });
 
-app.post("/qrcoderegistration", async (req, res) => {
+app.post(`/qrcoderegistration`, async (req, res) => {
   console.log("qrcode registration received");
   const { studentNumber, qrCodeIdentifier } = req.body;
 
-  console.log('new qr registration: ', qrCodeIdentifier, " studentnumber ", studentNumber);
+  console.log(
+    "new qr registration: ",
+    qrCodeIdentifier,
+    " studentnumber ",
+    studentNumber
+  );
 
   try {
     // Find student based on student number
@@ -160,14 +159,18 @@ app.post("/qrcoderegistration", async (req, res) => {
     }
 
     // Check if student is enrolled in the course related to the session
-    const isEnrolled = student.courses.some(courseEnrollment => courseEnrollment.course.equals(session.course._id));
+    const isEnrolled = student.courses.some((courseEnrollment) =>
+      courseEnrollment.course.equals(session.course._id)
+    );
     if (!isEnrolled) {
       return res.status(403).send("Student not enrolled in this course");
     }
 
     // Check if student is already registered in the session
-    if (session.studentsPresent.some(s => s.equals(student._id))) {
-      return res.status(400).json({ message: "You have already enrolled to current session!" });
+    if (session.studentsPresent.some((s) => s.equals(student._id))) {
+      return res
+        .status(400)
+        .json({ message: "You have already enrolled to current session!" });
     }
 
     // Register the student in the found session
@@ -179,8 +182,11 @@ app.post("/qrcoderegistration", async (req, res) => {
       lastName: student.lastName,
     });
 
-    console.log('Student Courses:', student.courses.map(course => course.toString()));
-    console.log('Session Course ID:', session.course._id.toString());
+    console.log(
+      "Student Courses:",
+      student.courses.map((course) => course.toString())
+    );
+    console.log("Session Course ID:", session.course._id.toString());
 
     const newAttendance = new AttendanceDatabaseModel({
       session: session._id,
@@ -207,8 +213,7 @@ app.post("/qrcoderegistration", async (req, res) => {
   }
 });
 
-
-app.get("/api/participation/:studentNumber", async (req, res) => {
+app.get(`/api/participations/:studentNumber`, async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
@@ -272,7 +277,6 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 
 server.listen(3002, () => {
