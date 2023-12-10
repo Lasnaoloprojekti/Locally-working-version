@@ -6,6 +6,8 @@
   left: 0;
   overflow: hidden;
   z-index: -1;
+  background: url('/tausta.jpg') no-repeat center center;
+  background-size: cover;
 }
 
 .fullscreen-bg__video {
