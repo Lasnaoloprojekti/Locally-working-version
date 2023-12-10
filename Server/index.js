@@ -656,25 +656,36 @@ app.delete("/deletesession", async (req, res) => {
   const { sessionId } = req.body;
 
   try {
+    // Start a session and transaction to ensure data integrity
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     // Find the session by its ID and delete it
-    const deletedSession =
-      await AttendanceSessionDatabaseModel.findByIdAndDelete(sessionId);
+    const deletedSession = await AttendanceSessionDatabaseModel.findByIdAndDelete(sessionId, { session: session });
 
     if (!deletedSession) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({ error: "Session not found" });
     }
+
+    // Delete all attendances related to the deleted session
+    await AttendanceDatabaseModel.deleteMany({ session: sessionId }, { session: session });
+
+    // Commit the transaction and end the session
+    await session.commitTransaction();
+    session.endSession();
 
     // Emit an event to notify clients that the session has been deleted
     io.emit("sessionDeleted", { sessionId: deletedSession._id });
 
-    res.status(200).json({ message: "Session deleted successfully" });
+    res.status(200).json({ message: "Session and related attendances deleted successfully" });
   } catch (error) {
     console.error("Error deleting session:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while deleting the session" });
+    res.status(500).json({ error: "An error occurred while deleting the session" });
   }
 });
+
 
 app.post("/newsessionidentifier", async (req, res) => {
   console.log("New session identifier request received", req.body);
@@ -1487,10 +1498,16 @@ app.get('/api/coursestudents/:courseId', async (req, res) => {
   }
 });
 
-app.get('/api/studentattendance/:studentId', async (req, res) => {
+app.get('/api/studentattendance/:studentId/:courseId', async (req, res) => {
+  console.log('studentId request received', req.params);
+  const { studentId, courseId } = req.params;
+  console.log('studentId request received', studentId);
   try {
-    const studentId = req.params.studentId;
-    const attendances = await AttendanceDatabaseModel.find({ student: studentId });
+
+    const attendances = await AttendanceDatabaseModel.find({
+      student: studentId,
+      course: courseId
+    });
     res.status(200).json({ attendances });
   } catch (error) {
     console.error("Error fetching student attendances:", error);

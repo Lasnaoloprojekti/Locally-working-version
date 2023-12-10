@@ -16,22 +16,22 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     console.log('handleSubmit triggered with', { username, password }); // Log the input values
-  
+
     try {
       console.log('Sending login request...');
       const response = await axios.post("http://localhost:3001/login", {
         username,
         password,
       });
-  
+
       console.log('Login response received:', response);
-  
+
       const responseData = response.data; // Note: Verify if apiData is the correct key
-  
+
       console.log('Response data:', responseData);
-  
+
       if (
         !responseData.message ||
         responseData.message !== "invalid username or password"
@@ -43,10 +43,10 @@ const LoginForm = () => {
           lastname: responseData.lastname,
           userId: responseData.userId,
         });
-  
+
         localStorage.setItem("userid", responseData.userId);
         localStorage.setItem("token", responseData.accessToken);
-  
+
         console.log('Items set to localStorage:', responseData.userId, responseData.accessToken);
         navigate(responseData.redirectUrl);
       } else {
@@ -58,7 +58,7 @@ const LoginForm = () => {
       setLoginError("Error logging in. Check your credentials and connection.");
     }
   };
-  
+
 
   return (
     <Box className="min-h-screen flex flex-col items-center justify-center">
@@ -90,7 +90,7 @@ const LoginForm = () => {
 
           <h3 className="text-red-600">{loginError}</h3>
           <button
-            className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-600 focus:outline-none focus:ring focus:border-orange-700 font-roboto-slab"
+            className="w-full bg-orange-600 p-2 rounded hover:bg-orange-600 focus:outline-none focus:ring focus:border-orange-700 font-open-sans text-black font-bold"
             type="submit">
             Login
           </button>
