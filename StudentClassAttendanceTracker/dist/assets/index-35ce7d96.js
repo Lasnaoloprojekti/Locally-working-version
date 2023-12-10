@@ -11931,7 +11931,7 @@ const Cl = dg,
         if (A) {
           Cl.defaults.headers.common.Authorization = `Bearer ${A}`;
           try {
-            const d = (await Cl.get("https://localhost:3002/studentverify"))
+            const d = (await Cl.get(`${process.env.REACT_APP_BACKEND_URL}/studentverify"))
               .data.student;
             console.log("API response data: ", d),
               d &&
@@ -14646,7 +14646,7 @@ const yy = ry(),
         }
         try {
           const i = (
-            await Cl.post("https://localhost:3002/studentlogin", {
+            await Cl.post(`${process.env.REACT_APP_BACKEND_URL}/studentlogin", {
               username: I,
               password: A,
               studentNumber: e,
@@ -15336,7 +15336,7 @@ const $y = "/assets/registering-b78e09c6.gif",
           try {
             const a = r.text;
             console.log("teksti qr koodista ", a);
-            const t = await fetch("https://localhost:3002/qrcoderegistration", {
+            const t = await fetch(`${process.env.REACT_APP_BACKEND_URL}/qrcoderegistration", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ studentNumber: g, qrCodeIdentifier: a }),
@@ -15552,7 +15552,7 @@ const $y = "/assets/registering-b78e09c6.gif",
     try {
       return (
         await Cl.post(
-          "https://localhost:3002/api/students/updategdpr",
+          `${process.env.REACT_APP_BACKEND_URL}/api/students/updategdpr",
           { studentNumber: g, gdprConsent: I, userId: C },
           { withCredentials: !0 }
         )

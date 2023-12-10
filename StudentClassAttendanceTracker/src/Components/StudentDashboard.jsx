@@ -20,7 +20,7 @@ export const StudentDashboard = () => {
         const qrCodeText = data.text;
         console.log("teksti qr koodista ", qrCodeText);
         const response = await fetch(
-          "https://localhost:3002/qrcoderegistration",
+          `${process.env.REACT_APP_BACKEND_URL}/qrcoderegistration`,
           {
             method: "POST",
             headers: {
@@ -58,7 +58,7 @@ export const StudentDashboard = () => {
   const fetchParticipationData = async () => {
     try {
       const response = await fetch(
-        `https://localhost:3002/api/participation/${studentNumber}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/participation/${studentNumber}`
       );
       const data = await response.json();
       setParticipationData(data);

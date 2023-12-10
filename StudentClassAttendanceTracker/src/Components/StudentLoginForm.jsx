@@ -33,11 +33,14 @@ const StudentLoginForm = () => {
     }
 
     try {
-      const response = await axios.post("https://localhost:3002/studentlogin", {
-        username,
-        password,
-        studentNumber,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/studentlogin`,
+        {
+          username,
+          password,
+          studentNumber,
+        }
+      );
 
       const responseData = response.data.apiData;
 

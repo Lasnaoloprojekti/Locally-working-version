@@ -18,7 +18,7 @@ const StudentContextProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       try {
         const response = await axios.get(
-          "https://localhost:3002/studentverify"
+          `${process.env.REACT_APP_BACKEND_URL}/studentverify`
         );
         const studentData = response.data;
         const studentInfo = studentData.student;
