@@ -3,7 +3,7 @@ import axios from "axios";
 const fetchParticipationRates = async (courseId) => {
   try {
     const response = await axios.get(
-      `https://student.northeurope.cloudapp.azure.com/participations/${courseId}`,
+      `https://student.northeurope.cloudapp.azure.com/api/participations/${courseId}`,
       {
         withCredentials: true,
       }

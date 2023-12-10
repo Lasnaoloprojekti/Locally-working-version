@@ -16,27 +16,21 @@ const fetch = require("node-fetch");
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: `https://student.northeurope.cloudapp.azure.com`,
-    methods: ["GET", "POST"],
-  },
-});
 
+const corsOptions = {
+  origin:
+    process.env.CORS_ORIGIN || "https://student.northeurope.cloudapp.azure.com",
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cors({
-    origin: `https://student.northeurope.cloudapp.azure.com`,
-    methods: ["GET", "POST", "DELETE"],
-    credentials: true,
-  })
-);
+mongoose.connect(process.env.MONGODB_URI);
 
-mongoose.connect(
-  `mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance`
-);
+const io = new Server(server, { cors: corsOptions });
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
@@ -46,6 +40,7 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
+
 app.post("/studentlogin", async (req, res) => {
   const { username, password, studentNumber } = req.body;
 

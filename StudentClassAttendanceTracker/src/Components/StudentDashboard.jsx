@@ -20,7 +20,7 @@ export const StudentDashboard = () => {
         const qrCodeText = data.text;
         console.log("teksti qr koodista ", qrCodeText);
         const response = await fetch(
-          `https://student.northeurope.cloudapp.azure.com/qrcoderegistration`,
+          `https://student.northeurope.cloudapp.azure.com/api/qrcoderegistration`,
           {
             method: "POST",
             headers: {
