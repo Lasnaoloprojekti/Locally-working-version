@@ -36,7 +36,7 @@ const AttendanceDataModification = () => {
         const fetchCourses = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/selectactivecourse', { headers: { userid: userId } });
-                console.log('Courses fetcheeeeeeeeeeed vittu:', response);
+                console.log('Courses fetched:', response);
                 setCourses(response.data);
             } catch (error) {
                 console.error('Error fetching courses:', error);
@@ -53,6 +53,7 @@ const AttendanceDataModification = () => {
 
         try {
             const response = await axios.get(`http://localhost:3001/api/coursestudents/${courseId}`);
+            console.log('Students fetched:', response.data); // Debugging line
             setStudents(response.data.students); // Assuming the response has a students field
         } catch (error) {
             console.error('Error fetching students:', error);
@@ -99,7 +100,9 @@ const AttendanceDataModification = () => {
                         onChange={handleCourseChange}>
                         <option value="">Select Course</option>
                         {courses.map(course => (
-                            <option key={course._id} value={course._id}>{course.name}</option>
+                            <option key={course._id} value={course._id}>
+                                {course.name + ' / ' + course.groupName}
+                            </option>
                         ))}
                     </select>
                 </div>

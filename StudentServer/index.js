@@ -214,19 +214,21 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
   try {
     const existingStudent = await StudentDatabaseModel.findOne({
       studentNumber,
-    }).exec();
+    })
+      .populate({
+        path: 'courses.course',
+        populate: { path: 'topics' }
+      })
+      .exec();
+
     if (!existingStudent) {
       return res.status(404).send("Student not found");
     }
 
-    const courses = existingStudent.courses.map((c) => c.course);
-
     let participationData = [];
 
-    for (const courseId of courses) {
-      const course = await CourseDatabaseModel.findById(courseId)
-        .populate("topics")
-        .exec();
+    for (const courseEnrollment of existingStudent.courses) {
+      const course = courseEnrollment.course;
 
       if (!course) {
         continue; // Skip if course not found
@@ -238,23 +240,27 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
       };
 
       for (const topic of course.topics) {
-        const totalSessions =
-          await AttendanceSessionDatabaseModel.countDocuments({
-            course: courseId,
-            topic: topic,
-          });
+        // Check if the student is participating in the topic
+        if (!courseEnrollment.topicsAttending.includes(topic.name)) {
+          studentParticipation.participation[topic.name] = "N/A";
+          continue;
+        }
+
+        const totalSessions = await AttendanceSessionDatabaseModel.countDocuments({
+          course: course._id,
+          topic: topic.name,
+        });
 
         const attendedSessions = await AttendanceDatabaseModel.countDocuments({
           student: existingStudent._id,
-          course: courseId,
-          topic: topic,
+          course: course._id,
+          topic: topic.name,
           status: "Present",
         });
 
-        studentParticipation.participation[topic] =
-          totalSessions > 0
-            ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
-            : "N/A";
+        studentParticipation.participation[topic.name] = totalSessions > 0
+          ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
+          : "N/A";
       }
 
       participationData.push(studentParticipation);
@@ -266,6 +272,7 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 
 server.listen(3002, () => {
