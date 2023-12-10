@@ -7,7 +7,7 @@ export const StudentsOwnParticipations = () => {
   const fetchParticipationData = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/participations/${studentNumber}`
+        `https://student.northeurope.cloudapp.azure.com/api/participations/${studentNumber}`
       );
       const data = await response.json();
       setParticipationData(data);
