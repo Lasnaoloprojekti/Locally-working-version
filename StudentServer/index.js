@@ -18,7 +18,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://student.northeurope.cloudapp.azure.com",
+    origin: `https://student.northeurope.cloudapp.azure.com`,
     methods: ["GET", "POST"],
   },
 });
@@ -28,14 +28,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://student.northeurope.cloudapp.azure.com",
+    origin: `https://student.northeurope.cloudapp.azure.com`,
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
 );
 
 mongoose.connect(
-  "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
+  `mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance`
 );
 
 io.on("connection", (socket) => {
@@ -50,7 +50,7 @@ app.post("/studentlogin", async (req, res) => {
   const { username, password, studentNumber } = req.body;
 
   try {
-    const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
+    const apiResponse = await fetch(`https://streams.metropolia.fi/2.0/api/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -104,7 +104,7 @@ app.post("/studentlogin", async (req, res) => {
   }
 });
 
-app.get("/studentverify", async (req, res) => {
+app.get(`/studentverify`, async (req, res) => {
   console.log("verify request received");
   const token = req.headers.authorization.split(" ")[1];
 
@@ -135,7 +135,7 @@ app.get("/studentverify", async (req, res) => {
   });
 });
 
-app.post("/qrcoderegistration", async (req, res) => {
+app.post(`/qrcoderegistration`, async (req, res) => {
   console.log("qrcode registration received");
   const { studentNumber, qrCodeIdentifier } = req.body;
 
@@ -218,7 +218,7 @@ app.post("/qrcoderegistration", async (req, res) => {
   }
 });
 
-app.get("/api/participation/:studentNumber", async (req, res) => {
+app.get(`/api/participation/:studentNumber`, async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
