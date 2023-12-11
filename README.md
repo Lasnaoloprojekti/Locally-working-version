@@ -1,10 +1,42 @@
-# React + Vite
+# Metropolia Attendance Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+Metropolia Attendance Tracker is a web application designed for teachers at Metropolia to manage course attendances. It allows teachers to create courses, add students, and collect attendances through a manual process or a scannable, refreshing QR code. Additionally, it offers functionalities like modifying attendance data, managing student participation in specific topics, deactivating courses, and exporting attendance data.
 
-Currently, two official plugins are available:
+## Technologies
+- Frontend: Vite JS, React JS, Tailwind CSS
+- Backend: Express JS, Mongoose, MongoDB
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- **Course Management**: Teachers can create and deactivate courses.
+- **Student Management**: Add students to courses.
+- **Attendance Tracking**: Collect attendances manually or via QR codes.
+- **Data Modification**: Modify attendance and participation data for courses.
+- **Data Export**: Export data in PDF or Excel format.
+- **Student Dashboard**: Students can log in, scan QR codes to attend sessions, and view their participation rates.
 
-# NOTE that Server and ClassAttendanceTracker are in their own folders
+## Getting Started
+Clone or Download the Main branch
+
+### Prerequisites
+- Node.js
+- MongoDB
+
+### Installation
+1. Clone the repository
+    git clone https://github.com/Lasnaoloprojekti/Main
+
+3. Install dependecies
+   Npm install
+
+4. Run the /StudentServer
+   node or nodemon index.js
+
+5. Run /Server
+   node or nodemon index.js
+
+6. Run StudentAttendanceTracker before ClassAttendanceTracker 
+   npm run dev
+
+   now run  /ClassAttendanceTracker npm run dev
+   
