@@ -40,7 +40,7 @@ jobs:
         uses: easingthemes/ssh-deploy@v2.1.5
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Replace with the name of your secret
-          SOURCE: "ClassAttendanceTracker/dist/" # Adjust this path to where your build outputs are located
+          SOURCE: "./ClassAttendanceTracker/dist" # Adjust this path to where your build outputs are located
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }} # Replace with the name of your secret
           REMOTE_USER: ${{ secrets.REMOTE_USER }} # Replace with the name of your secret
           TARGET: "/var/www/html/" # The document root of your Apache server
