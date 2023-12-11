@@ -14,13 +14,16 @@ const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const fetch = require("node-fetch");
 
+const cors = require("cors");
+const express = require("express");
 const app = express();
-const server = createServer(app);
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "*",
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-  credentials: true,
+  origin: [
+    "https://student.northeurope.cloudapp.azure.com", // Student frontend domain
+    "https://teacher.northeurope.cloudapp.azure.com", // Teacher frontend domain
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"], // methods allowed to access
 };
 
 app.use(cors(corsOptions));

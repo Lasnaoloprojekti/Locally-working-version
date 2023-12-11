@@ -13,7 +13,7 @@ const {
   TopicDatabaseModel,
 } = require("./models/collectionSchemas");
 const jwt = require("jsonwebtoken");
-const { Server } = require("socket.io");
+const { app } = require("socket.io");
 const fetch = require("node-fetch");
 const multer = require("multer");
 const xlsx = require("xlsx");
@@ -21,15 +21,17 @@ const upload = multer({ dest: "uploads/" });
 const PDFDocument = require("pdfkit");
 const Excel = require("exceljs");
 
+const express = require("express");
 const app = express();
-const server = createServer(app);
-const io = require("socket.io")(server, {
-  cors: {
-    origin: ["*"],
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+
+const corsOptions = {
+  origin: [
+    "https://student.northeurope.cloudapp.azure.com", // Student frontend domain
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"], // methods allowed to access
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

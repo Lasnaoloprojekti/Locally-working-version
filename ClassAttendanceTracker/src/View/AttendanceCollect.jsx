@@ -7,7 +7,7 @@ import io from "socket.io-client";
 import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
-const socket = io("https://student.northeurope.cloudapp.azure.com");
+const socket = io.connect("https://student.northeurope.cloudapp.azure.com");
 
 export const WaitingPage = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export const WaitingPage = () => {
     const newQrCodeIdentifier = uuid();
     setQrCodeIdentifier(newQrCodeIdentifier);
 
-    fetch("http://localhost:3001/api/newsessionidentifier", {
+    fetch("http://localhost:3001/newsessionidentifier", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export const WaitingPage = () => {
       setQrCodeIdentifier(newQrCodeIdentifier);
 
       // Send the new QR code identifier to the backend
-      fetch("http://localhost:3001/api/newsessionidentifier", {
+      fetch("http://localhost:3001/newsessionidentifier", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +109,7 @@ export const WaitingPage = () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:3001/api/coursestudentscount/${sessionId}`
+          `http://localhost:3001/coursestudentscount/${sessionId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -148,7 +148,7 @@ export const WaitingPage = () => {
     async function fetchEnrolledStudents() {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/enrolledstudents/${sessionId}`
+          `http://localhost:3001/enrolledstudents/${sessionId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -174,7 +174,7 @@ export const WaitingPage = () => {
 
     if (confirmClose) {
       try {
-        const response = await fetch("http://localhost:3001/api/closesession", {
+        const response = await fetch("http://localhost:3001/closesession", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
