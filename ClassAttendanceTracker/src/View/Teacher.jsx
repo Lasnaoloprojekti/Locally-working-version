@@ -11,6 +11,7 @@ import logo from "../assets/metropolia_s_orange.png";
 import AddTopics from "../components/AddTopics";
 import AddTeacherToCourse from "../components/AddTeachers";
 import DeactiveCourse from "../components/DeactiveCourse";
+import ShowStudents from "../components/ShowStudents";
 import AttendanceDataModification from "../components/AttendanceDataModification";
 import StudentModification from "../components/ModifyStudent";
 
@@ -44,6 +45,8 @@ const TeacherHome = () => {
         return <AddTopics />;
       case "addTeacherToCourse":
         return <AddTeacherToCourse />;
+      case "showStudents":
+        return <ShowStudents />;
       case "deactiveCourse":
         return <DeactiveCourse />;
       case "attendanceDataModification":
@@ -99,6 +102,11 @@ const TeacherHome = () => {
               className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
               Modify Topics{" "}
             </button>
+            <button
+            onClick={() => setActiveView("showStudents")} // This button is updated
+            className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
+            Show Students
+          </button>
             <button
               onClick={() => setActiveView("deleteCourse")}
               className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
