@@ -47,7 +47,7 @@ jobs:
 
       - name: Start Application with PM2
         run: ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "cd /Main/Server && pm2 start index.js --name tea"
-      # Ensure the path to SSH_PRIVATE_KEY_PATH is correctly set
+      # Ensure the path to SSH_PRIVATE_KEY_PATH is correctly
 
       - name: Notify of Deployment
         run: |
