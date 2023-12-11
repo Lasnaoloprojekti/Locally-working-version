@@ -275,7 +275,7 @@ app.post("/login", async (req, res) => {
       apiData.userId = existingUser._id.toString();
 
       const accessToken = jwt.sign(
-        { userId: existingUser._id, staff: apiData.staff },
+        { userId, staff: apiData.staff },
 
         process.env.ACCESS_TOKEN_SECRET
       );
