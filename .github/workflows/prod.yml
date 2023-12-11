@@ -49,8 +49,7 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
           chmod 600 ssh_key
-          ssh -i ssh_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "cd Main/Server && /home/johannes/.nvm/versions/node/v21.4.0/bin/pm2
-          start index.js --name tea"
+          ssh -i ssh_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "pm2 start Main/Server/index.js --name tea && pm2 save"
           rm ssh_key
 
       - name: Notify of Deployment
