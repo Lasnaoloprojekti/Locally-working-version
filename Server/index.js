@@ -5,14 +5,21 @@ const { createServer } = require("node:http");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const {
+  UserDatabaseModel,
+  CourseDatabaseModel,
   StudentDatabaseModel,
   AttendanceSessionDatabaseModel,
   AttendanceDatabaseModel,
-  CourseDatabaseModel,
+  TopicDatabaseModel,
 } = require("./models/collectionSchemas");
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const fetch = require("node-fetch");
+const multer = require("multer");
+const xlsx = require("xlsx");
+const upload = multer({ dest: "uploads/" });
+const PDFDocument = require("pdfkit");
+const Excel = require("exceljs");
 
 const app = express();
 const server = createServer(app);
@@ -30,6 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect(process.env.MONGODB_URI);
+const io = new Server(server, { cors: corsOptions });
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
