@@ -240,7 +240,7 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
+    const apiResponse = await fetch(`https://streams.metropolia.fi/2.0/api/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -250,63 +250,64 @@ app.post("/login", async (req, res) => {
 
     const apiData = await apiResponse.json();
 
-    console.log("no mitäs sielt tulee? ", apiData);
-
     if (apiData.message === "invalid username or password") {
       return res.status(401).json({ error: "invalid username or password" });
-    }
-
-    // Temporarily bypass the staff check for testing
-    // if (!apiData.staff) {
-    //   return res.status(403).json({ error: "Access denied. Only staff can login." });
-    // }
-
-    let existingUser = await UserDatabaseModel.findOne({ user: apiData.user });
-
-    if (!existingUser) {
-      existingUser = new UserDatabaseModel({
+    } else {
+      let existingUser = await UserDatabaseModel.findOne({
         user: apiData.user,
-        firstName: apiData.firstname,
-        lastName: apiData.lastname,
-        email: apiData.email,
-        staff: apiData.staff,
-        courses: [],
       });
-      await existingUser.save();
+
+      if (!existingUser) {
+        // Create a new user if staff
+        existingUser = new UserDatabaseModel({
+          user: apiData.user,
+          firstName: apiData.firstname,
+          lastName: apiData.lastname,
+          email: apiData.email,
+          staff: apiData.staff,
+          courses: [],
+        });
+        await existingUser.save();
+      }
+      let redirectUrl;
+
+      redirectUrl = existingUser.gdprConsent ? "/teacherhome" : "/teacherhome";
+      apiData.userId = existingUser._id.toString();
+
+      const accessToken = jwt.sign(
+        { userId: existingUser._id, staff: apiData.staff },
+
+        process.env.ACCESS_TOKEN_SECRET
+      );
+
+      apiData.accessToken = accessToken;
+
+      res.status(200).json({ apiData, redirectUrl });
     }
-    let redirectUrl;
-
-    redirectUrl = existingUser ? "/teacherhome" : "/teacherhome";
-    apiData.userId = existingUser._id.toString();
-
-    console.log("testiiiiiiiiiiiiiii", apiData.userId);
-
-    const accessToken = jwt.sign(
-      { userId: existingUser._id, staff: apiData.staff },
-      process.env.ACCESS_TOKEN_SECRET
-    );
-    apiData.accessToken = accessToken;
-
-    res.status(200).json({
-      redirectUrl,
-      userId: existingUser._id.toString(),
-      staff: apiData.staff,
-    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ error: "An error occurred during login" });
   }
 });
 
-app.get("/verify", async (req, res) => {
+app.get(`/verify`, async (req, res) => {
+  console.log("verify request received");
   const token = req.headers.authorization.split(" ")[1];
+
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) {
       return res.status(403).json({ error: "Invalid token" });
     }
     try {
-      // Fetch user details using the userId from the decoded token
-      let existingUser = await UserDatabaseModel.findById(decoded.userId);
+      let existingUser = null;
+
+      if (decoded.userId) {
+        existingUser = await UserDatabaseModel.findOne({
+          userId: decoded.userId,
+        });
+      }
+
+      console.log("verifying");
 
       const responseData = {
         user: existingUser ? existingUser.toObject() : null,
