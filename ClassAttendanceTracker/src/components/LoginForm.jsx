@@ -22,7 +22,7 @@ const LoginForm = () => {
     try {
       console.log("Sending login request...");
       const response = await axios.post(
-        "https://teacher.northeurope.cloudapp.azure.com/api/login",
+        "https://teacher.northeurope.cloudapp.azure.com/login",
         {
           username,
           password,
