@@ -11,7 +11,7 @@ const ShowStudents = () => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/selectactivecourse`,
+          `https://teacher.northeurope.cloudapp.azure.com/api/selectactivecourse`,
           { headers: { userId: userId } }
         );
         setCourses(response.data);
@@ -28,7 +28,7 @@ const ShowStudents = () => {
     const courseId = event.target.value;
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/getstudentsbycourse/${courseId}`
+        `https://teacher.northeurope.cloudapp.azure.com/api/getstudentsbycourse/${courseId}`
       );
       setStudents(response.data.students);
     } catch (error) {

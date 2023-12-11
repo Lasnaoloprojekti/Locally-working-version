@@ -5,40 +5,31 @@ const { createServer } = require("node:http");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const {
-  UserDatabaseModel,
-  CourseDatabaseModel,
   StudentDatabaseModel,
   AttendanceSessionDatabaseModel,
   AttendanceDatabaseModel,
-  TopicDatabaseModel,
+  CourseDatabaseModel,
 } = require("./models/collectionSchemas");
 const jwt = require("jsonwebtoken");
-const { app } = require("socket.io");
+const { Server } = require("socket.io");
 const fetch = require("node-fetch");
-const multer = require("multer");
-const xlsx = require("xlsx");
-const upload = multer({ dest: "uploads/" });
-const PDFDocument = require("pdfkit");
-const Excel = require("exceljs");
 
-const express = require("express");
 const app = express();
+const server = createServer(app);
 
 const corsOptions = {
-  origin: [
-    "https://student.northeurope.cloudapp.azure.com", // Student frontend domain
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"], // methods allowed to access
+  origin:
+    "https://student.northeurope.cloudapp.azure.com" ||
+    "https://teacher.northeurope.cloudapp.azure.com",
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(
-  "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
-);
+mongoose.connect(process.env.MONGODB_URI);
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);

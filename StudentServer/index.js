@@ -19,7 +19,8 @@ const server = createServer(app);
 
 const corsOptions = {
   origin:
-    process.env.CORS_ORIGIN || "https://student.northeurope.cloudapp.azure.com",
+    "https://student.northeurope.cloudapp.azure.com" ||
+    "https://teacher.northeurope.cloudapp.azure.com",
   methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   credentials: true,
 };

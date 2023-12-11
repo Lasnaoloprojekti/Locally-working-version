@@ -17,7 +17,7 @@ const StudentModification = () => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/selectactivecourse",
+          "https://teacher.northeurope.cloudapp.azure.com/api/selectactivecourse",
           { headers: { userid: userId } }
         );
         console.log("haetaan kaikki kurssit ", response);
@@ -36,7 +36,7 @@ const StudentModification = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/coursestudents/${courseId}`
+        `https://teacher.northeurope.cloudapp.azure.com/api/coursestudents/${courseId}`
       );
       console.log("Students fetched:", response.data); // Debugging line
       setStudents(response.data.students); // Assuming the response has a students field
@@ -57,7 +57,7 @@ const StudentModification = () => {
     try {
       // Fetch topics that the student is attending and not attending
       const response = await axios.get(
-        `http://localhost:3001/api/studenttopics/${studentId}/${selectedCourse}`
+        `https://teacher.northeurope.cloudapp.azure.com/api/studenttopics/${studentId}/${selectedCourse}`
       );
       const { courseTopics, attendingTopics } = response.data;
 
@@ -86,7 +86,7 @@ const StudentModification = () => {
     try {
       // Send the updated list of participating topics to the backend
       await axios.put(
-        `http://localhost:3001/api/updatestudenttopics/${selectedStudent}/${selectedCourse}`,
+        `https://teacher.northeurope.cloudapp.azure.com/api/updatestudenttopics/${selectedStudent}/${selectedCourse}`,
         {
           topicsAttending: participatingTopics,
         }

@@ -21,10 +21,13 @@ const LoginForm = () => {
 
     try {
       console.log("Sending login request...");
-      const response = await axios.post("http://localhost:3001/api/login", {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        "https://teacher.northeurope.cloudapp.azure.com/api/login",
+        {
+          username,
+          password,
+        }
+      );
 
       console.log("Login response received:", response);
 
