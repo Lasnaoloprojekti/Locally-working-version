@@ -14,7 +14,7 @@ jobs:
 
       - name: Transfer Repository Files to Azure VM
         run: |
-          rsync -avz -e "ssh -i ${{ secrets.SSH_PRIVATE_KEY }}" --exclude='.git' --exclude='node_modules' ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:Main/ClassAttendanceTracker
+          ssh -i ${{ secrets.SSH_PRIVATE_KEY }}" --exclude='.git' --exclude='node_modules' ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
 
       - name: SSH and Build on Azure VM
         run: |
