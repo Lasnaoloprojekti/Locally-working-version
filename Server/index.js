@@ -285,6 +285,7 @@ app.post("/login", async (req, res) => {
       { userId: existingUser._id, staff: apiData.staff },
       process.env.ACCESS_TOKEN_SECRET
     );
+    apiData.accessToken = accessToken;
 
     res.status(200).json({
       redirectUrl,
