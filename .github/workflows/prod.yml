@@ -27,6 +27,8 @@ jobs:
           cd ClassAttendanceTracker
           npm run build
           # Other build steps if necessary
+      - name: List output of build
+        run: ls -l ClassAttendanceTracker
 
   deploy:
     needs: build
