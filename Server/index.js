@@ -275,7 +275,7 @@ app.post("/login", async (req, res) => {
       apiData.userId = existingUser._id.toString();
 
       const accessToken = jwt.sign(
-        { user: apiData.user, staff: apiData.staff },
+        { userId: existingUser._id, staff: apiData.staff },
 
         process.env.ACCESS_TOKEN_SECRET
       );
@@ -303,7 +303,7 @@ app.get(`/verify`, async (req, res) => {
 
       if (decoded.userId) {
         existingUser = await UserDatabaseModel.findOne({
-          userId: decoded.userId,
+          userId: decoded._id,
         });
       }
 
