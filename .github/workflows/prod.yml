@@ -21,12 +21,15 @@ jobs:
 
       - name: SSH and Build on Azure VM
         run: |
-          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
-            cd Main/ClassAttendanceTracker
-            git pull
-            npm install
-            npm run build
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
+          chmod 600 ssh_key
+          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
+          cd Main/ClassAttendanceTracker
+          git pull
+          npm install
+          npm run build
           EOF
+          rm ssh_key
 
       - name: Deploy Built Files to Server
         uses: easingthemes/ssh-deploy@v2.1.5
