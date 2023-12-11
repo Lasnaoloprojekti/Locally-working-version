@@ -23,23 +23,16 @@ const Excel = require("exceljs");
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
+const io = require("socket.io")(server, {
   cors: {
-    origin: "https://student.northeurope.cloudapp.azure.com",
+    origin: ["*"],
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use(
-  cors({
-    origin: ["http://localhost:5173"],
-    methods: ["GET", "POST", "DELETE"],
-    credentials: true,
-  })
-);
 
 mongoose.connect(
   "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
