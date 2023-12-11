@@ -289,7 +289,6 @@ app.post("/login", async (req, res) => {
 
     res.status(200).json({
       redirectUrl,
-      accessToken,
       userId: existingUser._id.toString(),
       staff: apiData.staff,
     });
