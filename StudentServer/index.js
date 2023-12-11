@@ -13,15 +13,13 @@ const {
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const fetch = require("node-fetch");
-const io = new Server(server, { cors: corsOptions });
 
 const app = express();
 const server = createServer(app);
 
 const corsOptions = {
   origin:
-    "https://student.northeurope.cloudapp.azure.com" ||
-    "https://teacher.northeurope.cloudapp.azure.com",
+    process.env.CORS_ORIGIN || "https://student.northeurope.cloudapp.azure.com",
   methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   credentials: true,
 };
@@ -31,6 +29,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect(process.env.MONGODB_URI);
+
+const io = new Server(server, { cors: corsOptions });
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
