@@ -17,26 +17,29 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('handleSubmit triggered with', { username, password }); // Log the input values
+    console.log("handleSubmit triggered with", { username, password }); // Log the input values
 
     try {
-      console.log('Sending login request...');
-      const response = await axios.post("http://localhost:3001/login", {
-        username,
-        password,
-      });
+      console.log("Sending login request...");
+      const response = await axios.post(
+        "https://teach.northeurope.cloudapp.azure.com/api/login",
+        {
+          username,
+          password,
+        }
+      );
 
-      console.log('Login response received:', response);
+      console.log("Login response received:", response);
 
       const responseData = response.data; // Note: Verify if apiData is the correct key
 
-      console.log('Response data:', responseData);
+      console.log("Response data:", responseData);
 
       if (
         !responseData.message ||
         responseData.message !== "invalid username or password"
       ) {
-        console.log('Setting user info...');
+        console.log("Setting user info...");
         setUserInfo({
           staff: responseData.staff,
           firstname: responseData.firstname,
@@ -47,18 +50,21 @@ const LoginForm = () => {
         localStorage.setItem("userid", responseData.userId);
         localStorage.setItem("token", responseData.accessToken);
 
-        console.log('Items set to localStorage:', responseData.userId, responseData.accessToken);
+        console.log(
+          "Items set to localStorage:",
+          responseData.userId,
+          responseData.accessToken
+        );
         navigate(responseData.redirectUrl);
       } else {
-        console.log('Invalid username or password error');
+        console.log("Invalid username or password error");
         setLoginError("Invalid username or password");
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error("Error during login:", error);
       setLoginError("Error logging in. Check your credentials and connection.");
     }
   };
-
 
   return (
     <Box className="min-h-screen flex flex-col items-center justify-center">

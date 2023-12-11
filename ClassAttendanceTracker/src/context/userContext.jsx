@@ -17,10 +17,12 @@ const UserContextProvider = ({ children }) => {
     if (accessToken) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       try {
-        const response = await axios.get("http://localhost:3001/verify");
+        const response = await axios.get(
+          "https://teach.northeurope.cloudapp.azure.com/api/verify"
+        );
         const userData = response.data.user; // Get the nested 'user' object
         console.log("Verification data received:", userData);
-  
+
         if (userData) {
           setUserInfo({
             staff: userData.staff,
@@ -33,7 +35,6 @@ const UserContextProvider = ({ children }) => {
       }
     }
   };
-  
 
   useEffect(() => {
     verify();

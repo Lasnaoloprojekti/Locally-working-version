@@ -5,10 +5,9 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { userContext } from "../context/userContext";
 import io from "socket.io-client";
 import { deleteSession } from "../Hooks/ApiHooks";
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from "uuid";
 
-
-const socket = io("http://localhost:3002");
+const socket = io("https://teach.northeurope.cloudapp.azure.com");
 
 export const WaitingPage = () => {
   const navigate = useNavigate();
@@ -19,16 +18,15 @@ export const WaitingPage = () => {
   const [sessionClosed, setSessionClosed] = useState(false);
   const [studentCount, setStudentCount] = useState(0);
   const [showModal, setShowModal] = useState(true);
-  const [qrCodeIdentifier, setQrCodeIdentifier] = useState('');
+  const [qrCodeIdentifier, setQrCodeIdentifier] = useState("");
   const [refreshInterval, setRefreshInterval] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
-
 
   const handleCloseModal = () => {
     setShowModal(false);
   };
 
-  socket.emit('joinSessionRoom', { sessionId: sessionId });
+  socket.emit("joinSessionRoom", { sessionId: sessionId });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -42,16 +40,19 @@ export const WaitingPage = () => {
     const newQrCodeIdentifier = uuid();
     setQrCodeIdentifier(newQrCodeIdentifier);
 
-    fetch("http://localhost:3001/newsessionidentifier", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sessionId: sessionId,
-        qrIdentifier: newQrCodeIdentifier,
-      }),
-    })
+    fetch(
+      "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId: sessionId,
+          qrIdentifier: newQrCodeIdentifier,
+        }),
+      }
+    )
       .then((response) => {
         if (response.ok) {
           console.log("QR code identifier updated successfully");
@@ -71,16 +72,19 @@ export const WaitingPage = () => {
       setQrCodeIdentifier(newQrCodeIdentifier);
 
       // Send the new QR code identifier to the backend
-      fetch("http://localhost:3001/newsessionidentifier", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionId: sessionId,
-          qrIdentifier: newQrCodeIdentifier,
-        }),
-      })
+      fetch(
+        "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId: sessionId,
+            qrIdentifier: newQrCodeIdentifier,
+          }),
+        }
+      )
         .then((response) => {
           if (response.ok) {
             console.log("QR code identifier updated successfully");
@@ -101,9 +105,7 @@ export const WaitingPage = () => {
   // Modal component
   const Modal = ({ children }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-5 rounded">
-        {children}
-      </div>
+      <div className="bg-white p-5 rounded">{children}</div>
     </div>
   );
 
@@ -112,7 +114,9 @@ export const WaitingPage = () => {
     async function fetchStudentCount() {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:3001/coursestudentscount/${sessionId}`);
+        const response = await fetch(
+          `https://teach.northeurope.cloudapp.azure.com/api/coursestudentscount/${sessionId}`
+        );
         if (response.ok) {
           const data = await response.json();
           setStudentCount(data.studentCount);
@@ -136,7 +140,7 @@ export const WaitingPage = () => {
 
     socket.on("studentAdded", (newStudent) => {
       console.log("Students from the server:", newStudent);
-      setAttendingStudents((prev) => [...prev, newStudent]);  // Update state with received data
+      setAttendingStudents((prev) => [...prev, newStudent]); // Update state with received data
       // setStudentCount((prevCount) => prevCount + 1);
     });
 
@@ -149,7 +153,9 @@ export const WaitingPage = () => {
     // Fetch enrolled students from the backend for the specific session
     async function fetchEnrolledStudents() {
       try {
-        const response = await fetch(`http://localhost:3001/enrolledstudents/${sessionId}`);
+        const response = await fetch(
+          `https://teach.northeurope.cloudapp.azure.com/api/enrolledstudents/${sessionId}`
+        );
         if (response.ok) {
           const data = await response.json();
           console.log("enrolled students fetched ", data);
@@ -166,20 +172,24 @@ export const WaitingPage = () => {
     fetchEnrolledStudents(); // Call the fetchEnrolledStudents function when the component mounts
   }, [sessionId]);
 
-
   const handleCloseSession = async () => {
     // Display a confirmation dialog
-    const confirmClose = window.confirm("Are you sure you want to stop collecting attendances and save the changes?");
+    const confirmClose = window.confirm(
+      "Are you sure you want to stop collecting attendances and save the changes?"
+    );
 
     if (confirmClose) {
       try {
-        const response = await fetch("http://localhost:3001/closesession", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ sessionId: sessionId }),
-        });
+        const response = await fetch(
+          "https://teach.northeurope.cloudapp.azure.com/api/closesession",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ sessionId: sessionId }),
+          }
+        );
 
         if (response.ok) {
           console.log("Session closed successfully");
@@ -200,16 +210,20 @@ export const WaitingPage = () => {
 
   const handleDeleteSession = async () => {
     try {
-      await deleteSession(sessionId, (message) => {
-        console.log(message);
-        setServerMessage(message);
-        setSessionClosed(true);
-        // Close the modal or perform any other necessary actions
-      }, (errorMessage) => {
-        console.error(errorMessage);
-        setServerMessage(errorMessage);
-        // Handle the error or display an error message in your UI
-      });
+      await deleteSession(
+        sessionId,
+        (message) => {
+          console.log(message);
+          setServerMessage(message);
+          setSessionClosed(true);
+          // Close the modal or perform any other necessary actions
+        },
+        (errorMessage) => {
+          console.error(errorMessage);
+          setServerMessage(errorMessage);
+          // Handle the error or display an error message in your UI
+        }
+      );
     } catch (error) {
       console.error("Error deleting session:", error);
       setServerMessage("Error deleting session");
@@ -236,25 +250,42 @@ export const WaitingPage = () => {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <>      {showModal && (
-          <Modal>
-            <h2 className=" text-3xl mb-4">Are you sure you want to start collecting participations?</h2>
-
-            <div className=" flex justify-center ">
-              <button onClick={handleCloseModal} className=" bg-green-700 hover:bg-green-950 text-2xl text-white p-7 rounded mr-2">Yes 👍</button>
-              <button onClick={handleDeleteSession} className=" bg-red-800 hover:bg-red-950 text-2xl text-white p-7 rounded">No 👎</button>
-            </div>
-            <p className=" text-red-600 text-center mt-4">Remember that this will effect course participation rates!</p>
-          </Modal>
-        )}
+        <>
           {" "}
+          {showModal && (
+            <Modal>
+              <h2 className=" text-3xl mb-4">
+                Are you sure you want to start collecting participations?
+              </h2>
+
+              <div className=" flex justify-center ">
+                <button
+                  onClick={handleCloseModal}
+                  className=" bg-green-700 hover:bg-green-950 text-2xl text-white p-7 rounded mr-2">
+                  Yes 👍
+                </button>
+                <button
+                  onClick={handleDeleteSession}
+                  className=" bg-red-800 hover:bg-red-950 text-2xl text-white p-7 rounded">
+                  No 👎
+                </button>
+              </div>
+              <p className=" text-red-600 text-center mt-4">
+                Remember that this will effect course participation rates!
+              </p>
+            </Modal>
+          )}{" "}
           <nav className="flex justify-between items-center">
             <Link to="/teacherhome">
               <img className="h-[18mm] m-4" src={logo} alt="Logo" />
             </Link>{" "}
             <div className="flex flex-col gap-2 items-center">
               <p>Did you accidently create this session?</p>
-              <button onClick={handleDeleteSession} className=" bg-blue-800 px-2 py-1 hover:bg-blue-950  text-white rounded-md ">Delete session</button>
+              <button
+                onClick={handleDeleteSession}
+                className=" bg-blue-800 px-2 py-1 hover:bg-blue-950  text-white rounded-md ">
+                Delete session
+              </button>
             </div>
             <ul className="flex items-center">
               <li className="text-2xl ml-2 font-roboto-slab">
@@ -267,11 +298,8 @@ export const WaitingPage = () => {
               </button>
             </ul>
           </nav>
-
           <section className=" flex-row h-[80vh] mt-1 flex ">
-
             <div className=" w-1/2 flex items-center flex-col">
-
               <h1 className=" font-roboto-slab text-3xl mb-2 font-bold tracking-wide">
                 {decodeURIComponent(courseName)}
               </h1>
@@ -284,7 +312,9 @@ export const WaitingPage = () => {
               <QRCode className="" value={qrCodeIdentifier} />
               <div className=" flex-col flex gap-2 mt-5">
                 <div>
-                  <label className="font-open-sans text-sm mt-5 mb-1">QR-Code refreshesh in minutes</label>
+                  <label className="font-open-sans text-sm mt-5 mb-1">
+                    QR-Code refreshesh in minutes
+                  </label>
                   <input
                     type="number"
                     value={refreshInterval}
