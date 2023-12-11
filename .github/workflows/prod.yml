@@ -22,11 +22,6 @@ jobs:
           cd ClassAttendanceTracker
           npm install
 
-      - name: List dependencies (Server)
-        run: |
-          cd Server
-          npm start && ^C
-
       - name: Build (ClassAttendanceTracker)
         run: |
           cd ClassAttendanceTracker
