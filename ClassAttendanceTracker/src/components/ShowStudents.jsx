@@ -11,7 +11,7 @@ const ShowStudents = () => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/selectactivecourse`, 
+          `http://localhost:3001/api/selectactivecourse`,
           { headers: { userId: userId } }
         );
         setCourses(response.data);
@@ -27,7 +27,9 @@ const ShowStudents = () => {
     setSelectedCourse(event.target.value);
     const courseId = event.target.value;
     try {
-      const response = await axios.get(`http://localhost:3001/getstudentsbycourse/${courseId}`);
+      const response = await axios.get(
+        `http://localhost:3001/api/getstudentsbycourse/${courseId}`
+      );
       setStudents(response.data.students);
     } catch (error) {
       console.error("Error fetching students:", error);

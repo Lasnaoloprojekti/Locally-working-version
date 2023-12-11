@@ -41,7 +41,7 @@ export const ManualAttendanceCollect = () => {
     // Fetch all students from the server when the component mounts
     const fetchStudents = async () => {
       const response = await fetch(
-        `https://teach.northeurope.cloudapp.azure.com/api/getcoursestudents/${sessionId}`
+        `http://localhost:3001/api/getcoursestudents/${sessionId}`
       ); // Replace with your actual API endpoint
       if (response.ok) {
         const { students } = await response.json();
@@ -91,16 +91,13 @@ export const ManualAttendanceCollect = () => {
 
   const handleStudentClick = async (student) => {
     try {
-      const response = await fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/registration",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ studentNumber: student.studentNumber }),
-        }
-      );
+      const response = await fetch("http://localhost:3001/api/registration", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ studentNumber: student.studentNumber }),
+      });
 
       if (response.ok) {
         // Student registered successfully, now move them to the attending list
@@ -121,19 +118,16 @@ export const ManualAttendanceCollect = () => {
 
   const handleUnregisterStudent = async (student) => {
     try {
-      const response = await fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/unregister",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            studentNumber: student.studentNumber,
-            sessionId: sessionId,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:3001/api/unregister", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          studentNumber: student.studentNumber,
+          sessionId: sessionId,
+        }),
+      });
 
       if (response.ok) {
         // Update state to move student back to non-attending list
@@ -174,16 +168,13 @@ export const ManualAttendanceCollect = () => {
     }
 
     try {
-      const response = await fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/closesession",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ sessionId: sessionId }),
-        }
-      );
+      const response = await fetch("http://localhost:3001/api/closesession", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sessionId: sessionId }),
+      });
 
       if (response.ok) {
         console.log("Session closed successfully");

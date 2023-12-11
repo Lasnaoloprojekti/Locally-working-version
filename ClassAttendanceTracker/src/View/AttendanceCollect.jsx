@@ -7,7 +7,7 @@ import io from "socket.io-client";
 import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
-const socket = io("https://teach.northeurope.cloudapp.azure.com");
+const socket = io("https://student.northeurope.cloudapp.azure.com");
 
 export const WaitingPage = () => {
   const navigate = useNavigate();
@@ -40,19 +40,16 @@ export const WaitingPage = () => {
     const newQrCodeIdentifier = uuid();
     setQrCodeIdentifier(newQrCodeIdentifier);
 
-    fetch(
-      "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionId: sessionId,
-          qrIdentifier: newQrCodeIdentifier,
-        }),
-      }
-    )
+    fetch("http://localhost:3001/api/newsessionidentifier", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sessionId: sessionId,
+        qrIdentifier: newQrCodeIdentifier,
+      }),
+    })
       .then((response) => {
         if (response.ok) {
           console.log("QR code identifier updated successfully");
@@ -72,19 +69,16 @@ export const WaitingPage = () => {
       setQrCodeIdentifier(newQrCodeIdentifier);
 
       // Send the new QR code identifier to the backend
-      fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            sessionId: sessionId,
-            qrIdentifier: newQrCodeIdentifier,
-          }),
-        }
-      )
+      fetch("http://localhost:3001/api/newsessionidentifier", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId: sessionId,
+          qrIdentifier: newQrCodeIdentifier,
+        }),
+      })
         .then((response) => {
           if (response.ok) {
             console.log("QR code identifier updated successfully");
@@ -115,7 +109,7 @@ export const WaitingPage = () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `https://teach.northeurope.cloudapp.azure.com/api/coursestudentscount/${sessionId}`
+          `http://localhost:3001/api/coursestudentscount/${sessionId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -154,7 +148,7 @@ export const WaitingPage = () => {
     async function fetchEnrolledStudents() {
       try {
         const response = await fetch(
-          `https://teach.northeurope.cloudapp.azure.com/api/enrolledstudents/${sessionId}`
+          `http://localhost:3001/api/enrolledstudents/${sessionId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -180,16 +174,13 @@ export const WaitingPage = () => {
 
     if (confirmClose) {
       try {
-        const response = await fetch(
-          "https://teach.northeurope.cloudapp.azure.com/api/closesession",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ sessionId: sessionId }),
-          }
-        );
+        const response = await fetch("http://localhost:3001/api/closesession", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ sessionId: sessionId }),
+        });
 
         if (response.ok) {
           console.log("Session closed successfully");

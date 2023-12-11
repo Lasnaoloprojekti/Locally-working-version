@@ -213,7 +213,7 @@ app.post(`/qrcoderegistration`, async (req, res) => {
   }
 });
 
-app.get(`/api/participations/:studentNumber`, async (req, res) => {
+app.get(`/participations/:studentNumber`, async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
@@ -221,8 +221,8 @@ app.get(`/api/participations/:studentNumber`, async (req, res) => {
       studentNumber,
     })
       .populate({
-        path: 'courses.course',
-        populate: { path: 'topics' }
+        path: "courses.course",
+        populate: { path: "topics" },
       })
       .exec();
 
@@ -251,10 +251,11 @@ app.get(`/api/participations/:studentNumber`, async (req, res) => {
           continue;
         }
 
-        const totalSessions = await AttendanceSessionDatabaseModel.countDocuments({
-          course: course._id,
-          topic: topic.name,
-        });
+        const totalSessions =
+          await AttendanceSessionDatabaseModel.countDocuments({
+            course: course._id,
+            topic: topic.name,
+          });
 
         const attendedSessions = await AttendanceDatabaseModel.countDocuments({
           student: existingStudent._id,
@@ -263,9 +264,10 @@ app.get(`/api/participations/:studentNumber`, async (req, res) => {
           status: "Present",
         });
 
-        studentParticipation.participation[topic.name] = totalSessions > 0
-          ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
-          : "N/A";
+        studentParticipation.participation[topic.name] =
+          totalSessions > 0
+            ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
+            : "N/A";
       }
 
       participationData.push(studentParticipation);
@@ -277,7 +279,6 @@ app.get(`/api/participations/:studentNumber`, async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 server.listen(3002, () => {
   console.log("Server is running in port 3002");
