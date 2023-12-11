@@ -11931,11 +11931,8 @@ const Cl = dg,
         if (A) {
           Cl.defaults.headers.common.Authorization = `Bearer ${A}`;
           try {
-            const d = (
-              await Cl.get(
-                "https://mdds-server-jj.northeurope.cloudapp.azure.com:3002/studentverify"
-              )
-            ).data.student;
+            const d = (await Cl.get(`https://student.northeurope.cloudapp.azure.com/studentverify"))
+              .data.student;
             console.log("API response data: ", d),
               d &&
                 C({
@@ -14649,10 +14646,11 @@ const yy = ry(),
         }
         try {
           const i = (
-            await Cl.post(
-              "https://mdds-server-jj.northeurope.cloudapp.azure.com:3002/studentlogin",
-              { username: I, password: A, studentNumber: e }
-            )
+            await Cl.post(`https://student.northeurope.cloudapp.azure.com/studentlogin", {
+              username: I,
+              password: A,
+              studentNumber: e,
+            })
           ).data.apiData;
           !i.message || i.message !== "invalid username or password"
             ? (g({
@@ -15338,14 +15336,11 @@ const $y = "/assets/registering-b78e09c6.gif",
           try {
             const a = r.text;
             console.log("teksti qr koodista ", a);
-            const t = await fetch(
-              "https://mdds-server-jj.northeurope.cloudapp.azure.com:3002/qrcoderegistration",
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ studentNumber: g, qrCodeIdentifier: a }),
-              }
-            );
+            const t = await fetch(`https://student.northeurope.cloudapp.azure.com/qrcoderegistration", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ studentNumber: g, qrCodeIdentifier: a }),
+            });
             if (!t.ok) {
               const B = await t.json();
               throw new Error(B.message || t.statusText);
@@ -15365,9 +15360,7 @@ const $y = "/assets/registering-b78e09c6.gif",
       i = async () => {
         try {
           const a = await (
-            await fetch(
-              `https://mdds-server-jj.northeurope.cloudapp.azure.com:3002/api/participation/${g}`
-            )
+            await fetch(`https://localhost:3002/api/participation/${g}`)
           ).json();
           e(a);
         } catch (r) {
@@ -15559,7 +15552,7 @@ const $y = "/assets/registering-b78e09c6.gif",
     try {
       return (
         await Cl.post(
-          "https://mdds-server-jj.northeurope.cloudapp.azure.com:3002/api/students/updategdpr",
+          `https://student.northeurope.cloudapp.azure.com/api/students/updategdpr",
           { studentNumber: g, gdprConsent: I, userId: C },
           { withCredentials: !0 }
         )

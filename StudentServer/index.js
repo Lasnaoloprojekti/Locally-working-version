@@ -16,27 +16,21 @@ const fetch = require("node-fetch");
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
 
+const corsOptions = {
+  origin:
+    process.env.CORS_ORIGIN || "https://student.northeurope.cloudapp.azure.com",
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "DELETE"],
-    credentials: true,
-  })
-);
+mongoose.connect(process.env.MONGODB_URI);
 
-mongoose.connect(
-  "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
-);
+const io = new Server(server, { cors: corsOptions });
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
@@ -46,11 +40,12 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
+
 app.post("/studentlogin", async (req, res) => {
   const { username, password, studentNumber } = req.body;
 
   try {
-    const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
+    const apiResponse = await fetch(`https://streams.metropolia.fi/2.0/api/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -104,7 +99,7 @@ app.post("/studentlogin", async (req, res) => {
   }
 });
 
-app.get("/studentverify", async (req, res) => {
+app.get(`/studentverify`, async (req, res) => {
   console.log("verify request received");
   const token = req.headers.authorization.split(" ")[1];
 
@@ -135,7 +130,7 @@ app.get("/studentverify", async (req, res) => {
   });
 });
 
-app.post("/qrcoderegistration", async (req, res) => {
+app.post(`/qrcoderegistration`, async (req, res) => {
   console.log("qrcode registration received");
   const { studentNumber, qrCodeIdentifier } = req.body;
 
@@ -218,25 +213,27 @@ app.post("/qrcoderegistration", async (req, res) => {
   }
 });
 
-app.get("/api/participation/:studentNumber", async (req, res) => {
+app.get(`/api/participations/:studentNumber`, async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
     const existingStudent = await StudentDatabaseModel.findOne({
       studentNumber,
-    }).exec();
+    })
+      .populate({
+        path: 'courses.course',
+        populate: { path: 'topics' }
+      })
+      .exec();
+
     if (!existingStudent) {
       return res.status(404).send("Student not found");
     }
 
-    const courses = existingStudent.courses.map((c) => c.course);
-
     let participationData = [];
 
-    for (const courseId of courses) {
-      const course = await CourseDatabaseModel.findById(courseId)
-        .populate("topics")
-        .exec();
+    for (const courseEnrollment of existingStudent.courses) {
+      const course = courseEnrollment.course;
 
       if (!course) {
         continue; // Skip if course not found
@@ -248,23 +245,27 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
       };
 
       for (const topic of course.topics) {
-        const totalSessions =
-          await AttendanceSessionDatabaseModel.countDocuments({
-            course: courseId,
-            topic: topic,
-          });
+        // Check if the student is participating in the topic
+        if (!courseEnrollment.topicsAttending.includes(topic.name)) {
+          studentParticipation.participation[topic.name] = "N/A";
+          continue;
+        }
+
+        const totalSessions = await AttendanceSessionDatabaseModel.countDocuments({
+          course: course._id,
+          topic: topic.name,
+        });
 
         const attendedSessions = await AttendanceDatabaseModel.countDocuments({
           student: existingStudent._id,
-          course: courseId,
-          topic: topic,
+          course: course._id,
+          topic: topic.name,
           status: "Present",
         });
 
-        studentParticipation.participation[topic] =
-          totalSessions > 0
-            ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
-            : "N/A";
+        studentParticipation.participation[topic.name] = totalSessions > 0
+          ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
+          : "N/A";
       }
 
       participationData.push(studentParticipation);
@@ -276,6 +277,7 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 server.listen(3002, () => {
   console.log("Server is running in port 3002");

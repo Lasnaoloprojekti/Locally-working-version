@@ -1,0 +1,60 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "21.x" # Specify the Node.js version
+
+      - name: Install dependencies (ClassAttendanceTracker)
+        run: |
+          cd ClassAttendanceTracker
+          npm install
+
+      - name: Build (ClassAttendanceTracker)
+        run: |
+          cd ClassAttendanceTracker
+          npm run build
+          # Other build steps if necessary
+      - name: List output of build
+        run: ls -l ClassAttendanceTracker
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: List directory structure
+        run: ls -R ClassAttendanceTracker
+
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@v2.1.5
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Replace with the name of your secret
+          SOURCE: "ClassAttendanceTracker/dist/" # Correct path to the build outputs
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }} # Replace with the name of your secret
+          REMOTE_USER: ${{ secrets.REMOTE_USER }} # Replace with the name of your secret
+          TARGET: "/var/www/html/"
+
+      - name: Start Application with PM2
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
+          chmod 600 ssh_key
+          ssh -i ssh_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "source /home/johannes/.nvm/nvm.sh && /home/johannes/.nvm/versions/node/v21.4.0/bin/pm2 start Main/Server/index.js --name tea"
+
+      - name: Notify of Deployment
+        run: |
+          echo "Deployment complete"

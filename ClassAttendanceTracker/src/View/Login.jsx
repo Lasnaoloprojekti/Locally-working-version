@@ -16,12 +16,7 @@ const Login = () => {
 
   return (
     <>
-      <div className="fullscreen-bg">
-        <video loop muted autoPlay className="fullscreen-bg__video">
-          <source src="autumnleafs.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
+      <div className="fullscreen-bg"></div>
       <LoginForm />
     </>
   );

@@ -90,7 +90,7 @@ const OpenattendanceCollect = () => {
     try {
       console.log("Checking student count for course:", selectedCourse);
       const response = await axios.get(
-        `http://localhost:3001/getstudents/${selectedCourse}`
+        `https://teach.northeurope.cloudapp.azure.com/api/getstudents/${selectedCourse}`
       );
       const { studentCount } = response.data;
       console.log("Student count:", studentCount);
@@ -100,7 +100,9 @@ const OpenattendanceCollect = () => {
         navigate(
           `/${path}/${sessionId}/${encodeURIComponent(
             courseName
-          )}/${encodeURIComponent(topic)}/${encodeURIComponent(date)}/${encodeURIComponent(timeOfDay)}`
+          )}/${encodeURIComponent(topic)}/${encodeURIComponent(
+            date
+          )}/${encodeURIComponent(timeOfDay)}`
         );
       } else {
         // If there are no students, display a message
@@ -113,7 +115,6 @@ const OpenattendanceCollect = () => {
       // Optionally set an error message in the state to display in the UI
     }
   };
-
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -146,7 +147,7 @@ const OpenattendanceCollect = () => {
       selectedTopic,
       "wait",
       date,
-      timeOfDay,
+      timeOfDay
     );
   };
 
@@ -180,7 +181,6 @@ const OpenattendanceCollect = () => {
       timeOfDay
     );
   };
-
 
   const validateForm = () => {
     if (!selectedCourse || !selectedTopic || !date || !timeOfDay) {

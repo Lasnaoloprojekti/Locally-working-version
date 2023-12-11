@@ -23,27 +23,21 @@ const Excel = require("exceljs");
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5174",
-    methods: ["GET", "POST"],
-  },
-});
+const corsOptions = {
+  origin: "https://teach.northeurope.cloudapp.azure.com",
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  credentials: true,
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use(
-  cors({
-    origin: "http://localhost:5174",
-    methods: ["GET", "POST", "DELETE"],
-    credentials: true,
-  })
-);
 
 mongoose.connect(
   "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
 );
+
+const io = new Server(server, { cors: corsOptions });
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
@@ -87,6 +81,15 @@ app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
 
     const students = sheetData.slice(1).filter((row) => row && row.length > 0);
 
+    // Fetch the course to get its topics
+    const course = await CourseDatabaseModel.findById(courseId);
+    if (!course) {
+      return res.status(404).send(`Course not found with ID: ${courseId}`);
+    }
+
+    // Extract topics from the course
+    const courseTopics = course.topics;
+
     const uniqueStudentNumbers = new Set();
     const duplicateStudentNumbers = new Set();
 
@@ -104,12 +107,13 @@ app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
 
     // If there are duplicate student numbers, send an error response
     if (duplicateStudentNumbers.size > 0) {
-      const duplicateMessage = `There are students with identical student numbers: ${Array.from(duplicateStudentNumbers).join(', ')}`;
+      const duplicateMessage = `There are students with identical student numbers: ${Array.from(
+        duplicateStudentNumbers
+      ).join(", ")}`;
       console.log(duplicateMessage);
       return res.status(400).json({ message: duplicateMessage });
     }
 
-    // If no duplicates, proceed with processing and uploading the students
     let newStudentsAdded = 0;
     let existingStudents = 0;
 
@@ -124,19 +128,29 @@ app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
           email,
           studentNumber,
           gdprConsent: false,
-          courses: [{ course: courseId }],
+          courses: [
+            {
+              course: courseId,
+              topicsAttending: courseTopics, // Add topics to the student's course record
+            },
+          ],
         });
         newStudentsAdded++;
         await student.save();
       } else {
-        if (!student.courses.find((c) => c.course.toString() === courseId)) {
-          student.courses.push({ course: courseId });
+        const courseEntry = student.courses.find(
+          (c) => c.course.toString() === courseId
+        );
+        if (!courseEntry) {
+          student.courses.push({
+            course: courseId,
+            topicsAttending: courseTopics, // Add topics to the student's course record
+          });
           existingStudents++;
           await student.save();
         }
       }
 
-      const course = await CourseDatabaseModel.findById(courseId);
       if (course && !course.students.includes(student._id)) {
         course.students.push(student._id);
         await course.save();
@@ -147,31 +161,23 @@ app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
 
     await Promise.allSettled(studentPromises);
 
-    const message =
+    let message =
       newStudentsAdded > 0
         ? `${newStudentsAdded} new students added.`
         : "No new students added.";
 
-    // Check if newStudentsAdded is 0, and send a 404 response if true
-    if (newStudentsAdded === 0) {
-      res.status(404).json({ message: message });
-    } else {
-      if (existingStudents > 0) {
-        message += ` ${existingStudents} students were already enrolled in the course.`;
-      }
-
-      res
-        .status(200)
-        .json({ message: message, newStudentsAdded: newStudentsAdded > 0 });
+    if (existingStudents > 0) {
+      message += ` ${existingStudents} students were already enrolled in the course.`;
     }
+
+    res
+      .status(200)
+      .json({ message: message, newStudentsAdded: newStudentsAdded > 0 });
   } catch (error) {
     console.error("Error processing file:", error);
     res.status(500).send("Error processing file");
   }
 });
-
-
-
 
 // DEPLOYMENT ONLY
 
@@ -244,7 +250,7 @@ app.post("/login", async (req, res) => {
 
     const apiData = await apiResponse.json();
 
-    console.log('no mitäs sielt tulee? ', apiData);
+    console.log("no mitäs sielt tulee? ", apiData);
 
     if (apiData.message === "invalid username or password") {
       return res.status(401).json({ error: "invalid username or password" });
@@ -270,8 +276,6 @@ app.post("/login", async (req, res) => {
     }
     let redirectUrl;
 
-
-
     redirectUrl = existingUser ? "/teacherhome" : "/teacherhome";
     apiData.userId = existingUser._id.toString();
 
@@ -281,10 +285,10 @@ app.post("/login", async (req, res) => {
       { userId: existingUser._id, staff: apiData.staff },
       process.env.ACCESS_TOKEN_SECRET
     );
+    apiData.accessToken = accessToken;
 
     res.status(200).json({
       redirectUrl,
-      accessToken,
       userId: existingUser._id.toString(),
       staff: apiData.staff,
     });
@@ -450,7 +454,6 @@ app.post("/addstudents", async (req, res) => {
 
   console.log("Add students request received", studentsToAdd);
 
-  // Start a session for transaction
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -458,11 +461,18 @@ app.post("/addstudents", async (req, res) => {
     const course = await CourseDatabaseModel.findById(courseId).session(
       session
     );
+    console.log("Course topics:", course.topics);
     if (!course) {
       await session.abortTransaction();
+      console.log("Course topics:", course.topics);
       session.endSession();
       return res.status(404).send(`Course not found with ID: ${courseId}`);
     }
+    console.log("Course topics:", course);
+    // Extract topics from the course
+    const courseTopics = course.topics;
+
+    console.log("Course topics:", course.topics);
 
     let addedStudents = [];
 
@@ -471,7 +481,6 @@ app.post("/addstudents", async (req, res) => {
 
       console.log("Processing student:", firstName, lastName, studentNumber);
 
-      // Check if the student already exists in the database
       let existingStudent = await StudentDatabaseModel.findOne({
         studentNumber,
       }).session(session);
@@ -482,23 +491,30 @@ app.post("/addstudents", async (req, res) => {
           lastName,
           studentNumber,
           gdprConsent: false,
-          courses: [{ course: courseId }],
+          courses: [
+            {
+              course: courseId,
+              topicsAttending: courseTopics, // Add topics to the student's course record
+            },
+          ],
         });
 
         await existingStudent.save({ session });
         addedStudents.push(existingStudent);
       } else {
-        // If the student exists, just add them to the course if not already added
-        if (
-          !existingStudent.courses.find((c) => c.course.toString() === courseId)
-        ) {
-          existingStudent.courses.push({ course: courseId });
+        const courseEntry = existingStudent.courses.find(
+          (c) => c.course.toString() === courseId
+        );
+        if (!courseEntry) {
+          existingStudent.courses.push({
+            course: courseId,
+            topicsAttending: courseTopics, // Add topics to the student's course record
+          });
           await existingStudent.save({ session });
           addedStudents.push(existingStudent);
         }
       }
 
-      // Add the student to the course's students list if not already added
       if (!course.students.includes(existingStudent._id)) {
         course.students.push(existingStudent._id);
       }
@@ -571,7 +587,6 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-//course delete/students
 app.delete("/api/courses/:id", async (req, res) => {
   const courseId = req.params.id;
 
@@ -580,6 +595,16 @@ app.delete("/api/courses/:id", async (req, res) => {
   session.startTransaction();
 
   try {
+    // Delete all attendances associated with the course
+    await AttendanceDatabaseModel.deleteMany({
+      course: courseId,
+    }).session(session);
+
+    // Delete all attendance sessions associated with the course
+    await AttendanceSessionDatabaseModel.deleteMany({
+      course: courseId,
+    }).session(session);
+
     // Delete all students associated with the course
     await StudentDatabaseModel.deleteMany({
       "courses.course": courseId,
@@ -600,14 +625,15 @@ app.delete("/api/courses/:id", async (req, res) => {
     session.endSession();
 
     res.send({
-      message: "Course and associated students deleted successfully",
+      message:
+        "Course, associated students, attendances, and attendance sessions deleted successfully",
     });
   } catch (error) {
     // If an error occurs, abort the transaction
     await session.abortTransaction();
     session.endSession();
 
-    console.error("Error deleting course and associated students:", error);
+    console.error("Error deleting course and associated data:", error);
     res
       .status(500)
       .send({ message: "Internal Server Error", error: error.toString() });
@@ -688,18 +714,38 @@ app.delete("/deletesession", async (req, res) => {
   const { sessionId } = req.body;
 
   try {
+    // Start a session and transaction to ensure data integrity
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     // Find the session by its ID and delete it
     const deletedSession =
-      await AttendanceSessionDatabaseModel.findByIdAndDelete(sessionId);
+      await AttendanceSessionDatabaseModel.findByIdAndDelete(sessionId, {
+        session: session,
+      });
 
     if (!deletedSession) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({ error: "Session not found" });
     }
+
+    // Delete all attendances related to the deleted session
+    await AttendanceDatabaseModel.deleteMany(
+      { session: sessionId },
+      { session: session }
+    );
+
+    // Commit the transaction and end the session
+    await session.commitTransaction();
+    session.endSession();
 
     // Emit an event to notify clients that the session has been deleted
     io.emit("sessionDeleted", { sessionId: deletedSession._id });
 
-    res.status(200).json({ message: "Session deleted successfully" });
+    res.status(200).json({
+      message: "Session and related attendances deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting session:", error);
     res
@@ -735,7 +781,12 @@ app.post("/qrcoderegistration", async (req, res) => {
   console.log("qrcode registration received");
   const { studentNumber, qrCodeIdentifier } = req.body;
 
-  console.log('new qr registration: ', qrCodeIdentifier, " studentnumber ", studentNumber);
+  console.log(
+    "new qr registration: ",
+    qrCodeIdentifier,
+    " studentnumber ",
+    studentNumber
+  );
 
   try {
     // Find student based on student number
@@ -755,14 +806,18 @@ app.post("/qrcoderegistration", async (req, res) => {
     }
 
     // Check if student is enrolled in the course related to the session
-    const isEnrolled = student.courses.some(courseEnrollment => courseEnrollment.course.equals(session.course._id));
+    const isEnrolled = student.courses.some((courseEnrollment) =>
+      courseEnrollment.course.equals(session.course._id)
+    );
     if (!isEnrolled) {
       return res.status(403).send("Student not enrolled in this course");
     }
 
     // Check if student is already registered in the session
-    if (session.studentsPresent.some(s => s.equals(student._id))) {
-      return res.status(400).json({ message: "You have already enrolled to current session!" });
+    if (session.studentsPresent.some((s) => s.equals(student._id))) {
+      return res
+        .status(400)
+        .json({ message: "You have already enrolled to current session!" });
     }
 
     // Register the student in the found session
@@ -774,8 +829,11 @@ app.post("/qrcoderegistration", async (req, res) => {
       lastName: student.lastName,
     });
 
-    console.log('Student Courses:', student.courses.map(course => course.toString()));
-    console.log('Session Course ID:', session.course._id.toString());
+    console.log(
+      "Student Courses:",
+      student.courses.map((course) => course.toString())
+    );
+    console.log("Session Course ID:", session.course._id.toString());
 
     const newAttendance = new AttendanceDatabaseModel({
       session: session._id,
@@ -878,17 +936,49 @@ app.post("/closesession", async (req, res) => {
 
   try {
     const session = await AttendanceSessionDatabaseModel.findById(sessionId);
-
     if (!session) {
       return res.status(404).send("Session not found");
     }
 
+    // Close the session
     session.isOpen = false;
     await session.save();
 
-    io.emit("sessionClosed", { sessionId: session._id });
+    // Fetch all students in the course
+    const course = await CourseDatabaseModel.findById(session.course);
+    if (!course) {
+      return res.status(404).send("Course not found");
+    }
 
-    res.status(200).send("Session closed successfully");
+    // Fetch all attendance records for this session
+    const attendances = await AttendanceDatabaseModel.find({
+      session: sessionId,
+    });
+
+    // Get student IDs who have already enrolled in the session
+    const enrolledStudentIds = attendances.map((attendance) =>
+      attendance.student.toString()
+    );
+
+    // Identify students who have not enrolled and mark them as absent
+    for (let student of course.students) {
+      if (!enrolledStudentIds.includes(student.toString())) {
+        const newAttendance = new AttendanceDatabaseModel({
+          session: sessionId,
+          student: student,
+          course: session.course,
+          topic: session.topic,
+          date: session.date,
+          timeOfDay: session.timeOfDay,
+          status: "Absent",
+          gdprConsent: false, // Set this according to your application's logic
+        });
+        await newAttendance.save();
+      }
+    }
+
+    io.emit("sessionClosed", { sessionId: session._id });
+    res.status(200).send("Session closed successfully and absentees marked");
   } catch (error) {
     console.error("Error closing session:", error);
     res.status(500).send("Internal Server Error");
@@ -904,6 +994,7 @@ app.get("/participations/:id", async (req, res) => {
     const course = await CourseDatabaseModel.findById(courseId)
       .populate({
         path: "students",
+        populate: { path: "courses.course" },
       })
       .exec();
 
@@ -920,7 +1011,21 @@ app.get("/participations/:id", async (req, res) => {
         participation: {},
       };
 
+      // Retrieve the student's topics attending for this course
+      const studentCourseData = existingStudent.courses.find(
+        (c) => c.course._id.toString() === courseId
+      );
+      const topicsAttending = studentCourseData
+        ? studentCourseData.topicsAttending
+        : [];
+
       for (const topic of course.topics) {
+        // If the student is not attending the topic, mark as "NA"
+        if (!topicsAttending.includes(topic)) {
+          studentParticipation.participation[topic] = "NA";
+          continue;
+        }
+
         // Count the total number of sessions conducted for this topic
         const totalSessions =
           await AttendanceSessionDatabaseModel.countDocuments({
@@ -940,7 +1045,7 @@ app.get("/participations/:id", async (req, res) => {
         studentParticipation.participation[topic] =
           totalSessions > 0
             ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
-            : "na";
+            : "NA"; // Changed from "na" to "NA" to match your requirement
       }
 
       participationData.push(studentParticipation);
@@ -959,19 +1064,21 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
   try {
     const existingStudent = await StudentDatabaseModel.findOne({
       studentNumber,
-    }).exec();
+    })
+      .populate({
+        path: "courses.course",
+        populate: { path: "topics" },
+      })
+      .exec();
+
     if (!existingStudent) {
       return res.status(404).send("Student not found");
     }
 
-    const courses = existingStudent.courses.map((c) => c.course);
-
     let participationData = [];
 
-    for (const courseId of courses) {
-      const course = await CourseDatabaseModel.findById(courseId)
-        .populate("topics")
-        .exec();
+    for (const courseEnrollment of existingStudent.courses) {
+      const course = courseEnrollment.course;
 
       if (!course) {
         continue; // Skip if course not found
@@ -983,20 +1090,26 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
       };
 
       for (const topic of course.topics) {
+        // Check if the student is participating in the topic
+        if (!courseEnrollment.topicsAttending.includes(topic.name)) {
+          studentParticipation.participation[topic.name] = "N/A";
+          continue;
+        }
+
         const totalSessions =
           await AttendanceSessionDatabaseModel.countDocuments({
-            course: courseId,
-            topic: topic,
+            course: course._id,
+            topic: topic.name,
           });
 
         const attendedSessions = await AttendanceDatabaseModel.countDocuments({
           student: existingStudent._id,
-          course: courseId,
-          topic: topic,
+          course: course._id,
+          topic: topic.name,
           status: "Present",
         });
 
-        studentParticipation.participation[topic] =
+        studentParticipation.participation[topic.name] =
           totalSessions > 0
             ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
             : "N/A";
@@ -1013,6 +1126,7 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
 });
 
 app.post("/addtopic", async (req, res) => {
+  // Add a new topic
   try {
     const { name } = req.body;
 
@@ -1036,6 +1150,7 @@ app.post("/addtopic", async (req, res) => {
 });
 
 app.get("/api/topics", async (req, res) => {
+  // Fetch all topics
   try {
     const topics = await TopicDatabaseModel.find(); // Fetch all topics from the database
     res.status(200).json(topics); // Send the topics back in the response
@@ -1120,6 +1235,7 @@ app.get("/coursestudentscount/:sessionId", async (req, res) => {
 });
 
 app.post("/api/courses/:courseId/topics", async (req, res) => {
+  // Add a topic to a course
   const courseId = req.params.courseId;
   const { topicName } = req.body;
 
@@ -1148,40 +1264,41 @@ app.post("/api/courses/:courseId/topics", async (req, res) => {
 });
 
 app.get("/enrolledstudents/:sessionId", async (req, res) => {
-  console.log('Received a request for enrolled students');
+  console.log("Received a request for enrolled students");
   const { sessionId } = req.params;
-  console.log('Session id:', sessionId);
+  console.log("Session id:", sessionId);
 
   try {
-    console.log('Trying to fetch enrolled students for session:', sessionId);
+    console.log("Trying to fetch enrolled students for session:", sessionId);
     // Find all attendance records with the matching session ID
     const attendanceRecords = await AttendanceDatabaseModel.find({
       session: sessionId,
     });
-    console.log('attendancerecords ');
+    console.log("attendancerecords ");
 
     // Extract the unique student IDs from the attendance records
     const studentIds = [
       ...new Set(attendanceRecords.map((record) => record.student)),
     ];
 
-    console.log('Fetched attendance records:', attendanceRecords);
-    console.log('Extracted student IDs:', studentIds);
+    console.log("Fetched attendance records:", attendanceRecords);
+    console.log("Extracted student IDs:", studentIds);
 
     // Fetch the student details based on the extracted student IDs
     const enrolledStudents = await StudentDatabaseModel.find({
       _id: { $in: studentIds },
     });
 
-    console.log('Fetched enrolled students:', enrolledStudents);
+    console.log("Fetched enrolled students:", enrolledStudents);
 
     res.status(200).json({ enrolledStudents });
   } catch (error) {
     console.error("Error fetching enrolled students:", error);
-    res.status(500).json({ error: "An error occurred while fetching enrolled students" });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching enrolled students" });
   }
 });
-
 
 app.delete("/api/courses/:courseId/topics", async (req, res) => {
   const courseId = req.params.courseId;
@@ -1217,7 +1334,10 @@ app.get("/download/attendance/pdf/:courseId", async (req, res) => {
 
   try {
     const course = await CourseDatabaseModel.findById(courseId)
-      .populate({ path: "students" })
+      .populate({
+        path: "students",
+        populate: { path: "courses.course" }, // Populate course data within each student
+      })
       .exec();
 
     if (!course) {
@@ -1230,11 +1350,25 @@ app.get("/download/attendance/pdf/:courseId", async (req, res) => {
       let studentParticipation = {
         lastName: existingStudent.lastName,
         firstName: existingStudent.firstName,
-        studentNumber: existingStudent.studentNumber, // Assuming you have studentNumber on student object
+        studentNumber: existingStudent.studentNumber,
         participation: {},
       };
 
+      // Retrieve the student's topics attending for this course
+      const studentCourseData = existingStudent.courses.find(
+        (c) => c.course._id.toString() === courseId
+      );
+      const topicsAttending = studentCourseData
+        ? studentCourseData.topicsAttending
+        : [];
+
       for (const topic of course.topics) {
+        // Check if the student is participating in the topic
+        if (!topicsAttending.includes(topic)) {
+          studentParticipation.participation[topic] = "N/A";
+          continue;
+        }
+
         const totalSessions =
           await AttendanceSessionDatabaseModel.countDocuments({
             course: courseId,
@@ -1256,6 +1390,7 @@ app.get("/download/attendance/pdf/:courseId", async (req, res) => {
       participationData.push(studentParticipation);
     }
 
+    // Generate the PDF
     const doc = new PDFDocument();
     res.setHeader(
       "Content-disposition",
@@ -1263,22 +1398,24 @@ app.get("/download/attendance/pdf/:courseId", async (req, res) => {
     );
     res.setHeader("Content-type", "application/pdf");
 
+    // Add course title
     doc.fontSize(16).text(`Attendance Report for Course: ${course.name}`, {
       align: "center",
     });
     doc.moveDown(2);
 
+    // Define table columns and widths
     const tableColumns = [
       "Lastname",
       "Firstname",
       "Studentnumber",
       ...course.topics,
     ];
-    const columnWidths = 100; // Modify this if you need wider columns
+    const columnWidths = 100; // Modify if needed
     const startX = 50;
     let startY = doc.y;
 
-    // Headers
+    // Add headers
     tableColumns.forEach((header, i) => {
       doc.fontSize(12).text(header, startX + i * columnWidths, startY, {
         width: columnWidths,
@@ -1288,27 +1425,27 @@ app.get("/download/attendance/pdf/:courseId", async (req, res) => {
 
     startY += 20; // Space for header
 
-    // Rows
-    participationData.forEach((existingStudent) => {
+    // Add rows
+    participationData.forEach((student) => {
       let xPosition = startX;
-      doc.fontSize(10).text(existingStudent.lastName, xPosition, startY, {
+      doc.fontSize(10).text(student.lastName, xPosition, startY, {
         width: columnWidths,
         align: "center",
       });
       xPosition += columnWidths;
-      doc.text(existingStudent.firstName, xPosition, startY, {
+      doc.text(student.firstName, xPosition, startY, {
         width: columnWidths,
         align: "center",
       });
       xPosition += columnWidths;
-      doc.text(existingStudent.studentNumber, xPosition, startY, {
+      doc.text(student.studentNumber, xPosition, startY, {
         width: columnWidths,
         align: "center",
       });
 
       course.topics.forEach((topic) => {
         xPosition += columnWidths;
-        doc.text(existingStudent.participation[topic], xPosition, startY, {
+        doc.text(student.participation[topic], xPosition, startY, {
           width: columnWidths,
           align: "center",
         });
@@ -1317,14 +1454,13 @@ app.get("/download/attendance/pdf/:courseId", async (req, res) => {
       startY += 20; // Move down for next student row
 
       if (startY >= 700) {
-        // Check for page end and add new page
-        doc.addPage();
+        doc.addPage(); // Add new page if needed
         startY = 50; // Reset startY for new page
       }
     });
 
-    doc.pipe(res);
-    doc.end();
+    doc.pipe(res); // Pipe the PDF to the response
+    doc.end(); // Finalize the PDF
   } catch (error) {
     console.error("Error generating attendance report:", error);
     res.status(500).send("Internal Server Error");
@@ -1335,27 +1471,31 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
   const courseId = req.params.courseId;
 
   try {
+    // Fetch the course and populate the students
     const course = await CourseDatabaseModel.findById(courseId)
-      .populate({ path: "students" })
+      .populate({
+        path: "students",
+        populate: { path: "courses.course" }, // Assuming this is the correct path for your schema
+      })
       .exec();
 
     if (!course) {
       return res.status(404).send("Course not found");
     }
 
+    // Create a new Excel workbook and a worksheet
     const workbook = new Excel.Workbook();
     const worksheet = workbook.addWorksheet("Attendance Report");
 
-    // Add headers to the Excel sheet
+    // Set up the header row in the worksheet
     const titleRow = worksheet.addRow([
       `Attendance Report for Course: ${course.name}`,
     ]);
-    // Adjust the range according to the number of columns (topics + 3 for Lastname, Firstname, and Studentnumber)
     worksheet.mergeCells(1, 1, 1, course.topics.length + 3);
     titleRow.font = { size: 10, bold: true };
     titleRow.alignment = { horizontal: "center" };
 
-    // Add headers to the Excel sheet
+    // Add headers for student details and topics
     const headers = [
       "Lastname",
       "Firstname",
@@ -1364,6 +1504,7 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
     ];
     worksheet.addRow(headers);
 
+    // Iterate over each student to calculate their attendance
     for (const existingStudent of course.students) {
       let studentData = [
         existingStudent.lastName,
@@ -1371,7 +1512,23 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
         existingStudent.studentNumber,
       ];
 
+      // Find the student's course enrollment
+      const studentCourseData = existingStudent.courses.find(
+        (c) => c.course._id.toString() === courseId
+      );
+      const topicsAttending = studentCourseData
+        ? studentCourseData.topicsAttending
+        : [];
+
+      // Iterate over each topic to calculate participation
       for (const topic of course.topics) {
+        // If the student is not attending the topic, mark as "N/A"
+        if (!topicsAttending.includes(topic)) {
+          studentData.push("N/A");
+          continue;
+        }
+
+        // Count total and attended sessions for each topic
         const totalSessions =
           await AttendanceSessionDatabaseModel.countDocuments({
             course: courseId,
@@ -1384,6 +1541,7 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
           status: "Present",
         });
 
+        // Calculate participation percentage or mark as "N/A"
         const participation =
           totalSessions > 0
             ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
@@ -1391,11 +1549,11 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
         studentData.push(participation);
       }
 
-      // Add student data to the Excel sheet
+      // Add the student's data row to the worksheet
       worksheet.addRow(studentData);
     }
 
-    // Set content type and disposition for the response
+    // Set headers for file download
     res.setHeader(
       "Content-Disposition",
       `attachment; filename="attendance.xlsx"`
@@ -1405,7 +1563,7 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
-    // Send the Excel workbook as a response
+    // Write the workbook to the response
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
@@ -1472,6 +1630,157 @@ app.get("/getcoursestudents/:sessionId", async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while fetching students" });
+  }
+});
+//uudet endpointit
+
+app.get("/api/coursestudents/:courseId", async (req, res) => {
+  const courseId = req.params.courseId;
+  try {
+    const course = await CourseDatabaseModel.findById(courseId).populate(
+      "students"
+    );
+    if (!course) {
+      console.error("Course not found with ID:", courseId);
+      return res.status(404).json({ error: "Course not found" });
+    }
+    res.status(200).json({ students: course.students });
+  } catch (error) {
+    console.error("Error fetching course students:", error);
+    res.status(500).json({
+      error: "An error occurred while fetching students",
+      details: error.message,
+    });
+  }
+});
+
+app.get("/api/studentattendance/:studentId/:courseId", async (req, res) => {
+  console.log("studentId request received", req.params);
+  const { studentId, courseId } = req.params;
+  console.log("studentId request received", studentId);
+  try {
+    const attendances = await AttendanceDatabaseModel.find({
+      student: studentId,
+      course: courseId,
+    });
+    res.status(200).json({ attendances });
+  } catch (error) {
+    console.error("Error fetching student attendances:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching attendances" });
+  }
+});
+
+app.post("/api/updateattendancestatus", async (req, res) => {
+  const { attendanceId, newStatus } = req.body;
+
+  try {
+    const attendance = await AttendanceDatabaseModel.findByIdAndUpdate(
+      attendanceId,
+      { status: newStatus },
+      { new: true }
+    ).populate("session");
+    if (!attendance)
+      return res.status(404).json({ error: "Attendance not found" });
+
+    const session = await AttendanceSessionDatabaseModel.findById(
+      attendance.session._id
+    );
+    if (!session) return res.status(404).json({ error: "Session not found" });
+
+    if (newStatus === "Present" || newStatus === "Accept absence") {
+      if (!session.studentsPresent.includes(attendance.student._id)) {
+        session.studentsPresent.push(attendance.student._id);
+      }
+    } else if (newStatus === "Absent") {
+      session.studentsPresent = session.studentsPresent.filter(
+        (studentId) => !studentId.equals(attendance.student._id)
+      );
+    }
+
+    await session.save();
+    res.status(200).json({ message: "Attendance status updated successfully" });
+  } catch (error) {
+    console.error("Error updating attendance status:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating attendance status" });
+  }
+});
+
+//topic things here
+
+app.get("/api/studenttopics/:studentId/:courseId", async (req, res) => {
+  const { studentId, courseId } = req.params;
+
+  try {
+    // Find the course to get its topics
+    const course = await CourseDatabaseModel.findById(courseId).select(
+      "topics"
+    );
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    // Find the student and get the topics they are attending in the specified course
+    const student = await StudentDatabaseModel.findOne({
+      _id: studentId,
+      "courses.course": courseId,
+    });
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // Extracting topics attending for this specific course
+    const courseData = student.courses.find(
+      (c) => c.course.toString() === courseId
+    );
+    const attendingTopics = courseData ? courseData.topicsAttending : [];
+
+    res.status(200).json({
+      courseTopics: course.topics, // All topics from the course
+      attendingTopics: attendingTopics, // Topics the student is attending
+    });
+  } catch (error) {
+    console.error("Error fetching student topics:", error);
+    res.status(500).json({ error: "An error occurred while fetching topics" });
+  }
+});
+
+app.put("/api/updatestudenttopics/:studentId/:courseId", async (req, res) => {
+  const { studentId, courseId } = req.params;
+  const { topicsAttending } = req.body; // Expecting an array of topic names
+
+  try {
+    // Find the student and the specific course enrollment
+    const student = await StudentDatabaseModel.findOne({
+      _id: studentId,
+      "courses.course": courseId,
+    });
+
+    if (!student) {
+      return res.status(404).send("Student or course not found");
+    }
+
+    // Locate the course enrollment and update the topicsAttending
+    const courseEnrollment = student.courses.find(
+      (enrollment) => enrollment.course.toString() === courseId
+    );
+    if (!courseEnrollment) {
+      return res.status(404).send("Course enrollment not found for student");
+    }
+
+    // Update the topicsAttending array for the found course enrollment
+    courseEnrollment.topicsAttending = topicsAttending;
+
+    await student.save(); // Save the updated student document
+    res
+      .status(200)
+      .json({ message: "Student topics updated successfully", student });
+  } catch (error) {
+    console.error("Error updating student topics:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
