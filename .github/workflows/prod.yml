@@ -7,37 +7,46 @@ on:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Transfer Repository Files to Azure VM
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
-          chmod 600 ssh_key
-          rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no" --exclude='.git' --exclude='node_modules' ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:Main/ClassAttendanceTracker
-          rm ssh_key
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "21.x" # Specify the Node.js version
 
-      - name: SSH and Build on Azure VM
+      - name: Install dependencies (ClassAttendanceTracker)
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
-          chmod 600 ssh_key
-          ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
-          cd Main/ClassAttendanceTracker
-          git pull
+          cd ClassAttendanceTracker
           npm install
-          npm run build
-          EOF
-          rm ssh_key
 
-      - name: Deploy Built Files to Server
+      - name: Build (ClassAttendanceTracker)
+        run: |
+          cd ClassAttendanceTracker
+          npm run build
+          # Other build steps if necessary
+      - name: List output of build
+        run: ls -l ClassAttendanceTracker
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: List directory structure
+        run: ls -R ClassAttendanceTracker
+
+      - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v2.1.5
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SOURCE: "Main/ClassAttendanceTracker/dist/"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Replace with the name of your secret
+          SOURCE: "ClassAttendanceTracker/dist/" # Correct path to the build outputs
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }} # Replace with the name of your secret
+          REMOTE_USER: ${{ secrets.REMOTE_USER }} # Replace with the name of your secret
           TARGET: "/var/www/html/"
 
       - name: Start Application with PM2
