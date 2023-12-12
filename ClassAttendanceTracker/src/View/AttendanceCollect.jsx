@@ -7,7 +7,12 @@ import io from "socket.io-client";
 import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
-const socket = io("https://student.northeurope.cloudapp.azure.com/api");
+const socket = io("https://student.northeurope.cloudapp.azure.com/api", {
+  withCredentials: true,
+  extraHeaders: {
+    "application/json": "Content-Type",
+  },
+});
 
 export const WaitingPage = () => {
   const navigate = useNavigate();

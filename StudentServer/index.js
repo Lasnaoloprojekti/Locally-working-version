@@ -19,10 +19,8 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "https://student.northeurope.cloudapp.azure.com",
-      "https://teach.northeurope.cloudapp.azure.com",
-      "http://localhost:3002",
-      "http://localhost:3001",
+      "https://student.northeurope.cloudapp.azure.com/api",
+      "https://teach.northeurope.cloudapp.azure.com/api",
     ],
     methods: ["GET", "POST"],
     credentials: true,
