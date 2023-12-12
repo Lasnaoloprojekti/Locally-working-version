@@ -18,29 +18,25 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [
-      "https://student.northeurope.cloudapp.azure.com/api",
-      "https://teach.northeurope.cloudapp.azure.com/api",
-    ],
+    origin: "http://localhost:5174",
     methods: ["GET", "POST"],
-    credentials: true,
   },
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(
   cors({
-    origin: [
-      "https://student.northeurope.cloudapp.azure.com",
-      "https://teach.northeurope.cloudapp.azure.com",
-    ],
+    origin: "http://localhost:5173",
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
 );
 
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(
+  "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
+);
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
@@ -50,12 +46,11 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
-
 app.post("/studentlogin", async (req, res) => {
   const { username, password, studentNumber } = req.body;
 
   try {
-    const apiResponse = await fetch(`https://streams.metropolia.fi/2.0/api/`, {
+    const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -109,7 +104,7 @@ app.post("/studentlogin", async (req, res) => {
   }
 });
 
-app.get(`/studentverify`, async (req, res) => {
+app.get("/studentverify", async (req, res) => {
   console.log("verify request received");
   const token = req.headers.authorization.split(" ")[1];
 
@@ -140,7 +135,7 @@ app.get(`/studentverify`, async (req, res) => {
   });
 });
 
-app.post(`/qrcoderegistration`, async (req, res) => {
+app.post("/qrcoderegistration", async (req, res) => {
   console.log("qrcode registration received");
   const { studentNumber, qrCodeIdentifier } = req.body;
 
@@ -223,27 +218,25 @@ app.post(`/qrcoderegistration`, async (req, res) => {
   }
 });
 
-app.get(`/participations/:studentNumber`, async (req, res) => {
+app.get("/api/participation/:studentNumber", async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
     const existingStudent = await StudentDatabaseModel.findOne({
       studentNumber,
-    })
-      .populate({
-        path: "courses.course",
-        populate: { path: "topics" },
-      })
-      .exec();
-
+    }).exec();
     if (!existingStudent) {
       return res.status(404).send("Student not found");
     }
 
+    const courses = existingStudent.courses.map((c) => c.course);
+
     let participationData = [];
 
-    for (const courseEnrollment of existingStudent.courses) {
-      const course = courseEnrollment.course;
+    for (const courseId of courses) {
+      const course = await CourseDatabaseModel.findById(courseId)
+        .populate("topics")
+        .exec();
 
       if (!course) {
         continue; // Skip if course not found
@@ -255,26 +248,20 @@ app.get(`/participations/:studentNumber`, async (req, res) => {
       };
 
       for (const topic of course.topics) {
-        // Check if the student is participating in the topic
-        if (!courseEnrollment.topicsAttending.includes(topic.name)) {
-          studentParticipation.participation[topic.name] = "N/A";
-          continue;
-        }
-
         const totalSessions =
           await AttendanceSessionDatabaseModel.countDocuments({
-            course: course._id,
-            topic: topic.name,
+            course: courseId,
+            topic: topic,
           });
 
         const attendedSessions = await AttendanceDatabaseModel.countDocuments({
           student: existingStudent._id,
-          course: course._id,
-          topic: topic.name,
+          course: courseId,
+          topic: topic,
           status: "Present",
         });
 
-        studentParticipation.participation[topic.name] =
+        studentParticipation.participation[topic] =
           totalSessions > 0
             ? ((attendedSessions / totalSessions) * 100).toFixed(2) + "%"
             : "N/A";
@@ -287,6 +274,92 @@ app.get(`/participations/:studentNumber`, async (req, res) => {
   } catch (error) {
     console.error("Error retrieving participation data:", error);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+app.delete('/deleteStudent/:studentNumber', async (req, res) => {
+  const { studentNumber } = req.params;
+
+  try {
+    // Find the student by student number
+    const student = await StudentDatabaseModel.findOne({ studentNumber });
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    // Remove the student from each course they are enrolled in
+    for (const courseEnrollment of student.courses) {
+      await CourseDatabaseModel.findByIdAndUpdate(courseEnrollment.course, {
+        $pull: { students: student._id },
+      });
+    }
+
+    // Delete attendance records associated with the student
+    await AttendanceDatabaseModel.deleteMany({ student: student._id });
+
+    // Finally, delete the student
+    await StudentDatabaseModel.findByIdAndDelete(student._id);
+
+    res.status(200).send('Student data deleted successfully');
+  } catch (error) {
+    console.error('Error deleting student data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+//gdpr jutut
+
+app.get('/api/student/gdprConsent/:studentNumber', async (req, res) => {
+  try {
+    const studentNumber = req.params.studentNumber;
+    const student = await StudentDatabaseModel.findOne({ studentNumber });
+    if (!student) {
+      return res.json({ exists: false, gdprConsent: false });
+    }
+    res.json({ exists: true, gdprConsent: student.gdprConsent });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+app.put('/api/student/updateConsent/:studentNumber', async (req, res) => {
+  console.log("gdpr consent update request received");
+  try {
+    const studentNumber = req.params.studentNumber;
+    await StudentDatabaseModel.findOneAndUpdate(
+      { studentNumber },
+      { $set: { gdprConsent: true } }
+    );
+    res.send('GDPR consent updated');
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+app.delete('/api/student/delete/:studentNumber', async (req, res) => {
+  try {
+    const studentNumber = req.params.studentNumber;
+    // Find the student
+    const student = await StudentDatabaseModel.findOne({ studentNumber });
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    // Get the list of course IDs the student is enrolled in
+    const courseIds = student.courses.map(courseEntry => courseEntry.course);
+
+    // Remove the student from these courses
+    await CourseDatabaseModel.updateMany(
+      { _id: { $in: courseIds } },
+      { $pull: { students: student._id } }
+    );
+
+    // Delete the student
+    await StudentDatabaseModel.findOneAndDelete({ studentNumber });
+
+    res.send('Student deleted and removed from courses');
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 

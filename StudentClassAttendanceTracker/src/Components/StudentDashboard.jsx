@@ -1,16 +1,97 @@
 import React, { useState, useEffect } from "react";
 import QRscanner from "react-qr-scanner";
 import SuccessGif from "../assets/registering.gif";
+import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 export const StudentDashboard = () => {
   const [studentNumber, setStudentNumber] = useState(
     localStorage.getItem("studentnumber")
   );
+
   const [registerMessage, setRegisterMessage] = useState("");
   const [participationData, setParticipationData] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [isProcessingScan, setIsProcessingScan] = useState(false);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
+  const [showGdprModal, setShowGdprModal] = useState(false);
+  const [showDeclineMessage, setShowDeclineMessage] = useState("");
+
+  //
+  useEffect(() => {
+    const checkStudentAndConsent = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3002/api/student/gdprConsent/${studentNumber}`);
+        if (!response.data.exists || !response.data.gdprConsent) {
+          setShowGdprModal(true);
+        }
+      } catch (error) {
+        console.error("Error checking student existence and GDPR consent:", error);
+      }
+    };
+
+    checkStudentAndConsent();
+  }, [studentNumber]); // Also, make sure to include studentNumber in the dependencies array
+
+
+  const handleAgree = async () => {
+    const response = await axios.put(`http://localhost:3002/api/student/updateConsent/${studentNumber}`);
+    console.log("Student consent updated", response.data);
+    setShowGdprModal(false);
+  };
+
+  const handleDecline = async () => {
+    try {
+      const response = await axios.delete(`http://localhost:3002/api/student/delete/${studentNumber}`);
+      setShowDeclineMessage("Your data has now been deleted from our database and courses, you are now redirected back to the login page.");
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("UserId");
+        localStorage.removeItem("studentnumber");
+        window.location.reload();
+      }, 4000); // 1000 milliseconds = 1 second
+    } catch (error) {
+      console.error("Error in deleting student data:", error);
+    }
+  };
+
+  const GDPRModal = ({ onAgree, onDecline }) => {
+    const [showDataInfo, setShowDataInfo] = useState(false);
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white max-w-[40%] p-2 rounded-lg shadow-xl">
+          <h2 className="text-xl font-bold mb-4 font-roboto-slab">We value your privacy</h2>
+          <p className=" font-open-sans">By clicking "I Agree", you allow us to use your data for collecting participation rates on courses. By clicking "I Decline" your data is immediately deleted from our database </p>
+
+          <div className="mt-2 text-blue-600 cursor-pointer" onClick={() => setShowDataInfo(!showDataInfo)}>
+            See what information we are saving
+          </div>
+
+          {showDataInfo && (
+            <div className="p-3 bg-gray-100 rounded mt-2">
+              <ul>
+                <li>Username</li>
+                <li>Lastname</li>
+                <li>Firstname</li>
+                <li>StudentNumber</li>
+              </ul>
+            </div>
+          )}
+
+          <div className="flex justify-end mt-4">
+            <button onClick={onDecline} className="bg-red-800 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2 font-open-sans">
+              I Decline
+            </button>
+            <button onClick={onAgree} className="bg-green-800 hover:bg-green-700 text-white font-bold py-2 px-4 rounded font-open-sans">
+              I Agree
+            </button>
+          </div>
+          <p className=" text-red-600 mt-4">{showDeclineMessage}</p>
+        </div>
+      </div>
+    );
+  };
 
   const handleScanQrCode = async (data) => {
     if (data && !isProcessingScan) {
@@ -20,7 +101,7 @@ export const StudentDashboard = () => {
         const qrCodeText = data.text;
         console.log("teksti qr koodista ", qrCodeText);
         const response = await fetch(
-          `https://student.northeurope.cloudapp.azure.com/api/qrcoderegistration`,
+          "http://localhost:3002/qrcoderegistration",
           {
             method: "POST",
             headers: {
@@ -58,9 +139,10 @@ export const StudentDashboard = () => {
   const fetchParticipationData = async () => {
     try {
       const response = await fetch(
-        `https://student.northeurope.cloudapp.azure.com/api/participations/${studentNumber}`
+        `http://localhost:3002/api/participation/${studentNumber}`
       );
       const data = await response.json();
+      console.log("participation data fetched", data);
       setParticipationData(data);
     } catch (error) {
       console.error("Error fetching participation data:", error);
@@ -69,6 +151,10 @@ export const StudentDashboard = () => {
   };
 
   const ParticipationTable = ({ data }) => {
+    if (data.length === 0) {
+      return <p className="text-center text-lg text-gray-700 mt-4">No participation data available currently!</p>;
+    }
+
     return (
       <table className="max-w-4xl w-full table-auto mt-7 place-self-center">
         <thead className="bg-blue-900">
@@ -110,7 +196,9 @@ export const StudentDashboard = () => {
   };
 
   return (
+
     <div className="flex flex-col justify-center mt-8">
+      {showGdprModal && <GDPRModal onAgree={handleAgree} onDecline={handleDecline} />}
       <div className="max-w-4xl w-full place-self-center bg-white p-8 border border-gray-300 rounded-lg shadow-lg">
         <div className="mb-5">
           <label className="block mb-2 text-sm font-medium text-gray-600">
@@ -145,11 +233,10 @@ export const StudentDashboard = () => {
           />
         )}
         <p
-          className={`mt-6 text-center text-xl ${
-            registerMessage.includes("registered")
-              ? "text-green-600"
-              : "text-red-600"
-          }`}>
+          className={`mt-6 text-center text-xl ${registerMessage.includes("registered")
+            ? "text-green-600"
+            : "text-red-600"
+            }`}>
           {registerMessage}
         </p>
         {showSuccessGif && registerMessage.includes("registered") && (
