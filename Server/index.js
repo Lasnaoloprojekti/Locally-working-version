@@ -1,7 +1,6 @@
 require("dotenv").config();
 
 const express = require("express");
-const { createServer } = require("node:http");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const {
@@ -21,15 +20,18 @@ const upload = multer({ dest: "uploads/" });
 const PDFDocument = require("pdfkit");
 const Excel = require("exceljs");
 const app = express();
-const server = createServer(app);
+const server = require("http").createServer(app);
 
 const corsOptions = {
-  origin:
-    process.env.T_CORS_ORIGIN ||
+  origin: [
     "https://student.northeurope.cloudapp.azure.com",
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-  credentials: true,
+    "https://teacher.northeurope.cloudapp.azure.com",
+  ],
+  credentials: true, // if you need to handle cookies
+  methods: ["GET", "POST", "PUT", "DELETE"],
 };
+
+app.use(cors(corsOptions));
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -362,7 +364,7 @@ app.post("/createcourse", async (req, res) => {
   }
 });
 
-app.post("/api/students/updategdpr", async (req, res) => {
+app.post("/students/updategdpr", async (req, res) => {
   const { studentNumber, gdprConsent } = req.body;
 
   try {
@@ -499,7 +501,7 @@ app.get("/allcourses", async (req, res) => {
   }
 });
 
-app.get("/api/users", async (req, res) => {
+app.get("/users", async (req, res) => {
   try {
     const users = await UserDatabaseModel.find({});
     res.status(200).json(users);
@@ -510,7 +512,7 @@ app.get("/api/users", async (req, res) => {
 });
 
 //course delete/students
-app.delete("/api/courses/:id", async (req, res) => {
+app.delete("/courses/:id", async (req, res) => {
   const courseId = req.params.id;
 
   // Start a session for the transaction
@@ -797,7 +799,7 @@ app.get("/participations/:id", async (req, res) => {
   }
 });
 
-app.get("/api/participation/:studentNumber", async (req, res) => {
+app.get("/participations/:studentNumber", async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
@@ -879,7 +881,7 @@ app.post("/addtopic", async (req, res) => {
   }
 });
 
-app.get("/api/topics", async (req, res) => {
+app.get("/topics", async (req, res) => {
   try {
     const topics = await TopicDatabaseModel.find(); // Fetch all topics from the database
     res.status(200).json(topics); // Send the topics back in the response
@@ -889,7 +891,7 @@ app.get("/api/topics", async (req, res) => {
   }
 });
 
-app.delete("/api/topics/:id", async (req, res) => {
+app.delete("/topics/:id", async (req, res) => {
   try {
     const topicId = req.params.id;
     const topic = await TopicDatabaseModel.findByIdAndDelete(topicId);
@@ -963,7 +965,7 @@ app.get("/coursestudentscount/:sessionId", async (req, res) => {
   }
 });
 
-app.post("/api/courses/:courseId/topics", async (req, res) => {
+app.post("/courses/:courseId/topics", async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
 
@@ -1019,7 +1021,7 @@ app.get("/enrolledstudents/:sessionId", async (req, res) => {
   }
 });
 
-app.delete("/api/courses/:courseId/topics", async (req, res) => {
+app.delete("/courses/:courseId/topics", async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
 
