@@ -26,7 +26,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "https://student.northeurope.cloudapp.azure.com",
-    methods: ["GET", "POST", "PUT"],
+    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   },
 });
 
@@ -36,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: "https://student.northeurope.cloudapp.azure.com",
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
     credentials: true,
   })
 );
