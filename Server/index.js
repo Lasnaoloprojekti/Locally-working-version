@@ -25,7 +25,9 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["https://student.northeurope.cloudapp.azure.com/api"],
+    origin: ["https://student.northeurope.cloudapp.azure.com"],
+    path: "/api/socket.io",
+
     methods: ["GET", "POST", "PUT"],
     credentials: true,
   },
@@ -35,7 +37,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: ["https://student.northeurope.cloudapp.azure.com/api"],
+    origin: ["https://student.northeurope.cloudapp.azure.com"],
+    path: "/api/socket.io",
+
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
