@@ -19,17 +19,18 @@ const xlsx = require("xlsx");
 const upload = multer({ dest: "uploads/" });
 const PDFDocument = require("pdfkit");
 const Excel = require("exceljs");
+
 const app = express();
 const server = require("http").createServer(app);
-
 const corsOptions = {
   origin: [
-    "wss://student.northeurope.cloudapp.azure.com",
+    "https://student.northeurope.cloudapp.azure.com",
     "https://teach.northeurope.cloudapp.azure.com",
   ],
-  credentials: true, // if you need to handle cookies
   methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  credentials: true,
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
