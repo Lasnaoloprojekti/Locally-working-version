@@ -19,7 +19,8 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "https://student.northeurope.cloudapp.azure.com",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
 });
 
@@ -29,7 +30,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: "https://teach.northeurope.cloudapp.azure.com",
-    methods: ["GET", "POST", "DELETE"],
+    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );

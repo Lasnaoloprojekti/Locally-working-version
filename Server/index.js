@@ -27,6 +27,7 @@ const io = new Server(server, {
   cors: {
     origin: "https://student.northeurope.cloudapp.azure.com",
     methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
 });
 
@@ -37,6 +38,7 @@ app.use(
   cors({
     origin: "https://student.northeurope.cloudapp.azure.com",
     methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
