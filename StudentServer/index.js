@@ -14,8 +14,7 @@ const { Server } = require("socket.io");
 const fetch = require("node-fetch");
 
 const app = express();
-const server = createServer(app);
-
+const server = require("http").createServer(app);
 const corsOptions = {
   origin:
     process.env.CORS_ORIGIN || "https://student.northeurope.cloudapp.azure.com",
