@@ -18,7 +18,7 @@ const UserContextProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       try {
         const response = await axios.get(
-          "https://teacher.northeurope.cloudapp.azure.com/api/verify"
+          "https://teach.northeurope.cloudapp.azure.com/api/verify"
         );
         const userData = response.data.user; // Get the nested 'user' object
         console.log("Verification data received:", userData);

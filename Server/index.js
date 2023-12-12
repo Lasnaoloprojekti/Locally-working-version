@@ -25,14 +25,11 @@ const server = require("http").createServer(app);
 const corsOptions = {
   origin: [
     "https://student.northeurope.cloudapp.azure.com",
-    "https://teacher.northeurope.cloudapp.azure.com",
+    "https://teach.northeurope.cloudapp.azure.com",
   ],
   credentials: true, // if you need to handle cookies
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
 };
-
-app.use(cors(corsOptions));
-
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

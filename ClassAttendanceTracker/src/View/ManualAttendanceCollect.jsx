@@ -41,7 +41,7 @@ export const ManualAttendanceCollect = () => {
     // Fetch all students from the server when the component mounts
     const fetchStudents = async () => {
       const response = await fetch(
-        `https://teacher.northeurope.cloudapp.azure.com/api/getcoursestudents/${sessionId}`
+        `https://teach.northeurope.cloudapp.azure.com/api/getcoursestudents/${sessionId}`
       ); // Replace with your actual API endpoint
       if (response.ok) {
         const { students } = await response.json();
@@ -92,7 +92,7 @@ export const ManualAttendanceCollect = () => {
   const handleStudentClick = async (student) => {
     try {
       const response = await fetch(
-        "https://teacher.northeurope.cloudapp.azure.com/api/registration",
+        "https://teach.northeurope.cloudapp.azure.com/api/registration",
         {
           method: "POST",
           headers: {
@@ -122,7 +122,7 @@ export const ManualAttendanceCollect = () => {
   const handleUnregisterStudent = async (student) => {
     try {
       const response = await fetch(
-        "https://teacher.northeurope.cloudapp.azure.com/api/unregister",
+        "https://teach.northeurope.cloudapp.azure.com/api/unregister",
         {
           method: "POST",
           headers: {
@@ -175,7 +175,7 @@ export const ManualAttendanceCollect = () => {
 
     try {
       const response = await fetch(
-        "https://teacher.northeurope.cloudapp.azure.com/api/closesession",
+        "https://teach.northeurope.cloudapp.azure.com/api/closesession",
         {
           method: "POST",
           headers: {
