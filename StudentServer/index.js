@@ -18,7 +18,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5174",
+    origin: "https://teach.northeurope.cloudapp.azure.com/api",
     methods: ["GET", "POST"],
   },
 });
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://student.northeurope.cloudapp.azure.com/api",
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
@@ -277,14 +277,14 @@ app.get("/api/participation/:studentNumber", async (req, res) => {
   }
 });
 
-app.delete('/deleteStudent/:studentNumber', async (req, res) => {
+app.delete("/deleteStudent/:studentNumber", async (req, res) => {
   const { studentNumber } = req.params;
 
   try {
     // Find the student by student number
     const student = await StudentDatabaseModel.findOne({ studentNumber });
     if (!student) {
-      return res.status(404).send('Student not found');
+      return res.status(404).send("Student not found");
     }
 
     // Remove the student from each course they are enrolled in
@@ -300,16 +300,16 @@ app.delete('/deleteStudent/:studentNumber', async (req, res) => {
     // Finally, delete the student
     await StudentDatabaseModel.findByIdAndDelete(student._id);
 
-    res.status(200).send('Student data deleted successfully');
+    res.status(200).send("Student data deleted successfully");
   } catch (error) {
-    console.error('Error deleting student data:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Error deleting student data:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
 //gdpr jutut
 
-app.get('/api/student/gdprConsent/:studentNumber', async (req, res) => {
+app.get("/api/student/gdprConsent/:studentNumber", async (req, res) => {
   try {
     const studentNumber = req.params.studentNumber;
     const student = await StudentDatabaseModel.findOne({ studentNumber });
@@ -322,7 +322,7 @@ app.get('/api/student/gdprConsent/:studentNumber', async (req, res) => {
   }
 });
 
-app.put('/api/student/updateConsent/:studentNumber', async (req, res) => {
+app.put("/api/student/updateConsent/:studentNumber", async (req, res) => {
   console.log("gdpr consent update request received");
   try {
     const studentNumber = req.params.studentNumber;
@@ -330,23 +330,23 @@ app.put('/api/student/updateConsent/:studentNumber', async (req, res) => {
       { studentNumber },
       { $set: { gdprConsent: true } }
     );
-    res.send('GDPR consent updated');
+    res.send("GDPR consent updated");
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-app.delete('/api/student/delete/:studentNumber', async (req, res) => {
+app.delete("/api/student/delete/:studentNumber", async (req, res) => {
   try {
     const studentNumber = req.params.studentNumber;
     // Find the student
     const student = await StudentDatabaseModel.findOne({ studentNumber });
     if (!student) {
-      return res.status(404).send('Student not found');
+      return res.status(404).send("Student not found");
     }
 
     // Get the list of course IDs the student is enrolled in
-    const courseIds = student.courses.map(courseEntry => courseEntry.course);
+    const courseIds = student.courses.map((courseEntry) => courseEntry.course);
 
     // Remove the student from these courses
     await CourseDatabaseModel.updateMany(
@@ -357,7 +357,7 @@ app.delete('/api/student/delete/:studentNumber', async (req, res) => {
     // Delete the student
     await StudentDatabaseModel.findOneAndDelete({ studentNumber });
 
-    res.send('Student deleted and removed from courses');
+    res.send("Student deleted and removed from courses");
   } catch (error) {
     res.status(500).send(error.message);
   }
