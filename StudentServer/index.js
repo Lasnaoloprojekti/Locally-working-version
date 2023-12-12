@@ -15,22 +15,22 @@ const fetch = require("node-fetch");
 
 const app = express();
 const server = require("http").createServer(app);
-const corsOptions = {
-  origin: [
-    "https://student.northeurope.cloudapp.azure.com",
-    "https://teach.northeurope.cloudapp.azure.com",
-  ],
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-  credentials: true,
-};
+const io = require("socket.io")(server, {
+  cors: {
+    origin: [
+      "https://student.northeurope.cloudapp.azure.com",
+      "https://teach.northeurope.cloudapp.azure.com",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect(process.env.MONGODB_URI);
-
-const io = new Server(server, { cors: corsOptions });
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);

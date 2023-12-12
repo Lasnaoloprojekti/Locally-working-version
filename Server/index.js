@@ -24,7 +24,7 @@ const server = require("http").createServer(app);
 
 const corsOptions = {
   origin: [
-    "https://student.northeurope.cloudapp.azure.com",
+    "wss://student.northeurope.cloudapp.azure.com",
     "https://teach.northeurope.cloudapp.azure.com",
   ],
   credentials: true, // if you need to handle cookies
