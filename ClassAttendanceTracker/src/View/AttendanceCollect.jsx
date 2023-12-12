@@ -8,7 +8,7 @@ import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
 const socket = io.connect(
-  "https://student.northeurope.cloudapp.azure.com/api",
+  "https://student.northeurope.cloudapp.azure.com/api/",
   {
     extraHeaders: {
       "application/json": "Content-Type",
