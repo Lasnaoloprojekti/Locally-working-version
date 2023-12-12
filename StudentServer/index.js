@@ -16,7 +16,7 @@ const fetch = require("node-fetch");
 
 const app = express();
 const server = createServer(app);
-const io = new Server(httpServer, {
+const io = new Server(server, {
   cors: {
     origin: [
       "https://student.northeurope.cloudapp.azure.com",
