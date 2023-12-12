@@ -21,6 +21,8 @@ const io = new Server(server, {
     origin: [
       "https://student.northeurope.cloudapp.azure.com",
       "https://teach.northeurope.cloudapp.azure.com",
+      "http://localhost:3002",
+      "http://localhost:3001",
     ],
     methods: ["GET", "POST"],
     credentials: true,
