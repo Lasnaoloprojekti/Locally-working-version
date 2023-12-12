@@ -14,6 +14,8 @@ import DeactiveCourse from "../components/DeactiveCourse";
 import ShowStudents from "../components/ShowStudents";
 import AttendanceDataModification from "../components/AttendanceDataModification";
 import StudentModification from "../components/ModifyStudent";
+import InstructionPage from "./InstructionPage"; 
+
 
 const TeacherHome = () => {
   const navigate = useNavigate();
@@ -53,6 +55,8 @@ const TeacherHome = () => {
         return <AttendanceDataModification />;
       case "studentModification":
         return <StudentModification />;
+      case "instructionPage":
+        return <InstructionPage />;
       default:
         return null;
     }
@@ -142,6 +146,19 @@ const TeacherHome = () => {
               onClick={() => setActiveView("participationRates")}
               className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
               View participations
+            </button>
+          </div>
+
+          <div>
+          <div className="w-1/4 border-r-2 p-4">
+          </div>
+          <h2 className="font-bold text-lg  rounded-sm text-center mb-3">
+              Instruction Videos
+            </h2>
+            <button
+              onClick={() => setActiveView("instructionPage")}
+              className="block w-full bg-orange-600 text-white px-4 py-2 rounded mb-2 hover:bg-gray-700">
+              Instruction Page
             </button>
           </div>
         </div>
