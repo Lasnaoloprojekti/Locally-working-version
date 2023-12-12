@@ -16,22 +16,26 @@ const fetch = require("node-fetch");
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
+const io = new Server(httpServer, {
   cors: {
-    origin: "https://student.northeurope.cloudapp.azure.com",
-    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: [
+      "https://student.northeurope.cloudapp.azure.com",
+      "https://teach.northeurope.cloudapp.azure.com",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(
   cors({
-    origin: "https://teach.northeurope.cloudapp.azure.com",
-    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: [
+      "https://student.northeurope.cloudapp.azure.com",
+      "https://teach.northeurope.cloudapp.azure.com",
+    ],
+    methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
 );
