@@ -8,7 +8,7 @@ import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
 const socket = io("https://student.northeurope.cloudapp.azure.com", {
-  path: "/api/",
+  path: "/api/socket.io",
 });
 
 export const WaitingPage = () => {
