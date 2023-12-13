@@ -50,11 +50,7 @@ const LoginForm = () => {
         localStorage.setItem("userid", responseData.userId);
         localStorage.setItem("token", responseData.accessToken);
 
-        //console.log(
-          "Items set to localStorage:",
-          responseData.userId,
-          responseData.accessToken
-        );
+        //console.log("Items set to localStorage:", responseData.userId, responseData.accessToken);
         navigate(responseData.redirectUrl);
       } else {
         //console.log("Invalid username or password error");

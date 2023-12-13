@@ -55,9 +55,7 @@ const SelectCourse = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    //console.log(
-      `Selected course ID: ${selectedCourse}, Selected topic: ${selectedTopic}`
-    );
+    //console.log(`Selected course ID: ${selectedCourse}, Selected topic: ${selectedTopic}`);
     // Add logic to submit these values to your backend or another handler
   };
 
