@@ -22,7 +22,7 @@ const StudentContextProvider = ({ children }) => {
         );
         const studentData = response.data;
         const studentInfo = studentData.student;
-        console.log("API response data: ", studentInfo);
+        //console.log("API response data: ", studentInfo);
 
         if (studentInfo) {
           setStudentInfo({
@@ -42,9 +42,9 @@ const StudentContextProvider = ({ children }) => {
     verify();
   }, [accessToken]);
 
-  console.log(studentInfo.firstname !== "" && studentInfo.lastname !== "");
+  //console.log(studentInfo.firstname !== "" && studentInfo.lastname !== "");
 
-  console.log(studentInfo, "student info");
+  //console.log(studentInfo, "student info");
 
   return (
     <studentContext.Provider value={{ studentInfo, setStudentInfo }}>

@@ -11,7 +11,7 @@ const SelectCourse = () => {
     const fetchCourses = async () => {
       try {
         const response = await selectActiveCourse();
-        console.log("Courses fetched:", response);
+        //console.log("Courses fetched:", response);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -55,7 +55,7 @@ const SelectCourse = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(
+    //console.log(
       `Selected course ID: ${selectedCourse}, Selected topic: ${selectedTopic}`
     );
     // Add logic to submit these values to your backend or another handler

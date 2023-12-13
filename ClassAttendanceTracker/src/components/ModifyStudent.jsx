@@ -20,7 +20,7 @@ const StudentModification = () => {
           "https://teach.northeurope.cloudapp.azure.com/api/selectactivecourse",
           { headers: { userid: userId } }
         );
-        console.log("haetaan kaikki kurssit ", response);
+        //console.log("haetaan kaikki kurssit ", response);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -38,7 +38,7 @@ const StudentModification = () => {
       const response = await axios.get(
         `https://teach.northeurope.cloudapp.azure.com/api/coursestudents/${courseId}`
       );
-      console.log("Students fetched:", response.data); // Debugging line
+      //console.log("Students fetched:", response.data); // Debugging line
       setStudents(response.data.students); // Assuming the response has a students field
     } catch (error) {
       console.error("Error fetching students:", error);

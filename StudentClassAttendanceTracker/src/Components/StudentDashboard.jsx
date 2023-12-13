@@ -42,7 +42,7 @@ export const StudentDashboard = () => {
     const response = await axios.put(
       `https://student.northeurope.cloudapp.azure.com/api/student/updateConsent/${studentNumber}`
     );
-    console.log("Student consent updated", response.data);
+    //console.log("Student consent updated", response.data);
     setShowGdprModal(false);
   };
 
@@ -121,7 +121,7 @@ export const StudentDashboard = () => {
 
       try {
         const qrCodeText = data.text;
-        console.log("teksti qr koodista ", qrCodeText);
+        //console.log("teksti qr koodista ", qrCodeText);
         const response = await fetch(
           "https://student.northeurope.cloudapp.azure.com/api/qrcoderegistration",
           {
@@ -164,7 +164,7 @@ export const StudentDashboard = () => {
         `https://student.northeurope.cloudapp.azure.com/api/participation/${studentNumber}`
       );
       const data = await response.json();
-      console.log("participation data fetched", data);
+      //console.log("participation data fetched", data);
       setParticipationData(data);
     } catch (error) {
       console.error("Error fetching participation data:", error);

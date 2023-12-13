@@ -40,7 +40,7 @@ const DeactiveCourse = () => {
 
     try {
       const response = await deactiveCourse(selectedCourse);
-      console.log("Response from server:", response);
+      //console.log("Response from server:", response);
 
       if (response && response._id) {
         // Assuming that if the response contains _id, it was successful

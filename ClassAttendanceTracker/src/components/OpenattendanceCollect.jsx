@@ -42,7 +42,7 @@ const OpenattendanceCollect = () => {
     const fetchCourses = async () => {
       try {
         const response = await selectActiveCourse(userId);
-        console.log("Courses fetched:", response);
+        //console.log("Courses fetched:", response);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -88,12 +88,12 @@ const OpenattendanceCollect = () => {
     timeOfDay // Add timeOfDay as a parameter
   ) => {
     try {
-      console.log("Checking student count for course:", selectedCourse);
+      //console.log("Checking student count for course:", selectedCourse);
       const response = await axios.get(
         `https://teach.northeurope.cloudapp.azure.com/api/getstudents/${selectedCourse}`
       );
       const { studentCount } = response.data;
-      console.log("Student count:", studentCount);
+      //console.log("Student count:", studentCount);
 
       if (studentCount > 0) {
         // If there are students, navigate to the next page
@@ -131,7 +131,7 @@ const OpenattendanceCollect = () => {
     };
 
     const response = await createSession(sessionData);
-    console.log("Session created:", response);
+    //console.log("Session created:", response);
 
     // Extracting session ID from the response
     const sessionId = response.sessionId;
@@ -164,7 +164,7 @@ const OpenattendanceCollect = () => {
     };
 
     const response = await createSession(sessionData);
-    console.log("Session created:", response);
+    //console.log("Session created:", response);
 
     const sessionId = response.sessionId;
     const selectedCourseName = courses.find(

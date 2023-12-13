@@ -7,7 +7,7 @@ import io from "socket.io-client";
 import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
-const socket = io("https://student.northeurope.cloudapp.azure.com", {
+const socket = io(process.env.S_CORS_ORIGIN, {
   path: "/api/socket.io",
 });
 
@@ -57,7 +57,7 @@ export const WaitingPage = () => {
     )
       .then((response) => {
         if (response.ok) {
-          console.log("QR code identifier updated successfully");
+          //console.log("QR code identifier updated successfully");
         } else {
           console.error("Failed to update QR code identifier");
         }
@@ -89,7 +89,7 @@ export const WaitingPage = () => {
       )
         .then((response) => {
           if (response.ok) {
-            console.log("QR code identifier updated successfully");
+            //console.log("QR code identifier updated successfully");
           } else {
             console.error("Failed to update QR code identifier");
           }
@@ -137,11 +137,11 @@ export const WaitingPage = () => {
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log(`Connected to server with ID: ${socket.id}`);
+      //console.log(`Connected to server with ID: ${socket.id}`);
     });
 
     socket.on("studentAdded", (newStudent) => {
-      console.log("Students from the server:", newStudent);
+      //console.log("Students from the server:", newStudent);
       setAttendingStudents((prev) => [...prev, newStudent]); // Update state with received data
       // setStudentCount((prevCount) => prevCount + 1);
     });
@@ -160,7 +160,7 @@ export const WaitingPage = () => {
         );
         if (response.ok) {
           const data = await response.json();
-          console.log("enrolled students fetched ", data);
+          //console.log("enrolled students fetched ", data);
           setAttendingStudents(data.enrolledStudents);
           setStudentCount(data.enrolledStudents.length);
         } else {
@@ -194,7 +194,7 @@ export const WaitingPage = () => {
         );
 
         if (response.ok) {
-          console.log("Session closed successfully");
+          //console.log("Session closed successfully");
           // Handle successful session closure
           setServerMessage("Session closed successfully");
           setSessionClosed(true);
@@ -215,7 +215,7 @@ export const WaitingPage = () => {
       await deleteSession(
         sessionId,
         (message) => {
-          console.log(message);
+          //console.log(message);
           setServerMessage(message);
           setSessionClosed(true);
           // Close the modal or perform any other necessary actions

@@ -42,7 +42,7 @@ const selectActiveCourse = async (userId) => {
         withCredentials: true,
       }
     );
-    console.log("response from active courses api", response);
+    //console.log("response from active courses api", response);
     return response;
   } catch (error) {
     throw error;
@@ -93,7 +93,7 @@ const deleteSession = async (sessionId, onSuccess, onError) => {
     );
 
     if (response.ok) {
-      console.log("Session deleted successfully");
+      //console.log("Session deleted successfully");
       onSuccess("Session deleted successfully");
     } else {
       console.error("Failed to delete session");
@@ -289,7 +289,7 @@ const deactiveCourse = async (courseId) => {
       { withCredentials: true }
     );
 
-    console.log("vastaus hookissa ", response.data);
+    //console.log("vastaus hookissa ", response.data);
     return response.data;
   } catch (error) {
     throw error;

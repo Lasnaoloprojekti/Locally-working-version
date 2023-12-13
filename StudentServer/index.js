@@ -18,7 +18,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://teach.northeurope.cloudapp.azure.com",
+    origin: process.env.T_CORS_ORIGIN,
     path: "/api/socket.io",
 
     methods: ["GET", "POST"],
@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://student.northeurope.cloudapp.azure.com",
+    origin: process.env.S_CORS_ORIGIN,
     path: "/api/socket.io",
 
     methods: ["GET", "POST", "DELETE"],
@@ -38,9 +38,7 @@ app.use(
   })
 );
 
-mongoose.connect(
-  "mongodb+srv://luovalauma:oGkSjaFCvC1Vgjzv@attendance.hhbm8a0.mongodb.net/Attendance"
-);
+mongoose.connect(process.env.MONGODB_URI);
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);

@@ -28,7 +28,7 @@ const AddTeacherToCourse = () => {
           _id: user._id,
         }));
         setUsers(normalizedUsers);
-        console.log("Users fetched:", normalizedUsers);
+        //console.log("Users fetched:", normalizedUsers);
 
         const userId = localStorage.getItem("userid");
 

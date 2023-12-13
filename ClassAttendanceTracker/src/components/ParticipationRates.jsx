@@ -14,7 +14,7 @@ export const ParticipationRates = () => {
     const fetchCourses = async () => {
       try {
         const response = await allCourses(userId);
-        console.log("haetaan kaikki kurssit ", response);
+        //console.log("haetaan kaikki kurssit ", response);
         const { active, inactive } = response;
         setActiveCourses(active);
         setInactiveCourses(inactive);

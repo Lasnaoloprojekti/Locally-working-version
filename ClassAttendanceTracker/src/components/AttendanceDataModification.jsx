@@ -42,7 +42,7 @@ const AttendanceDataModification = () => {
           "https://teach.northeurope.cloudapp.azure.com/api/selectactivecourse",
           { headers: { userid: userId } }
         );
-        console.log("Courses fetched:", response);
+        //console.log("Courses fetched:", response);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -61,7 +61,7 @@ const AttendanceDataModification = () => {
       const response = await axios.get(
         `https://teach.northeurope.cloudapp.azure.com/api/coursestudents/${courseId}`
       );
-      console.log("Students fetched:", response.data); // Debugging line
+      //console.log("Students fetched:", response.data); // Debugging line
       setStudents(response.data.students); // Assuming the response has a students field
     } catch (error) {
       console.error("Error fetching students:", error);
@@ -73,10 +73,7 @@ const AttendanceDataModification = () => {
     setSelectedStudent(studentId);
 
     if (!selectedCourse) return; // Ensure that a course is selected
-    console.log(
-      "Selected student inside handleStudentChange function:",
-      studentId
-    );
+    //console.log("Selected student inside handleStudentChange function:",studentId);
 
     try {
       const response = await axios.get(

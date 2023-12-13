@@ -45,7 +45,7 @@ export const ManualAttendanceCollect = () => {
       ); // Replace with your actual API endpoint
       if (response.ok) {
         const { students } = await response.json();
-        console.log("Students fetched successfully", students);
+        //console.log("Students fetched successfully", students);
         setNonAttendingStudents(students);
       }
     };
@@ -58,7 +58,7 @@ export const ManualAttendanceCollect = () => {
       await deleteSession(
         sessionId,
         (message) => {
-          console.log(message);
+          //console.log(message);
           setServerMessage(message);
           setSessionClosed(true);
           // Close the modal or perform any other necessary actions
@@ -186,7 +186,7 @@ export const ManualAttendanceCollect = () => {
       );
 
       if (response.ok) {
-        console.log("Session closed successfully");
+        //console.log("Session closed successfully");
         // Handle successful session closure
         setServerMessage("Session closed successfully");
         setSessionClosed(true);

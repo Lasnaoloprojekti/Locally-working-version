@@ -104,7 +104,7 @@ const AddStudents = () => {
       try {
         const uploadResult = await uploadStudentsFile(selectedCourse, file);
 
-        console.log(uploadResult);
+        //console.log(uploadResult);
 
         setAlert({ show: true, message: uploadResult.message, isError: false });
       } catch (error) {

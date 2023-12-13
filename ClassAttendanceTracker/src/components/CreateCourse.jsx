@@ -276,7 +276,7 @@ const CreateCourse = () => {
           console.error("Error in realization search:", error);
         }
       } else {
-        console.log("No text found in parentheses.");
+        //console.log("No text found in parentheses.");
       }
     };
 
@@ -296,8 +296,7 @@ const CreateCourse = () => {
       <div className="max-w-4xl w-full">
         <form
           className="bg-white p-8 border border-gray-300 rounded-lg shadow-lg"
-          onSubmit={handleSubmit}
-        >
+          onSubmit={handleSubmit}>
           {/* Course Name Input */}
           <div className="mb-4">
             <label className="block text-black text-sm font-semibold mb-2">
@@ -355,13 +354,11 @@ const CreateCourse = () => {
               {courseData.topics.map((topic, index) => (
                 <div
                   key={index}
-                  className="flex mr-2 mb-2 p-1 bg-gray-200 rounded items-center"
-                >
+                  className="flex mr-2 mb-2 p-1 bg-gray-200 rounded items-center">
                   <span>{topic}</span>
                   <button
                     onClick={() => handleRemoveTopic(topic)}
-                    className="ml-2 text-red-500 hover:text-red-700"
-                  >
+                    className="ml-2 text-red-500 hover:text-red-700">
                     x
                   </button>
                 </div>
@@ -413,13 +410,11 @@ const CreateCourse = () => {
               {selectedTeachers.map((teacher, index) => (
                 <div
                   key={index}
-                  className="flex mr-2 mb-2 p-1 bg-gray-200 rounded items-center"
-                >
+                  className="flex mr-2 mb-2 p-1 bg-gray-200 rounded items-center">
                   <span>{teacher}</span>
                   <button
                     onClick={() => handleRemoveTeacher(teacher)}
-                    className="ml-2 text-red-500 hover:text-red-700"
-                  >
+                    className="ml-2 text-red-500 hover:text-red-700">
                     x
                   </button>
                 </div>
@@ -445,8 +440,7 @@ const CreateCourse = () => {
           <button
             type="button"
             className="mt-4 mb-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            onClick={handleToggleStudentForm}
-          >
+            onClick={handleToggleStudentForm}>
             {showStudentForm ? "Hide Student Form" : "Add Students"}
           </button>
 
@@ -481,8 +475,7 @@ const CreateCourse = () => {
           {/* Submit Button */}
           <button
             className="px-4 w-full p-3 bg-blue-900 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
-            type="submit"
-          >
+            type="submit">
             Create Course
           </button>
         </form>
@@ -494,8 +487,7 @@ const CreateCourse = () => {
               alert.isError
                 ? "bg-red-100 border border-red-400 text-red-800"
                 : "bg-green-100 border border-green-400 text-green-800"
-            }`}
-          >
+            }`}>
             <p>{alert.message}</p>
           </div>
         )}

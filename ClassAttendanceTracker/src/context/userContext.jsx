@@ -21,7 +21,7 @@ const UserContextProvider = ({ children }) => {
           "https://teach.northeurope.cloudapp.azure.com/api/verify"
         );
         const userData = response.data.user; // Get the nested 'user' object
-        console.log("Verification data received:", userData);
+        //console.log("Verification data received:", userData);
 
         if (userData) {
           setUserInfo({
@@ -40,9 +40,9 @@ const UserContextProvider = ({ children }) => {
     verify();
   }, [accessToken]);
 
-  console.log(userInfo.firstname !== "" && userInfo.lastname !== "");
+  //console.log(userInfo.firstname !== "" && userInfo.lastname !== "");
 
-  console.log(userInfo, "user info");
+  //console.log(userInfo, "user info");
 
   return (
     <userContext.Provider value={{ userInfo, setUserInfo }}>
