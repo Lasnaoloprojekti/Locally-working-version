@@ -161,7 +161,7 @@ export const StudentDashboard = () => {
   const fetchParticipationData = async () => {
     try {
       const response = await fetch(
-        `https://student.northeurope.cloudapp.azure.com/api/participation/${studentNumber}`
+        `https://student.northeurope.cloudapp.azure.com/api/participations/${studentNumber}`
       );
       const data = await response.json();
       //console.log("participation data fetched", data);

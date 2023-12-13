@@ -15451,7 +15451,7 @@ const $y = "/assets/registering-b78e09c6.gif",
         try {
           const p = await (
             await fetch(
-              `https://student.northeurope.cloudapp.azure.com/api/participation/${g}`
+              `https://student.northeurope.cloudapp.azure.com/api/participations/${g}`
             )
           ).json();
           console.log("participation data fetched", p), e(p);
