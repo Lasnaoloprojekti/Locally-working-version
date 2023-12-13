@@ -220,7 +220,7 @@ app.post("/qrcoderegistration", async (req, res) => {
   }
 });
 
-app.get("/api/participations/:studentNumber", async (req, res) => {
+app.get("participations/:studentNumber", async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
