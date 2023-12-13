@@ -8,7 +8,7 @@ import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
 const socket = io(process.env.S_CORS_ORIGIN, {
-  path: "/api",
+  path: "/socket.io",
 });
 
 export const WaitingPage = () => {
