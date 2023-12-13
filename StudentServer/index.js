@@ -220,7 +220,7 @@ app.post("/qrcoderegistration", async (req, res) => {
   }
 });
 
-app.get("participations/:studentNumber", async (req, res) => {
+app.get("/participations/:studentNumber", async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
   try {
@@ -311,7 +311,7 @@ app.delete("/deleteStudent/:studentNumber", async (req, res) => {
 
 //gdpr jutut
 
-app.get("/api/student/gdprConsent/:studentNumber", async (req, res) => {
+app.get("/student/gdprConsent/:studentNumber", async (req, res) => {
   try {
     const studentNumber = req.params.studentNumber;
     const student = await StudentDatabaseModel.findOne({ studentNumber });
@@ -324,7 +324,7 @@ app.get("/api/student/gdprConsent/:studentNumber", async (req, res) => {
   }
 });
 
-app.put("/api/student/updateConsent/:studentNumber", async (req, res) => {
+app.put("/student/updateConsent/:studentNumber", async (req, res) => {
   console.log("gdpr consent update request received");
   try {
     const studentNumber = req.params.studentNumber;
@@ -338,7 +338,7 @@ app.put("/api/student/updateConsent/:studentNumber", async (req, res) => {
   }
 });
 
-app.delete("/api/student/delete/:studentNumber", async (req, res) => {
+app.delete("/student/delete/:studentNumber", async (req, res) => {
   try {
     const studentNumber = req.params.studentNumber;
     // Find the student
