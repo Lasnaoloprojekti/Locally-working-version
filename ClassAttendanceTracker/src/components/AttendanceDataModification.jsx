@@ -1,3 +1,12 @@
+/*
+Manages state for courses, selected course, students, and selected student.
+Includes states for success and error messages.
+Fetches course and student data upon component mounting and course selection.
+Allows for updating student attendance statuses for a selected course.
+Features UI elements for course and student selection, and a table for attendance records.
+Provides dynamic data handling and user feedback through success or error messages.
+*/
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
