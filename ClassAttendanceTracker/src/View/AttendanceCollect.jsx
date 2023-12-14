@@ -7,8 +7,8 @@ import io from "socket.io-client";
 import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
-const socket = io(process.env.S_CORS_ORIGIN, {
-  path: "/socket.io",
+const socket = io("https://student.northeurope.cloudapp.azure.com", {
+  path: "/api/socket.io",
 });
 
 export const WaitingPage = () => {
