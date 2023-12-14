@@ -1,4 +1,11 @@
-// ParticipationRates.jsx
+/*
+Manages states for active and inactive courses, selected course, and participation data.
+Fetches course data upon component mount, categorizing them into active and inactive.
+Provides a dropdown for course selection and fetches participation data based on the selected course.
+Offers buttons to download participation data as either a PDF or Excel file.
+Renders participation data in a table format, dynamically displaying topic headers and student participation rates.
+Utilizes React hooks for state and effect management, and axios for API calls.*/
+
 import React, { useState, useEffect } from "react";
 import { fetchParticipationRates, allCourses } from "../Hooks/ApiHooks";
 
