@@ -1,3 +1,11 @@
+/*Manages states for courses, selected course, students, selected student, topics, participating topics, non-participating topics, success message, and error message.
+Fetches courses and student data based on the selected course.
+Allows for modification of student topic participation.
+Provides a UI for course and student selection, and displays lists of topics the student is attending and not attending.
+Offers functionality to submit changes in topic participation for a student.
+Displays success or error messages based on the outcome of the submission.
+Utilizes axios for API calls and manages local state for user interactions.*/
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
