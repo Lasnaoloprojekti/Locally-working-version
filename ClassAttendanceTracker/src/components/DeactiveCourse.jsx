@@ -1,3 +1,12 @@
+/*
+Manages states for courses, selected course, and alert messages.
+Retrieves the user ID from local storage for identifying active courses.
+Fetches active courses on component mount using selectActiveCourse.
+Includes functionality to deactivate a selected course via deactiveCourse.
+Renders a dropdown for course selection and a button to deactivate the selected course.
+Provides feedback to the user with success or error messages after attempting course deactivation.
+Uses confirmation dialogues to ensure intentional course deactivation.*/
+
 import React, { useState, useEffect } from "react";
 import { selectActiveCourse, deactiveCourse } from "../Hooks/ApiHooks";
 
