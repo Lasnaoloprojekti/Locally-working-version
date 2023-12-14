@@ -8,19 +8,21 @@ import {
 const userId = localStorage.getItem("userid");
 
 const AddStudents = () => {
-  const [file, setFile] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState("");
-  const [studentData, setStudentData] = useState("");
-  const [isAdding, setIsAdding] = useState(false); // New state to track adding process
-  const [alert, setAlert] = useState({
+  const [file, setFile] = useState(null); // State for the file to be uploaded.
+  const [courses, setCourses] = useState([]); // State for the list of courses.
+  const [selectedCourse, setSelectedCourse] = useState(""); // State for the selected course.
+  const [studentData, setStudentData] = useState(""); // State for manually entered student data.
+  const [isAdding, setIsAdding] = useState(false); // State to track if students are being added.
+  const [alert, setAlert] = useState({ // State for displaying alerts.
     show: false,
     message: "",
     isError: false,
   });
 
+  // Custom hook for adding students to a course.
   const addStudents = useAddStudentsToCourse();
 
+  // Effect hook to fetch active courses on component mount.
   useEffect(() => {
     // Fetch courses on component mount
     const fetchCourses = async () => {
@@ -40,6 +42,7 @@ const AddStudents = () => {
     fetchCourses();
   }, []);
 
+  // Handlers for form input changes.
   const handleCourseChange = (event) => {
     setSelectedCourse(event.target.value);
   };
@@ -52,6 +55,7 @@ const AddStudents = () => {
     setFile(event.target.files[0]);
   };
 
+  // Validates the format of manually entered student data.
   const validateStudentData = (data) => {
     const validFormatRegex = /^[A-Za-z]+;[A-Za-z]+;\d+;$/;
     return data.split("\n").every((line) => validFormatRegex.test(line));
@@ -61,11 +65,13 @@ const AddStudents = () => {
     setFile(null);
   };
 
+  // Submit handler for adding students.
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsAdding(true);
     setAlert({ show: false, message: "", isError: false });
 
+    // Validation for selected course.
     if (!selectedCourse) {
       setAlert({
         show: true,
