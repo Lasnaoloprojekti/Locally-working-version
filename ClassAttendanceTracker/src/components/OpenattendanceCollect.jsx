@@ -1,3 +1,12 @@
+/*Maintains states for courses, selected course, topics, selected topic, date, and time of day.
+Retrieves the user's ID from local storage for course selection.
+Fetches active courses on component mount and updates topics when a course is selected.
+Provides a UI with selections for course, topic, date, and time of day, along with a submission button.
+Includes a submission handler that creates an attendance session and navigates to the attendance collection page.
+Offers a manual attendance option for direct navigation to manual attendance collection.
+Utilizes useEffect to set the current date and appropriate time of day.
+Utilizes axios for API calls and useNavigate for navigation post-submission.*/
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createSession, selectActiveCourse } from "../Hooks/ApiHooks";
