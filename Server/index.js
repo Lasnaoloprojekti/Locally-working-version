@@ -54,6 +54,14 @@ io.on("connection", (socket) => {
   });
 });
 
+/*
+ GET /getstudents/:courseId
+ Fetches the count of students enrolled in a specific course.
+ Input: courseId from URL parameters.
+ Process: Finds the course and calculates the number of enrolled students.
+ Response: JSON with the count of students.
+*/
+
 app.get("/getstudents/:courseId", async (req, res) => {
   const { courseId } = req.params;
   try {
@@ -73,6 +81,14 @@ app.get("/getstudents/:courseId", async (req, res) => {
       .json({ error: "An error occurred while fetching student count" });
   }
 });
+
+/*
+ POST /uploadstudents
+ Processes an uploaded file to add students to a course.
+ Input: courseId, file containing student data.
+ Process: Reads the file, checks for duplicate student numbers, adds new students to the database, and updates the course's student list.
+ Response: JSON with a message indicating the number of students added or updated.
+*/
 
 app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
   console.log("Upload students request received", req.file);
@@ -185,63 +201,14 @@ app.post("/uploadstudents", upload.single("studentfile"), async (req, res) => {
   }
 });
 
-// DEPLOYMENT ONLY
-
 /*
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const apiResponse = await fetch("https://streams.metropolia.fi/2.0/api/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const apiData = await apiResponse.json();
-
-    if (apiData.message === "invalid username or password") {
-      return res.status(401).json({ error: "invalid username or password" });
-    }
-
-    if (!apiData.staff) {
-      return res
-        .status(403)
-        .json({ error: "Access denied. Only staff can login." });
-    }
-
-    let existingUser = await UserDatabaseModel.findOne({ user: apiData.user });
-
-    if (!existingUser) {
-      existingUser = new UserDatabaseModel({
-        user: apiData.user,
-        firstName: apiData.firstname,
-        lastName: apiData.lastname,
-        email: apiData.email,
-        staff: apiData.staff,
-        courses: [],
-      });
-      await existingUser.save();
-    }
-
-    const accessToken = jwt.sign(
-      { userId: existingUser._id, staff: apiData.staff },
-      process.env.ACCESS_TOKEN_SECRET
-    );
-
-    res.status(200).json({
-      accessToken,
-      userId: existingUser._id.toString(),
-      staff: apiData.staff,
-    });
-  } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ error: "An error occurred during login" });
-  }
-});
+ POST /login
+ Handles user login, authenticating with an external API.
+ Input: username, password.
+ Process: Authenticates the user, creates a JWT, and responds with user details.
+ Response: JSON with accessToken, userId, and staff status.
 */
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -327,39 +294,14 @@ app.get("/verify", async (req, res) => {
   });
 });
 
-//DEPLOYMENT ONLY
 /*
-app.get("/verify", async (req, res) => {
-  const token = req.headers.authorization.split(" ")[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ error: "Invalid token" });
-    }
-    try {
-      let existingUser = await UserDatabaseModel.findById(decoded.userId);
-      if (!existingUser) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      if (!decoded.staff) {
-        return res
-          .status(403)
-          .json({ error: "Access denied. Only staff can access." });
-      }
-
-      const responseData = {
-        user: existingUser.toObject(),
-        staff: decoded.staff,
-      };
-
-      res.status(200).json(responseData);
-    } catch (error) {
-      console.error("Error in /verify:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-});
+ POST /createcourse
+ Creates a new course and optionally adds students.
+ Input: course details and studentsToAdd.
+ Process: Creates a new course, adds students to the course, and updates the course's student list.
+ Response: JSON with a success message and the new course's ID.
 */
+
 app.post("/createcourse", async (req, res) => {
   const {
     courseName,
@@ -461,6 +403,14 @@ app.post("/createcourse", async (req, res) => {
   }
 });
 
+/*
+ POST /addstudents
+ Adds students to an existing course.
+ Input: studentsToAdd, courseId.
+ Process: Adds each student to the course, handling both new and existing students.
+ Response: JSON with a message indicating the number of students added or updated.
+*/
+
 app.post("/addstudents", async (req, res) => {
   const { studentsToAdd, courseId } = req.body;
 
@@ -548,6 +498,13 @@ app.post("/addstudents", async (req, res) => {
   }
 });
 
+/*
+ GET /selectactivecourse
+ Fetches all active courses for a teacher.
+ Input: userId from request headers.
+ Response: JSON with active courses data.
+*/
+
 app.get("/selectactivecourse", async (req, res) => {
   try {
     const userId = req.headers.userid;
@@ -563,6 +520,13 @@ app.get("/selectactivecourse", async (req, res) => {
       .json({ error: "An error occurred while fetching active courses" });
   }
 });
+
+/*
+GET /allcourses
+ Retrieves both active and inactive courses for a teacher.
+ Input: userId from request headers.
+ Response: JSON with active and inactive courses data.
+*/
 
 app.get("/allcourses", async (req, res) => {
   try {
@@ -589,6 +553,12 @@ app.get("/allcourses", async (req, res) => {
   }
 });
 
+/*
+ GET /users
+ Retrieves all user data from the UserDatabaseModel.
+ Response: JSON with user data.
+*/
+
 app.get("/users", async (req, res) => {
   try {
     const users = await UserDatabaseModel.find({});
@@ -599,7 +569,13 @@ app.get("/users", async (req, res) => {
   }
 });
 
-//course delete/students
+/*
+ DELETE /courses/:id
+ Deletes a specific course and all associated students.
+ Input: courseId from URL parameters.
+ Response: Confirmation message on successful deletion.
+*/
+
 app.delete("/courses/:id", async (req, res) => {
   const courseId = req.params.id;
 
@@ -642,6 +618,13 @@ app.delete("/courses/:id", async (req, res) => {
   }
 });
 
+/*
+ POST /createsession
+ Creates a new attendance session for a course.
+ Input: courseId, topic, date, timeOfDay.
+ Response: JSON with the new session's ID.
+*/
+
 app.post("/createsession", async (req, res) => {
   const { courseId, topic, date, timeOfDay } = req.body;
 
@@ -665,6 +648,14 @@ app.post("/createsession", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+/*
+ POST /unregister
+ Unregisters a student from a session.
+ Input: studentNumber, sessionId.
+ Process: Removes the student's attendance record for the session.
+ Response: Confirmation message.
+*/
 
 app.post("/unregister", async (req, res) => {
   const { studentNumber, sessionId } = req.body;
@@ -712,6 +703,13 @@ app.post("/unregister", async (req, res) => {
   }
 });
 
+/*
+ DELETE /deletesession
+ Deletes a specific attendance session.
+ Input: sessionId from the request body.
+ Response: Confirmation message on successful deletion.
+ */
+
 app.delete("/deletesession", async (req, res) => {
   const { sessionId } = req.body;
 
@@ -736,6 +734,13 @@ app.delete("/deletesession", async (req, res) => {
   }
 });
 
+/*
+ POST /newsessionidentifier
+ Updates the QR code identifier for a session.
+ Input: sessionId, qrIdentifier.
+ Response: Success message on updating the session QR code identifier.
+*/
+
 app.post("/newsessionidentifier", async (req, res) => {
   console.log("New session identifier request received", req.body);
   const { sessionId, qrIdentifier } = req.body;
@@ -758,6 +763,13 @@ app.post("/newsessionidentifier", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+/*
+ POST /qrcoderegistration
+ Registers a student's attendance using QR code.
+ Input: studentNumber, qrCodeIdentifier.
+ Response: Success or error message based on registration status.
+ */
 
 app.post("/qrcoderegistration", async (req, res) => {
   console.log("qrcode registration received");
@@ -842,6 +854,13 @@ app.post("/qrcoderegistration", async (req, res) => {
   }
 });
 
+/*
+ POST /registration
+ Registers a student for an open session in their enrolled courses.
+ Input: studentNumber.
+ Response: Registration status message.
+*/
+
 app.post("/registration", async (req, res) => {
   const { studentNumber } = req.body;
 
@@ -913,6 +932,13 @@ app.post("/registration", async (req, res) => {
   }
 });
 
+/*
+ POST /closesession
+ Marks a session as closed and updates attendance records.
+ Input: sessionId.
+ Response: Success message on closing the session.
+*/
+
 app.post("/closesession", async (req, res) => {
   const { sessionId } = req.body;
 
@@ -966,6 +992,13 @@ app.post("/closesession", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+/*
+ GET /participations/:id
+ Retrieves participation data for a course.
+ Input: courseId from URL parameters.
+ Response: JSON with student participation data for the course.
+*/
 
 app.get("/participations/:id", async (req, res) => {
   console.log("Participation request received");
@@ -1040,6 +1073,13 @@ app.get("/participations/:id", async (req, res) => {
   }
 });
 
+/*
+ GET /participations/:studentNumber
+ Fetches participation data for a specific student.
+ Input: studentNumber from URL parameters.
+ Response: JSON with detailed participation data for the student.
+*/
+
 app.get("/participations/:studentNumber", async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
@@ -1107,6 +1147,13 @@ app.get("/participations/:studentNumber", async (req, res) => {
   }
 });
 
+/*
+ POST /addtopic
+ Adds a new topic to the TopicDatabaseModel.
+ Input: name of the topic.
+ Response: Success message and topicId on successful addition.
+*/
+
 app.post("/addtopic", async (req, res) => {
   try {
     const { name } = req.body;
@@ -1130,6 +1177,12 @@ app.post("/addtopic", async (req, res) => {
   }
 });
 
+/*
+ GET /topics
+ Fetches all topics from the TopicDatabaseModel.
+ Response: JSON with all topics.
+*/
+
 app.get("/topics", async (req, res) => {
   try {
     const topics = await TopicDatabaseModel.find(); // Fetch all topics from the database
@@ -1139,6 +1192,13 @@ app.get("/topics", async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching topics" });
   }
 });
+
+/*
+ DELETE /topics/:id
+ Deletes a specific topic based on its ID.
+ Input: topicId from URL parameters.
+ Response: Success message on topic deletion.
+*/
 
 app.delete("/topics/:id", async (req, res) => {
   try {
@@ -1155,6 +1215,13 @@ app.delete("/topics/:id", async (req, res) => {
       .json({ error: "An error occurred while deleting the topic" });
   }
 });
+
+/*
+ POST /addTeacherToCourse
+ Adds a teacher to a specific course.
+ Input: courseId, userId.
+ Response: Success message on adding a teacher to the course.
+*/
 
 app.post("/addTeacherToCourse", async (req, res) => {
   const { courseId, userId } = req.body;
@@ -1180,6 +1247,13 @@ app.post("/addTeacherToCourse", async (req, res) => {
     });
   }
 });
+
+/*
+ GET /coursestudentscount/:sessionId
+ Retrieves the count of students enrolled in a course based on a given session ID.
+ Input: sessionId from URL parameters.
+ Response: JSON with the count of students enrolled in the course.
+*/
 
 app.get("/coursestudentscount/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
@@ -1214,6 +1288,13 @@ app.get("/coursestudentscount/:sessionId", async (req, res) => {
   }
 });
 
+/*
+ POST /courses/:courseId/topics
+ Adds a topic to a specific course.
+ Input: courseId, topicName.
+ Response: Success or error message based on topic addition.
+*/
+
 app.post("/courses/:courseId/topics", async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
@@ -1241,6 +1322,13 @@ app.post("/courses/:courseId/topics", async (req, res) => {
     });
   }
 });
+
+/*
+ GET /enrolledstudents/:sessionId
+ Retrieves students enrolled in a specific session.
+ Input: sessionId.
+ Response: JSON with details of enrolled students.
+ */
 
 app.get("/enrolledstudents/:sessionId", async (req, res) => {
   console.log("Received a request for enrolled students");
@@ -1279,6 +1367,13 @@ app.get("/enrolledstudents/:sessionId", async (req, res) => {
   }
 });
 
+/*
+ DELETE /courses/:courseId/topics
+ Removes a topic from a specific course.
+ Input: courseId, topicName.
+ Response: Success or error message based on topic removal.
+*/
+
 app.delete("/courses/:courseId/topics", async (req, res) => {
   const courseId = req.params.courseId;
   const { topicName } = req.body;
@@ -1307,6 +1402,13 @@ app.delete("/courses/:courseId/topics", async (req, res) => {
     });
   }
 });
+
+/*
+ GET /download/attendance/pdf/:courseId
+ Generates and downloads a PDF attendance report for a course.
+ Input: courseId.
+ Response: PDF file with attendance report.
+*/
 
 app.get("/download/attendance/pdf/:courseId", async (req, res) => {
   const courseId = req.params.courseId;
@@ -1427,6 +1529,13 @@ app.get("/download/attendance/pdf/:courseId", async (req, res) => {
   }
 });
 
+/*
+ GET /download/attendance/excel/:courseId
+ Generates and downloads an Excel attendance report for a course.
+ Input: courseId.
+ Response: Excel file with attendance report.
+*/
+
 app.get("/download/attendance/excel/:courseId", async (req, res) => {
   const courseId = req.params.courseId;
 
@@ -1532,6 +1641,13 @@ app.get("/download/attendance/excel/:courseId", async (req, res) => {
   }
 });
 
+/*
+ POST /deactivatecourse
+ Deactivates a specific course.
+ Input: courseId.
+ Response: JSON with updated course data.
+*/
+
 app.post("/deactivatecourse", async (req, res) => {
   console.log("Deactivate course request received", req.body);
   try {
@@ -1555,6 +1671,13 @@ app.post("/deactivatecourse", async (req, res) => {
       .json({ error: "An error occurred while deactivating the course" });
   }
 });
+
+/*
+ GET /getcoursestudents/:sessionId
+ Fetches students of a course based on a session ID.
+ Input: sessionId.
+ Response: JSON with student details.
+*/
 
 app.get("/getcoursestudents/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
@@ -1593,6 +1716,13 @@ app.get("/getcoursestudents/:sessionId", async (req, res) => {
   }
 });
 
+/*
+ GET /getstudentsbycourse/:courseId
+ Retrieves students enrolled in a specific course.
+ Input: courseId.
+ Response: JSON with enrolled students' details.
+*/
+
 app.get("/getstudentsbycourse/:courseId", async (req, res) => {
   const { courseId } = req.params;
   try {
@@ -1610,6 +1740,13 @@ app.get("/getstudentsbycourse/:courseId", async (req, res) => {
     });
   }
 });
+
+/*
+ GET /studenttopics/:studentId/:courseId
+ Fetches topics for a student in a specific course.
+ Input: studentId, courseId.
+ Response: JSON with course topics and attending topics.
+*/
 
 app.get("/studenttopics/:studentId/:courseId", async (req, res) => {
   const { studentId, courseId } = req.params;
@@ -1648,6 +1785,13 @@ app.get("/studenttopics/:studentId/:courseId", async (req, res) => {
   }
 });
 
+/*
+ PUT /updatestudenttopics/:studentId/:courseId
+ Updates the topics a student is attending in a course.
+ Input: studentId, courseId, topicsAttending.
+ Response: Success message and updated student data.
+*/
+
 app.put("/updatestudenttopics/:studentId/:courseId", async (req, res) => {
   const { studentId, courseId } = req.params;
   const { topicsAttending } = req.body; // Expecting an array of topic names
@@ -1684,8 +1828,12 @@ app.put("/updatestudenttopics/:studentId/:courseId", async (req, res) => {
   }
 });
 
-//uudet endpointit
-
+/*
+ GET /coursestudents/:courseId
+ Retrieves all students in a specific course.
+ Input: courseId.
+ Response: JSON with details of students in the course.
+*/
 app.get("/coursestudents/:courseId", async (req, res) => {
   const courseId = req.params.courseId;
   try {
@@ -1706,6 +1854,13 @@ app.get("/coursestudents/:courseId", async (req, res) => {
   }
 });
 
+/*
+ GET /studentattendance/:studentId/:courseId
+ Fetches attendance records for a student in a course.
+ Input: studentId, courseId.
+ Response: JSON with attendance data.
+*/
+
 app.get("/studentattendance/:studentId/:courseId", async (req, res) => {
   console.log("studentId request received", req.params);
   const { studentId, courseId } = req.params;
@@ -1723,6 +1878,13 @@ app.get("/studentattendance/:studentId/:courseId", async (req, res) => {
       .json({ error: "An error occurred while fetching attendances" });
   }
 });
+
+/*
+ POST /updateattendancestatus
+ Updates the attendance status for a student in a session.
+ Input: attendanceId, newStatus.
+ Response: Success message on status update.
+*/
 
 app.post("/updateattendancestatus", async (req, res) => {
   const { attendanceId, newStatus } = req.body;
@@ -1761,7 +1923,13 @@ app.post("/updateattendancestatus", async (req, res) => {
   }
 });
 
-//topic things here
+/*
+ GET /studenttopics/:studentId/:courseId
+ Retrieves the topics a specific student is attending in a course.
+ Input: studentId, courseId from URL parameters.
+ Process: Finds the course and the student, then fetches the attending topics for that course.
+ Response: JSON with course topics and topics the student is attending.
+*/
 
 app.get("/studenttopics/:studentId/:courseId", async (req, res) => {
   const { studentId, courseId } = req.params;
@@ -1799,6 +1967,14 @@ app.get("/studenttopics/:studentId/:courseId", async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching topics" });
   }
 });
+
+/*
+ PUT /updatestudenttopics/:studentId/:courseId
+ Updates the topics a student is attending in a course.
+ Input: studentId, courseId from URL parameters; topicsAttending (array of topic names) in the request body.
+ Process: Finds the student's course enrollment and updates the topicsAttending.
+ Response: Success message and updated student data.
+*/
 
 app.put("/updatestudenttopics/:studentId/:courseId", async (req, res) => {
   const { studentId, courseId } = req.params;

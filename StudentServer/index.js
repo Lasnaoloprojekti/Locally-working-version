@@ -48,6 +48,14 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
+
+/*
+ POST /studentlogin
+ Handles student login, authenticating with an external API and creating a JWT.
+ Input: username, password, studentNumber.
+ Response: JSON with API data and redirect URL.
+*/
+
 app.post("/studentlogin", async (req, res) => {
   const { username, password, studentNumber } = req.body;
 
@@ -106,6 +114,13 @@ app.post("/studentlogin", async (req, res) => {
   }
 });
 
+/*
+ GET /studentverify
+ Verifies a JWT for a student.
+ Input: JWT in authorization header.
+ Response: JSON with student data if the token is valid.
+ */
+
 app.get("/studentverify", async (req, res) => {
   console.log("verify request received");
   const token = req.headers.authorization.split(" ")[1];
@@ -136,6 +151,13 @@ app.get("/studentverify", async (req, res) => {
     }
   });
 });
+
+/*
+ POST /qrcoderegistration
+ Registers student attendance via QR code.
+ Input: studentNumber, qrCodeIdentifier.
+ Response: Success or error message based on registration status.
+ */
 
 app.post("/qrcoderegistration", async (req, res) => {
   console.log("qrcode registration received");
@@ -220,6 +242,13 @@ app.post("/qrcoderegistration", async (req, res) => {
   }
 });
 
+/*
+ GET /participations/:studentNumber
+ Retrieves participation data for a specific student across courses.
+ Input: studentNumber.
+ Response: JSON with detailed participation data.
+*/
+
 app.get("/participations/:studentNumber", async (req, res) => {
   const studentNumber = req.params.studentNumber;
 
@@ -279,6 +308,13 @@ app.get("/participations/:studentNumber", async (req, res) => {
   }
 });
 
+/*
+ DELETE /deleteStudent/:studentNumber
+ Deletes a student and their associated data.
+ Input: studentNumber.
+ Response: Confirmation message upon successful deletion.
+*/
+
 app.delete("/deleteStudent/:studentNumber", async (req, res) => {
   const { studentNumber } = req.params;
 
@@ -309,7 +345,12 @@ app.delete("/deleteStudent/:studentNumber", async (req, res) => {
   }
 });
 
-//gdpr jutut
+/*
+ GET /student/gdprConsent/:studentNumber
+ Checks if a student has given GDPR consent.
+ Input: studentNumber.
+ Response: JSON indicating GDPR consent status.
+*/
 
 app.get("/student/gdprConsent/:studentNumber", async (req, res) => {
   try {
@@ -324,6 +365,13 @@ app.get("/student/gdprConsent/:studentNumber", async (req, res) => {
   }
 });
 
+/*
+ PUT /student/updateConsent/:studentNumber
+ Updates a student's GDPR consent status to true.
+ Input: studentNumber.
+ Response: Confirmation message upon successful update.
+*/
+
 app.put("/student/updateConsent/:studentNumber", async (req, res) => {
   console.log("gdpr consent update request received");
   try {
@@ -337,6 +385,13 @@ app.put("/student/updateConsent/:studentNumber", async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+/*
+ DELETE /student/delete/:studentNumber
+ Deletes a student and removes them from enrolled courses.
+ Input: studentNumber.
+ Response: Confirmation message upon successful deletion.
+*/
 
 app.delete("/student/delete/:studentNumber", async (req, res) => {
   try {
