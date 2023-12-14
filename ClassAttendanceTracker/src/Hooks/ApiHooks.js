@@ -298,7 +298,7 @@ const deactiveCourse = async (courseId) => {
 
 const searchRealization = async (codes) => {
   const body = JSON.stringify({ codes });
-  const url = "/r1/realization/search";
+  const url = "https://opendata.metropolia.fi/r1/realization/search";
   const apiKey = import.meta.env.VITE_API_KEY;
 
   const authString = btoa(apiKey + ":");
