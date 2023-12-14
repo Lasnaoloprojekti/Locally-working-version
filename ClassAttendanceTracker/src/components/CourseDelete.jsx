@@ -106,7 +106,4 @@ const CourseDelete = () => {
   );
 };
 
-// Author: Adam Ahmethanov
-// Date: November 9, 2023
-
 export default CourseDelete;
