@@ -276,7 +276,7 @@ const CreateCourse = () => {
           console.error("Error in realization search:", error);
         }
       } else {
-        //console.log("No text found in parentheses.");
+        console.log("No text found in parentheses.");
       }
     };
 
