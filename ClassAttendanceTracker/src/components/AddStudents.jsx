@@ -1,3 +1,12 @@
+/*
+State management for course selection, student data, file handling, and alert messages.
+An effect hook to load active courses when the component mounts.
+Event handlers for form inputs and submission.
+Validation logic for manual student data entry.
+Functionality to add students either through manual data input or by uploading a file.
+A form UI with course selection, text input for student data, file input for uploading, and a submit button.
+Conditional rendering for alerts based on the success or error of the operations.
+*/
 import React, { useState, useEffect } from "react";
 import {
   selectActiveCourse,
