@@ -99,7 +99,7 @@ const OpenattendanceCollect = () => {
     try {
       //console.log("Checking student count for course:", selectedCourse);
       const response = await axios.get(
-        `https://teach.northeurope.cloudapp.azure.com/api/getstudents/${selectedCourse}`
+        `http://localhost:3001/getstudents/${selectedCourse}`
       );
       const { studentCount } = response.data;
       //console.log("Student count:", studentCount);

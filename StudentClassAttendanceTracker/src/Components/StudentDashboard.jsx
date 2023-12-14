@@ -22,7 +22,7 @@ export const StudentDashboard = () => {
     const checkStudentAndConsent = async () => {
       try {
         const response = await axios.get(
-          `https://student.northeurope.cloudapp.azure.com/api/student/gdprConsent/${studentNumber}`
+          `http://localhost:3002/student/gdprConsent/${studentNumber}`
         );
         if (!response.data.exists || !response.data.gdprConsent) {
           setShowGdprModal(true);
@@ -40,7 +40,7 @@ export const StudentDashboard = () => {
 
   const handleAgree = async () => {
     const response = await axios.put(
-      `https://student.northeurope.cloudapp.azure.com/api/student/updateConsent/${studentNumber}`
+      `http://localhost:3002/student/updateConsent/${studentNumber}`
     );
     //console.log("Student consent updated", response.data);
     setShowGdprModal(false);
@@ -49,7 +49,7 @@ export const StudentDashboard = () => {
   const handleDecline = async () => {
     try {
       const response = await axios.delete(
-        `https://student.northeurope.cloudapp.azure.com/api/student/delete/${studentNumber}`
+        `http://localhost:3002/student/delete/${studentNumber}`
       );
       setShowDeclineMessage(
         "Your data has now been deleted from our database and courses, you are now redirected back to the login page."
@@ -123,7 +123,7 @@ export const StudentDashboard = () => {
         const qrCodeText = data.text;
         //console.log("teksti qr koodista ", qrCodeText);
         const response = await fetch(
-          "https://student.northeurope.cloudapp.azure.com/api/qrcoderegistration",
+          "http://localhost:3002/qrcoderegistration",
           {
             method: "POST",
             headers: {
@@ -161,7 +161,7 @@ export const StudentDashboard = () => {
   const fetchParticipationData = async () => {
     try {
       const response = await fetch(
-        `https://student.northeurope.cloudapp.azure.com/api/participations/${studentNumber}`
+        `http://localhost:3002/participations/${studentNumber}`
       );
       const data = await response.json();
       //console.log("participation data fetched", data);
@@ -260,11 +260,10 @@ export const StudentDashboard = () => {
           />
         )}
         <p
-          className={`mt-6 text-center text-xl ${
-            registerMessage.includes("registered")
-              ? "text-green-600"
-              : "text-red-600"
-          }`}>
+          className={`mt-6 text-center text-xl ${registerMessage.includes("registered")
+            ? "text-green-600"
+            : "text-red-600"
+            }`}>
           {registerMessage}
         </p>
         {showSuccessGif && registerMessage.includes("registered") && (

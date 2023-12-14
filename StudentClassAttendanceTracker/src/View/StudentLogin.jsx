@@ -15,7 +15,6 @@ const Login = () => {
       studentInfo.lastname !== ""
     ) {
       navigate(studentInfo.staff ? "/teacherhome" : "/studenthome");
-      // navigate("/teacherhome");
     }
   }, [studentInfo, navigate]);
 

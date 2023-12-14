@@ -25,7 +25,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https:teacher.northeurope.cloudapp.azure.com",
+    origin: "http://localhost:5174",
     methods: ["GET", "POST", "PUT"],
   },
 });
@@ -35,7 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https:teacher.northeurope.cloudapp.azure.com",
+    origin: "http://localhost:5174",
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
@@ -1979,7 +1979,6 @@ app.get("/studenttopics/:studentId/:courseId", async (req, res) => {
 app.put("/updatestudenttopics/:studentId/:courseId", async (req, res) => {
   const { studentId, courseId } = req.params;
   const { topicsAttending } = req.body; // Expecting an array of topic names
-  console.log("PYYNTT");
 
   try {
     // Find the student and the specific course enrollment

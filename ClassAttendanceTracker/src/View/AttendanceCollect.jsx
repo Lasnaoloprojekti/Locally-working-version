@@ -7,8 +7,7 @@ import io from "socket.io-client";
 import { deleteSession } from "../Hooks/ApiHooks";
 import { v4 as uuid } from "uuid";
 
-const socket = io("https://student.northeurope.cloudapp.azure.com", {
-  path: "/api/socket.io",
+const socket = io("http://localhost:3002", {
 });
 
 export const WaitingPage = () => {
@@ -43,7 +42,7 @@ export const WaitingPage = () => {
     setQrCodeIdentifier(newQrCodeIdentifier);
 
     fetch(
-      "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
+      "http://localhost:3001/newsessionidentifier",
       {
         method: "POST",
         headers: {
@@ -75,7 +74,7 @@ export const WaitingPage = () => {
 
       // Send the new QR code identifier to the backend
       fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
+        "http://localhost:3001/newsessionidentifier",
         {
           method: "POST",
           headers: {
@@ -117,7 +116,7 @@ export const WaitingPage = () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `https://teach.northeurope.cloudapp.azure.com/api/coursestudentscount/${sessionId}`
+          `http://localhost:3001/coursestudentscount/${sessionId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -156,7 +155,7 @@ export const WaitingPage = () => {
     async function fetchEnrolledStudents() {
       try {
         const response = await fetch(
-          `https://teach.northeurope.cloudapp.azure.com/api/enrolledstudents/${sessionId}`
+          `http://localhost:3001/enrolledstudents/${sessionId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -183,7 +182,7 @@ export const WaitingPage = () => {
     if (confirmClose) {
       try {
         const response = await fetch(
-          "https://teach.northeurope.cloudapp.azure.com/api/closesession",
+          "http://localhost:3001/closesession",
           {
             method: "POST",
             headers: {

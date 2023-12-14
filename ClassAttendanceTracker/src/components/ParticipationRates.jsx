@@ -60,7 +60,7 @@ export const ParticipationRates = () => {
 
     try {
       const response = await fetch(
-        `https://teach.northeurope.cloudapp.azure.com/api/download/attendance/pdf/${selectedCourse}`,
+        `http://localhost:3001/download/attendance/pdf/${selectedCourse}`,
         {
           method: "GET",
         }
@@ -92,7 +92,7 @@ export const ParticipationRates = () => {
 
     try {
       const response = await fetch(
-        `https://teach.northeurope.cloudapp.azure.com/api/download/attendance/excel/${selectedCourse}`,
+        `http://localhost:3001/download/attendance/excel/${selectedCourse}`,
         {
           method: "GET",
         }

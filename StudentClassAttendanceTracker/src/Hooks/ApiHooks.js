@@ -3,25 +3,12 @@ import axios from "axios";
 const fetchParticipationRates = async (courseId) => {
   try {
     const response = await axios.get(
-      `https://student.northeurope.cloudapp.azure.com/api/participations/${courseId}`,
+      `http://localhost:3002/participations/${courseId}`,
       {
         withCredentials: true,
       }
     );
     return response;
-  } catch (error) {
-    throw error;
-  }
-};
-
-const submitGdprConsent = async (studentNumber, gdprConsent, userId) => {
-  try {
-    const response = await axios.post(
-      `https://student.northeurope.cloudapp.azure.com/api/students/updategdpr`,
-      { studentNumber, gdprConsent, userId },
-      { withCredentials: true }
-    );
-    return response.data;
   } catch (error) {
     throw error;
   }

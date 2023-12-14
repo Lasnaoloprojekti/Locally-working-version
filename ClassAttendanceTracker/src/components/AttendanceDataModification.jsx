@@ -26,7 +26,7 @@ const AttendanceDataModification = () => {
 
     try {
       const response = await axios.post(
-        `https://teach.northeurope.cloudapp.azure.com/api/updateattendancestatus`,
+        `http://localhost:3001/updateattendancestatus`,
         {
           attendanceId: attendanceId,
           newStatus: newStatus,
@@ -48,7 +48,7 @@ const AttendanceDataModification = () => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          "https://teach.northeurope.cloudapp.azure.com/api/selectactivecourse",
+          "http://localhost:3001/selectactivecourse",
           { headers: { userid: userId } }
         );
         //console.log("Courses fetched:", response);
@@ -68,7 +68,7 @@ const AttendanceDataModification = () => {
 
     try {
       const response = await axios.get(
-        `https://teach.northeurope.cloudapp.azure.com/api/coursestudents/${courseId}`
+        `http://localhost:3001/coursestudents/${courseId}`
       );
       //console.log("Students fetched:", response.data); // Debugging line
       setStudents(response.data.students); // Assuming the response has a students field
@@ -86,7 +86,7 @@ const AttendanceDataModification = () => {
 
     try {
       const response = await axios.get(
-        `https://teach.northeurope.cloudapp.azure.com/api/studentattendance/${studentId}/${selectedCourse}`
+        `http://localhost:3001/studentattendance/${studentId}/${selectedCourse}`
       );
       // Filter attendances to include only those that belong to the selected course
       const filteredAttendances = response.data.attendances.filter(

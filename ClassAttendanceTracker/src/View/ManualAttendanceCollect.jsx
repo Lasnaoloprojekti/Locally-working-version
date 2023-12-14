@@ -41,7 +41,7 @@ export const ManualAttendanceCollect = () => {
     // Fetch all students from the server when the component mounts
     const fetchStudents = async () => {
       const response = await fetch(
-        `https://teach.northeurope.cloudapp.azure.com/api/getcoursestudents/${sessionId}`
+        `http://localhost:3001/getcoursestudents/${sessionId}`
       ); // Replace with your actual API endpoint
       if (response.ok) {
         const { students } = await response.json();
@@ -92,7 +92,7 @@ export const ManualAttendanceCollect = () => {
   const handleStudentClick = async (student) => {
     try {
       const response = await fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/registration",
+        "http://localhost:3001/registration",
         {
           method: "POST",
           headers: {
@@ -122,7 +122,7 @@ export const ManualAttendanceCollect = () => {
   const handleUnregisterStudent = async (student) => {
     try {
       const response = await fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/unregister",
+        "http://localhost:3001/unregister",
         {
           method: "POST",
           headers: {
@@ -175,7 +175,7 @@ export const ManualAttendanceCollect = () => {
 
     try {
       const response = await fetch(
-        "https://teach.northeurope.cloudapp.azure.com/api/closesession",
+        "http://localhost:3001/closesession",
         {
           method: "POST",
           headers: {
@@ -301,11 +301,10 @@ export const ManualAttendanceCollect = () => {
           <button
             disabled={showModal}
             onClick={handleCloseSession}
-            className={`text-white text-xl flex items-center rounded-lg py-2 mb-5 px-6 font-roboto-slab absolute bottom-0 left-1/2 transform -translate-x-1/2 ${
-              showModal
-                ? " hidden cursor-not-allowed"
-                : "bg-blue-800 hover:bg-blue-900"
-            }`}>
+            className={`text-white text-xl flex items-center rounded-lg py-2 mb-5 px-6 font-roboto-slab absolute bottom-0 left-1/2 transform -translate-x-1/2 ${showModal
+              ? " hidden cursor-not-allowed"
+              : "bg-blue-800 hover:bg-blue-900"
+              }`}>
             Stop collecting attendances
           </button>
         </section>

@@ -3,7 +3,7 @@ import axios from "axios";
 const createCourse = async (courseData) => {
   try {
     const response = await axios.post(
-      "https://teach.northeurope.cloudapp.azure.com/api/createcourse",
+      "http://localhost:3001/createcourse",
       courseData,
       { withCredentials: true }
     );
@@ -17,7 +17,7 @@ const useDeleteCourse = () => {
   const deleteCourse = async (courseId) => {
     try {
       const response = await axios.delete(
-        `https://teach.northeurope.cloudapp.azure.com/api/courses/${courseId}`,
+        `http://localhost:3001/courses/${courseId}`,
         {
           withCredentials: true,
         }
@@ -34,7 +34,7 @@ const useDeleteCourse = () => {
 const selectActiveCourse = async (userId) => {
   try {
     const response = await axios.get(
-      "https://teach.northeurope.cloudapp.azure.com/api/selectactivecourse",
+      "http://localhost:3001/selectactivecourse",
       {
         headers: {
           userId: userId,
@@ -52,7 +52,7 @@ const selectActiveCourse = async (userId) => {
 const allCourses = async (userId) => {
   try {
     const response = await axios.get(
-      `https://teach.northeurope.cloudapp.azure.com/api/allcourses`,
+      `http://localhost:3001/allcourses`,
       {
         headers: {
           userId: userId,
@@ -69,7 +69,7 @@ const allCourses = async (userId) => {
 const createSession = async (sessionData) => {
   try {
     const response = await axios.post(
-      "https://teach.northeurope.cloudapp.azure.com/api/createsession",
+      "http://localhost:3001/createsession",
       sessionData,
       { withCredentials: true }
     );
@@ -82,7 +82,7 @@ const createSession = async (sessionData) => {
 const deleteSession = async (sessionId, onSuccess, onError) => {
   try {
     const response = await fetch(
-      "https://teach.northeurope.cloudapp.azure.com/api/deletesession",
+      "http://localhost:3001/deletesession",
       {
         method: "DELETE",
         headers: {
@@ -108,7 +108,7 @@ const deleteSession = async (sessionId, onSuccess, onError) => {
 const fetchParticipationRates = async (courseId) => {
   try {
     const response = await axios.get(
-      `https://teach.northeurope.cloudapp.azure.com/api/participations/${courseId}`,
+      `http://localhost:3001/participations/${courseId}`,
       {
         withCredentials: true,
       }
@@ -122,7 +122,7 @@ const fetchParticipationRates = async (courseId) => {
 const createTopic = async (topicData) => {
   try {
     const response = await axios.post(
-      "https://teach.northeurope.cloudapp.azure.com/api/addtopic",
+      "http://localhost:3001/addtopic",
       topicData,
       { withCredentials: true }
     );
@@ -135,7 +135,7 @@ const createTopic = async (topicData) => {
 const getTopics = async () => {
   try {
     const response = await axios.get(
-      "https://teach.northeurope.cloudapp.azure.com/api/topics",
+      "http://localhost:3001/topics",
       {
         withCredentials: true,
       }
@@ -149,7 +149,7 @@ const getTopics = async () => {
 const deleteTopic = async (topicId) => {
   try {
     const response = await axios.delete(
-      `https://teach.northeurope.cloudapp.azure.com/api/topics/${topicId}`,
+      `http://localhost:3001/topics/${topicId}`,
       {
         withCredentials: true,
       }
@@ -164,7 +164,7 @@ const useAddStudentsToCourse = () => {
   const addStudents = async (courseId, studentsData) => {
     try {
       const response = await axios.post(
-        "https://teach.northeurope.cloudapp.azure.com/api/addstudents",
+        "http://localhost:3001/addstudents",
         {
           courseId,
           studentsToAdd: studentsData,
@@ -183,7 +183,7 @@ const useAddStudentsToCourse = () => {
 const getUsers = async () => {
   try {
     const response = await axios.get(
-      "https://teach.northeurope.cloudapp.azure.com/api/users",
+      "http://localhost:3001/users",
       {
         withCredentials: true,
       }
@@ -197,7 +197,7 @@ const getUsers = async () => {
 const addTeacherToCourse = async (courseId, userId) => {
   try {
     const response = await axios.post(
-      "https://teach.northeurope.cloudapp.azure.com/api/addTeacherToCourse",
+      "http://localhost:3001/addTeacherToCourse",
       {
         courseId,
         userId,
@@ -219,7 +219,7 @@ const uploadStudentsFile = async (courseId, file) => {
 
   try {
     const response = await axios.post(
-      "https://teach.northeurope.cloudapp.azure.com/api/uploadstudents",
+      "http://localhost:3001/uploadstudents",
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -244,7 +244,7 @@ const uploadStudentsFile = async (courseId, file) => {
 const addTopicToCourse = async (courseId, topicName) => {
   try {
     const response = await axios.post(
-      `https://teach.northeurope.cloudapp.azure.com/api/courses/${courseId}/topics`,
+      `http://localhost:3001/courses/${courseId}/topics`,
       { topicName },
       { withCredentials: true }
     );
@@ -258,7 +258,7 @@ const addTopicToCourse = async (courseId, topicName) => {
 const deleteTopicFromCourse = async (courseId, topicName) => {
   try {
     const response = await axios.delete(
-      `https://teach.northeurope.cloudapp.azure.com/api/courses/${courseId}/topics`,
+      `http://localhost:3001/courses/${courseId}/topics`,
       { data: { topicName } }, // Axios DELETE with body
       { withCredentials: true }
     );
@@ -271,7 +271,7 @@ const deleteTopicFromCourse = async (courseId, topicName) => {
 const submitGdprConsent = async (studentNumber, gdprConsent, userId) => {
   try {
     const response = await axios.post(
-      "https://teach.northeurope.cloudapp.azure.com/api/students/updategdpr",
+      "http://localhost:3001/students/updategdpr",
       { studentNumber, gdprConsent, userId },
       { withCredentials: true }
     );
@@ -284,7 +284,7 @@ const submitGdprConsent = async (studentNumber, gdprConsent, userId) => {
 const deactiveCourse = async (courseId) => {
   try {
     const response = await axios.post(
-      "https://teach.northeurope.cloudapp.azure.com/api/deactivatecourse",
+      "http://localhost:3001/deactivatecourse",
       { courseId },
       { withCredentials: true }
     );

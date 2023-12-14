@@ -18,9 +18,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.T_CORS_ORIGIN,
-    path: "/api/socket.io",
-
+    origin: ["http://localhost:5174"],
     methods: ["GET", "POST"],
   },
 });
@@ -30,10 +28,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: process.env.S_CORS_ORIGIN,
-    path: "/api/socket.io",
-
-    methods: ["GET", "POST", "DELETE"],
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
 );

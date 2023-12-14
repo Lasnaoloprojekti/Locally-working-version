@@ -30,7 +30,7 @@ const LoginForm = () => {
     try {
       //console.log("Sending login request...");
       const response = await axios.post(
-        "https://teach.northeurope.cloudapp.azure.com/api/login",
+        "http://localhost:3001/login",
         {
           username,
           password,
