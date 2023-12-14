@@ -1,13 +1,22 @@
+/* State for managing courses, selected course, and students.
+Retrieves the current user ID from local storage.
+Uses an effect hook to fetch courses on component mount.
+Contains a function to handle course selection, which triggers fetching of students for the selected course.
+Renders a UI with a dropdown for course selection and displays a list of students for the selected course.*/
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+  // State to store course and student data
 const ShowStudents = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [students, setStudents] = useState([]);
   const userId = localStorage.getItem("userid");
 
+    // Fetch courses on component mount
   useEffect(() => {
+      // Function to fetch courses. Axios call to get courses, set state, and error handling
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
@@ -22,7 +31,8 @@ const ShowStudents = () => {
 
     fetchCourses();
   }, []);
-
+  
+    // Fetch students based on selected course and set state
   const handleCourseChange = async (event) => {
     setSelectedCourse(event.target.value);
     const courseId = event.target.value;
