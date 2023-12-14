@@ -25,7 +25,6 @@
 #         run: |
 #           cd StudentClassAttendanceTracker
 #           npm run build
-#           # Other build steps if necessary
 #       - name: List output of build
 #         run: ls -l StudentClassAttendanceTracker
 
@@ -42,10 +41,10 @@
 #       - name: Deploy to Server
 #         uses: easingthemes/ssh-deploy@v2.1.5
 #         with:
-#           S_SSH_PRIVATE_KEY: ${{ secrets.S_SSH_PRIVATE_KEY }} # Replace with the name of your secret
-#           SOURCE: "StudentClassAttendanceTracker/dist/" # Correct path to the build outputs
-#           REMOTE_HOST: ${{ secrets.REMOTE_HOST }} # Replace with the name of your secret
-#           S_REMOTE_USER: ${{ secrets.S_REMOTE_USER }} # Replace with the name of your secret
+#           S_SSH_PRIVATE_KEY: ${{ secrets.S_SSH_PRIVATE_KEY }}
+#           SOURCE: "StudentClassAttendanceTracker/dist/"
+#           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+#           S_REMOTE_USER: ${{ secrets.S_REMOTE_USER }}
 #           TARGET: "/var/www/html/"
 
 #       - name: Start Application with PM2
