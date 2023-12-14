@@ -3,6 +3,7 @@ import { selectActiveCourse, useDeleteCourse } from "../Hooks/ApiHooks";
 
 const userId = localStorage.getItem("userid");
 
+  // State management for courses, selected course, and alert messages.
 const CourseDelete = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -11,8 +12,10 @@ const CourseDelete = () => {
     message: "",
     isError: false,
   });
+    // Custom hook for deleting a course.
   const deleteCourse = useDeleteCourse();
 
+    // Fetch courses on component mount.
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -35,8 +38,10 @@ const CourseDelete = () => {
     setSelectedCourse(event.target.value);
   };
 
+    // Handler for deleting a course.
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
+    // Confirmation dialog and deletion logic.
 
     try {
       const response = await deleteCourse(selectedCourse);
