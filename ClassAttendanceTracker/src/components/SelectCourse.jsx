@@ -1,3 +1,12 @@
+/*
+Manages state for courses, selected course, topics, and selected topic.
+Fetches courses upon component mount and updates topics when a course is selected.
+Uses useEffect to ensure valid selections for courses and topics.
+Renders a form with dropdowns for course and topic selection.
+Includes a submission handler, which currently logs the selected course and topic values and can be expanded to submit these values to a backend or another handler.
+Utilizes React hooks for state and effect management.
+*/
+
 import { useState, useEffect } from "react";
 import { selectActiveCourse } from "../Hooks/ApiHooks";
 
