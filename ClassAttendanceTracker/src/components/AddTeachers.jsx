@@ -1,4 +1,10 @@
-// AddTeacherToCourse.jsx
+/* 
+State for managing users, selected user, courses, selected course, success message, and error message.
+Fetches users and active courses on component mount.
+Normalizes user data for consistent property names.
+Handles form submission to add a teacher to a selected course.
+Provides feedback with success or error messages based on the operation's result.
+Renders a UI with dropdowns for selecting a user and a course, and a button to submit the form.*/
 
 import React, { useState, useEffect } from "react";
 import {
