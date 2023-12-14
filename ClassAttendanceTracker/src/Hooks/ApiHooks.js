@@ -298,10 +298,8 @@ const deactiveCourse = async (courseId) => {
 
 const searchRealization = async (codes) => {
   const body = JSON.stringify({ codes });
-  const prodApiUrl = "https://opendata.metropolia.fi"; // Replace with your production API URL
-  const url = import.meta.env.PROD
-    ? prodApiUrl + "/r1/realization/search"
-    : "/r1/realization/search";
+  const baseUrl = "https://opendata.metropolia.fi/r1"; // Directly using the API's base URL
+  const url = baseUrl + "/realization/search";
   const apiKey = import.meta.env.VITE_API_KEY;
 
   const authString = btoa(apiKey + ":");
