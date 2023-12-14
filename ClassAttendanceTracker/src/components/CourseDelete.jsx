@@ -1,3 +1,11 @@
+/* 
+Retrieves the current user's ID from local storage.
+Manages state for courses, the selected course, and alert messages.
+Uses a custom hook for deleting courses.
+Fetches courses when the component mounts.
+Handles course selection and deletion, including a confirmation dialog.
+Renders a user interface for deleting a course, with alerts for success or error messages.
+*/
 import React, { useState, useEffect } from "react";
 import { selectActiveCourse, useDeleteCourse } from "../Hooks/ApiHooks";
 
