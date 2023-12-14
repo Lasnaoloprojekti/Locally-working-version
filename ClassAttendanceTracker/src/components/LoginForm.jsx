@@ -1,3 +1,11 @@
+/*Utilizes useState for managing username, password, and login error states.
+Incorporates useContext to access and set user information within userContext.
+Employs useNavigate from React Router for navigation post-login.
+Executes login logic in the handleSubmit function, sending credentials via axios to an API endpoint and handling responses.
+Stores user data in localStorage upon successful login and navigates to a designated URL.
+Renders a form with input fields for username and password, and displays login error messages if any.
+Styling is applied using classes compatible with a Tailwind CSS setup.*/
+
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/metropolia_s_orange.png";
