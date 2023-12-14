@@ -1,4 +1,14 @@
-//Course creating through excel with student adding through excel
+/*
+Manages state for course details, topics, teachers, student data, and alerts.
+Fetches available topics and teachers on component mount.
+Handles course creation with additional features for adding topics and teachers.
+Supports student data input through a form and file upload (Excel).
+Processes Excel file to extract course and student data.
+Utilizes form submission for course creation with validation and confirmation.
+Provides feedback to the user through alert messages.
+Renders a UI with input fields for course details, topics, teachers, and students, along with a file upload option and a submit button.
+*/
+
 import React, { useState, useEffect } from "react";
 import {
   createCourse,
