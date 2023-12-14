@@ -20,10 +20,12 @@ const AddTopics = () => {
     isError: false,
   });
 
+    // Fetch topics and courses on component mount
   useEffect(() => {
     fetchTopicsAndCourses();
   }, []);
 
+  // Try-catch block for fetching topics and courses
   const fetchTopicsAndCourses = async () => {
     try {
       const fetchedTopics = await getTopics();
@@ -42,6 +44,7 @@ const AddTopics = () => {
     }
   };
 
+    // Handlers for form inputs
   const handleNewTopicChange = (e) => {
     setNewTopicName(e.target.value);
   };
@@ -54,6 +57,7 @@ const AddTopics = () => {
     setSelectedCourse(e.target.value);
   };
 
+      // Validation and API call to add topic to a course
   const handleAddTopicToCourse = async () => {
     if (!selectedCourse || !selectedTopic) {
       setAlert({
@@ -90,6 +94,7 @@ const AddTopics = () => {
     }
   };
 
+    // Delete a topic from a course
   const handleDeleteTopicFromCourse = async () => {
     if (!selectedCourse || !selectedTopic) {
       setAlert({
@@ -134,6 +139,7 @@ const AddTopics = () => {
     }
   };
 
+    // Submit handler for creating a new topic
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!newTopicName) {
@@ -162,6 +168,7 @@ const AddTopics = () => {
       });
     }
   };
+  // Delete a topic
 
   const handleDeleteTopic = async () => {
     if (!selectedTopic) {
@@ -191,6 +198,7 @@ const AddTopics = () => {
     }
   };
 
+      // JSX for the Topic Management form and display
   return (
     <div className="min-h-screen w-full items-center flex flex-col px-6">
       <div className="max-w-4xl w-full">
