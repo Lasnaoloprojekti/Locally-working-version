@@ -42,16 +42,19 @@ export const WaitingPage = () => {
     const newQrCodeIdentifier = uuid();
     setQrCodeIdentifier(newQrCodeIdentifier);
 
-    fetch("https://teach.northeurope.cloudapp.azure.com/newsessionidentifier", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sessionId: sessionId,
-        qrIdentifier: newQrCodeIdentifier,
-      }),
-    })
+    fetch(
+      "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId: sessionId,
+          qrIdentifier: newQrCodeIdentifier,
+        }),
+      }
+    )
       .then((response) => {
         if (response.ok) {
           //console.log("QR code identifier updated successfully");
@@ -72,7 +75,7 @@ export const WaitingPage = () => {
 
       // Send the new QR code identifier to the backend
       fetch(
-        "https://teach.northeurope.cloudapp.azure.com/newsessionidentifier",
+        "https://teach.northeurope.cloudapp.azure.com/api/newsessionidentifier",
         {
           method: "POST",
           headers: {
